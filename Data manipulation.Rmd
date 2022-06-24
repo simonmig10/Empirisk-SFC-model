@@ -1,0 +1,369 @@
+---
+title: "Data man"
+author: "Simon"
+date: "24/6/2022"
+output: html_document
+---
+
+# Packages
+
+```{r}
+library(tstools)
+```
+
+
+# Import data
+
+```{r}
+AAMK <- read_excel("C:/Users/Simon ik mig/Desktop/9. Semester/Empirisk sfc i r/AAMK.xlsx")
+
+names(AAMK) <- tolower(names(AAMK))
+
+AAMK=lapply(AAMK, function(t) ts(t, start=c(2005, 2), end=c(2020, 1),frequency=4))
+attach(AAMK)
+```
+
+
+
+```{r}
+eq_nf_l_nf = res_eq_nf_l
+eq_f_l_f = res_eq_f_l
+```
+
+
+# PARAMETERS
+
+## Create dummies
+
+
+```{r}
+d_2006q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2006,1), dummy_end = c(2006,1),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2006q2=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2006,2), dummy_end = c(2006,2),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2006q3=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2006,3), dummy_end = c(2006,3),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2006q4=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2006,4), dummy_end = c(2006,4),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2007q34=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2007,3), dummy_end = c(2007,4),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2008q2=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2008,2), dummy_end = c(2008,2),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2008q3=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2008,3), dummy_end = c(2008,3),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2008q4=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2008,4), dummy_end = c(2008,4),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2009q4=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2009,4), dummy_end = c(2009,4),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2018q2=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2018,2), dummy_end = c(2018,2),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+##### Er der noget specielt med dem her?????
+
+d_20123=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2012,3), dummy_end = c(2012,3),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_20124=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2012,4), dummy_end = c(2012,4),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+#### Videre igen 
+
+d_2009q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2009,1), dummy_end = c(2009,1),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2011q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2011,1), dummy_end = c(2011,1),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2014q3=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2014,3), dummy_end = c(2014,3),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2014q4=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2014,4), dummy_end = c(2014,4),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2013q4=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2013,4), dummy_end = c(2013,4),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2018q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2018,1), dummy_end = c(2018,1),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2016q3=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2016,3), dummy_end = c(2016,3),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2019q3=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2019,3), dummy_end = c(2019,3),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2019q4=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2019,4), dummy_end = c(2019,4),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+d_2020q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2020,1), dummy_end = c(2020,1),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+```
+
+
+# Variables 
+
+## Real Variables 
+
+```{r}
+pc = pc/100
+px = px/100
+pi = pi/100
+pg= pg/100
+pm = pm/100
+py = py/100
+pf = pc*xr/rer
+rer = pc*xr/pf
+pconk = pcon/pc
+gk = g/pg
+xk = x/px
+mk = m/pm
+```
+
+
+
+```{r}
+
+i_adj_h = i_h -  (i_equip_h + i_bd_h)
+i_adj_nfc = i_nf - (i_equip_nfc + i_bd_nfc)
+i_adj_fc = i_f - (i_equip_fc + i_bd_fc)
+i_adj_g = i_g - (i_equip_g +i_bd_g)
+```
+
+```{r}
+i_equip_h_k = i_equip_h/p_equip
+i_equip_nfc_k =  i_equip_nfc/p_equip
+i_equip_g_k = i_equip_g/p_equip
+i_equip_fc_k =  i_equip_fc/p_equip
+```
+
+
+```{r}
+i_bd_h_k =  i_bd_h/p_bd
+i_bd_nfc_k =  i_bd_nfc/p_bd
+i_bd_g_k =  i_bd_g/p_bd
+i_bd_fc_k =  i_bd_fc/p_bd
+```
+
+
+I just deflate the adjustment terms using p_equip as well (assuming most of it is changes in inventories)
+
+```{r}
+i_adj_h_k = i_adj_h /p_equip
+i_adj_nfc_k = i_adj_nfc /p_equip
+i_adj_fc_k = i_adj_fc /p_equip
+i_adj_g_k = i_adj_g /p_equip
+```
+
+we can compare ik with ikk. just to make sure we have all components of investment.
+
+-- Ved ik om "ik" og "ikk" skal give det samme men gør de ik --
+
+```{r}
+ik =  i_equip_h_k + i_equip_nfc_k  +  i_equip_g_k + i_equip_fc_k +  i_bd_h_k + i_bd_nfc_k  +  i_bd_g_k  + i_bd_fc_k + i_adj_h_k + i_adj_nfc_k + i_adj_fc_k + i_adj_g_k
+
+ikk = I/pi
+
+
+cbind(ik, ikk) # spg Mikael
+```
+
+
+
+```{r}
+yk = ik + pconk + gk + xk - mk
+```
+
+```{r}
+
+npropinc_h = propinc_r_h - propinc_p_h
+nsben_h = sben_h_r - scon_h_p
+```
+
+```{r}
+iba_f = - (iba_h + iba_nf + iba_g + iba_row) # The data from the database is not consistent (the sum of the stocks of IBA does not add up to zero). I fix it by assuming that iba_f is entirely demand-led.
+
+iba_f_tr = - (iba_h_tr + iba_nf_tr + iba_g_tr + iba_row_tr) #The data from the database is not consistent (the sum of IBA transactions does not add up to zero). I fix it by assuming that iba_f_tr is entirely demand-led.
+```
+
+
+```{r}
+### Jeg tager bare og fjerner første observation fra dem der er minuse så den først starer i 2005q3
+
+iba_h_rvx=diff(iba_h)-iba_h_tr[-1]
+iba_f_rvx=diff(iba_f)-iba_f_tr[-1]
+iba_nf_rvx=diff(iba_nf)-iba_nf_tr[-1]
+iba_g_rvx=diff(iba_g)-iba_g_tr[-1]
+iba_row_rvx=diff(iba_row)-iba_row_tr[-1]
+```
+
+
+```{r}
+eq_h = - ((eq_f_a - eq_f_l) + (eq_nf_a - eq_nf_l) + eq_g + (eq_row_a - eq_row_l)) #The data from the database is not consistent (the sum of the stocks of equities does not add up to zero). I fix it by assuming that eq_h absorbbs the small discrepancies that come from the database.
+```
+
+
+```{r}
+### Der ages diff så de sarer alle i 2005Q3
+
+eq_h_rvx=diff(eq_h)-eq_h_tr[-1]
+eq_f_a_rvx=diff(eq_f_a)-eq_f_a_tr[-1]
+eq_f_l_rvx=diff(eq_f_l)-eq_f_l_tr[-1]
+eq_nf_a_rvx=diff(eq_nf_a)-eq_nf_a_tr[-1]
+eq_nf_l_rvx=diff(eq_nf_l)-eq_nf_l_tr[-1]
+eq_g_rvx=diff(eq_g)-eq_g_tr[-1]
+eq_row_a_rvx=diff(eq_row_a)-eq_row_a_tr[-1]
+eq_row_l_rvx=diff(eq_row_l)-eq_row_l_tr[-1]
+```
+
+
+```{r}
+
+### Tror også alle disse starer i 2005Q3
+
+Neq_row = eq_row_a - eq_row_l 
+Neq_nf = eq_nf_a - eq_nf_l 
+Neq_f = eq_f_a - eq_f_l 
+Neq_nf_rvx = eq_nf_a_rvx-eq_nf_l_rvx
+Neq_f_rvx = eq_f_a_rvx-eq_f_l_rvx
+Neq_row_rvx = eq_row_a_rvx-eq_row_l_rvx
+Neq_nf_tr = diff(Neq_nf)-(Neq_nf_rvx)
+Neq_f_tr = diff(Neq_f)-(Neq_f_rvx)
+alpha_neq_nf = -Neq_nf/i_nf
+Neq_row_tr = diff(Neq_row) - Neq_row_rvx
+```
+
+```{r}
+# Igen starter førsst i 2005Q3
+
+eq_h_tr = - (Neq_nf_tr  + Neq_f_tr + eq_g_tr[-1] + Neq_row_tr) # The data from the database is not consistent (the sum of the stocks of equities does not add up to zero). I fix it by assuming that eq_h_tr absorbbs the small discrepancies that come from the database.
+```
+
+```{r}
+eq_f_l_rvx = diff(eq_f_l)-eq_f_l_tr[-1]
+eq_nf_l_rvx = diff(eq_nf_l)-eq_nf_l_tr[-1]
+eq_row_l_rvx = diff(eq_row_l)-eq_row_l_tr[-1]
+
+```
+
+```{r}
+ins_f = - (ins_row + ins_h + ins_nf + ins_g) # The database is almost consistent, but I redifine ins_f to make it fully consistent and avoid carrying discrepancies along when running the simulations.
+ins_f_tr = - (ins_row_tr + ins_h_tr + ins_nf_tr + ins_g_tr) # The database is almost consistent, but I redifine ins_f_tr to make it fully consistent and avoid carrying discrepancies along when running the simulations.
+```
+
+
+```{r}
+
+## Samme som før 2005Q3
+ins_h_rvx=diff(ins_h)-ins_h_tr[-1]
+ins_f_rvx=diff(ins_f)-ins_f_tr[-1]
+ins_nf_rvx=diff(ins_nf)-ins_nf_tr[-1]
+ins_g_rvx=diff(ins_g)-ins_g_tr[-1]
+ins_row_rvx=diff(ins_row)-ins_row_tr[-1]
+```
+
+```{r}
+sec_g = - (sec_row + sec_h + sec_f_a + sec_f_d + sec_nf) # The database is almost consistent, but I redifine sec_g to make it fully consistent and avoid carrying discrepancies along when running the simulations.
+sec_g_tr = - (sec_row_tr + sec_h_tr + sec_f_a_tr + sec_f_d_tr + sec_nf_tr) # The database is almost consistent, but I redifine sec_g to make it fully consistent and avoid carrying discrepancies along when running the simulations.
+```
+
+```{r}
+sec_h_rvx=diff(sec_h)-sec_h_tr[-1]
+sec_f_a_rvx=diff(sec_f_a)-sec_f_a_tr[-1]
+sec_f_d_rvx=diff(sec_f_d)-sec_f_d_tr[-1]
+sec_nf_rvx=diff(sec_nf)-sec_nf_tr[-1]
+sec_g_rvx=diff(sec_g)-sec_g_tr[-1]
+sec_row_rvx=diff(sec_row)-sec_row_tr[-1]
+```
+
+```{r}
+l_f = - (l_h + l_nf + l_g + l_row) # The database is almost consistent, but I redifine l_f to make it fully consistent and avoid carrying discrepancies along when running the simulations.
+l_f_tr = - (l_h_tr + l_nf_tr + l_g_tr + l_row_tr) # The database is almost consistent, but I redifine l_f to make it fully consistent and avoid carrying discrepancies along when running the simulations.
+```
+
+```{r}
+l_h_rvx=diff(l_h)-l_h_tr[-1]
+l_f_rvx=diff(l_f)-l_f_tr[-1]
+l_nf_rvx=diff(l_nf)-l_nf_tr[-1]
+l_g_rvx=diff(l_g)-l_g_tr[-1]
+l_row_rvx=diff(l_row)-l_row_tr[-1]
+```
+
+```{r}
+int_nf_adj = (int_r_nf - int_p_nf) - (lag(idep,n=1)*lag(iba_nf,1) + lag(ibd,1)*lag(sec_nf,1) + lag(iloan,1)*lag(l_nf,1))
+
+int_h_adj = (int_r_h - int_p_h) - (lag(idep,n=1)*lag(iba_h,1) + lag(ibd,1)*lag(sec_h,1) + lag(iloan,1)*lag(l_h,1)) # this calculation calculates the discrepancy for interest payments as net flow.
+```
+
+```{r}
+#Below I (hamid) compute discrepancy between interest payments and reciepts separately to create a measure of propert income (paid and recieved) instead of just using net property income (npropinc) in the model
+
+int_r_h_adj = int_r_h  - (lag(idep,1)*lag(iba_h,1)  + lag(ibd,1)*lag(sec_h,1))
+
+int_p_h_adj = int_p_h  + lag(iloan,1)*lag(l_h,1)
+```
+
+
+```{r}
+#For the rest of the sectors, we just calculate the discrepancies based on net asset holding
+int_g_adj = (int_r_g - int_p_g) - (lag(idep,1)*lag(iba_g,1) + lag(iloan,1)*lag(l_g,1) + lag(ibd,1)*lag(sec_g,1))
+
+int_row_adj = (int_r_row - int_p_row) - (lag(idep,1)*lag(iba_row,1) + lag(iboa,1)*lag(sec_row,1) + lag(iloan,1)*lag(l_row,1))
+
+
+int_f_adj = (int_r_f - int_p_f) - (lag(idep,1)*lag(iba_f,1) + lag(iloan,1)*lag(l_f,1) + lag(ibd,1)*lag(sec_f_d,1) + lag(iboa,1)*lag(sec_f_a,1))
+```
+
+```{r}
+test = int_nf_adj  + int_h_adj  + int_g_adj  + int_f_adj  + int_row_adj
+```
+
+
+Below we create series for equities viz-a-viz counterparties. The data is only available from 2012 onwards so we use the porportion w.r.t to the aggregate payments to create data back in time (because we have aggregate data)
+
+
+```{r}
+alpha_nf_rv = eq_h_nf_rv/(eq_h_nf_rv + eq_h_f_rv + eq_h_row_rv) ## mean of alpha is 0.57 (excluding the spike in the start of the sample somwhere 2013q3 (not sure about the exact point))
+alpha_f_rv = eq_h_f_rv/(eq_h_nf_rv + eq_h_f_rv + eq_h_row_rv) #  mean of alpha is 0.37 (excluding the spike in the start of the sample somwhere 2013q3 (not sure about the exact point))
+alpha_row_rv = eq_h_row_rv/(eq_h_nf_rv + eq_h_f_rv + eq_h_row_rv) # mean of alpha is 0.06 (excluding the spike in the start of the sample somwhere 2013q3 (not sure about the exact point))
+```
+
+
+
+
+
+
+
+
+
