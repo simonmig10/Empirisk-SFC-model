@@ -1,7 +1,7 @@
 ---
-title: "Data man"
+title: "The real model"
 author: "Simon"
-date: "24/6/2022"
+date: "27/6/2022"
 output: html_document
 ---
 
@@ -679,13 +679,6 @@ pcon_reg = lm(pcon~ sd1+ sd2 + sd3)
 pcon_ds= pcon_reg$residuals + mean(pcon)
 pcon_ds=ts(pcon_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
-plot(pcon_ds); lines(pcon_ds_00)
-
-plot(pcon); lines(pcon_00)
-
-alpha_0 =pcon_reg$coefficients[1]
-alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
 alpha_1=pcon_reg$coefficients[2]
 alpha_1=ts(alpha_1,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
@@ -697,11 +690,6 @@ alpha_3=ts(alpha_3,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 mean_pcon= mean(pcon)
 mean_pcon=ts(mean_pcon,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-# I create g_bar to be able to shock the variable
-
-g_bar=rep(0,length(y))
-g_bar= ts(g_bar, start = c(2005,2), frequency = 4)
 
 ```
 
@@ -721,17 +709,7 @@ Trying first to add all the identity equations
 
 S_model.txt="MODEL
 
-COMMENT> Househ
-
-COMMENT> Equation so i can shock to G_bar
-BEHAVIORAL> g_bar
-EQ> g_bar = g_bar_0
-COEFF> g_bar_0
-STORE> coe(1)
-
-COMMENT> GDP at market prices
-IDENTITY> g
-EQ> g= g_bar+g   
+COMMENT> Households 
 
 COMMENT> GDP at market prices
 IDENTITY> y
@@ -747,18 +725,18 @@ COMMENT> Consumption
 BEHAVIORAL> pcon_ds
 EQ> pcon_ds = beta_0 + beta_1*TSLAG(pcon_ds,1) + beta_2*yh_h+ beta_3*TSLAG(yh_h,1) 
 COEFF > beta_0 beta_1 beta_2 beta_3
-STORE> coe(2)
+STORE> coe(1)
 
 COMMENT> Consumption
 IDENTITY> pcon
-EQ> pcon = PCON_ds + alpha_0 + alpha_1*sd1+ alpha_2*sd2 + alpha_3*sd3 - mean_pcon
+EQ> pcon = PCON_ds + alpha_1*sd1+ alpha_2*sd2 + alpha_3*sd3 - mean_pcon
 
 
 COMMENT> Test
 BEHAVIORAL> PCON_ds
 EQ> TSDELTALOG(PCON_ds) = b + b_1*TSLAG(LOG(PCON_ds),1) + b_2*TSLAG(LOG(yh_h),1) + b_4*TSLAG(TSDELTALOG(yh_h),1) + b_5*D_2008Q4 
 COEFF > b b_1 b_2 b_4 b_5
-STORE> coe(3)
+STORE> coe(2)
 
 END"
 ```
@@ -805,18 +783,13 @@ S_modelData=list(
                   START=c(2005,2),FREQ=4),
   alpha_3 = TIMESERIES(c(alpha_3),   
                   START=c(2005,2),FREQ=4),
-  alpha_0 = TIMESERIES(c(alpha_0),   
-                  START=c(2005,2),FREQ=4),
   mean_pcon = TIMESERIES(c(mean_pcon),   
-                  START=c(2005,2),FREQ=4),
-  g_bar=TIMESERIES(g_bar,   
-                  START=c(2005,2), END=c(2020,1),FREQ=4)
+                  START=c(2005,2),FREQ=4)
 )
 
 
 S_model=LOAD_MODEL_DATA(S_model,S_modelData)
 ```
-
 
 
 ```{r}
@@ -841,10 +814,13 @@ y_00 = S_model$simulation$y
 pcon_00 = S_model$simulation$pcon
 pcon_ds_00 = S_model$simulation$PCON_ds
 
-plot(pcon_00); lines(pcon_ds_00)
 
 ```
 
+```{r}
+plot(pcon_00)
+plot(pcon_ds)
+```
 
 # Shocks
 
@@ -857,7 +833,7 @@ We create a shock to the deseasonalized consumption of -10000
 # Define add-factor list (defining shock)
 constantAdjList <- list(
   
-  g_bar = TIMESERIES(10000,START=c(2010,1), END=c(2010,1),  FREQ='Q')
+  pcon_ds = TIMESERIES(-10000,START=c(2010,1), END=c(2010,1),  FREQ='Q')
 
 )
 
@@ -877,12 +853,11 @@ S_model <- SIMULATE(S_model
 
 
 ```{r}
-g_1 = S_model$simulation$g
+pcon_ds_1 = S_model$simulation$pcon_ds
 pcon_1 = S_model$simulation$pcon
 ```
 
 ```{r}
-plot(g_1)
+plot(pcon_ds_1)
 plot(pcon_1)
 ```
-
