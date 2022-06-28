@@ -712,8 +712,64 @@ g_bar= ts(g_bar, start = c(2005,2), frequency = 4)
 library(mFilter)
 library(bimets)
 library(knitr)
+
+i_equip_nfc_k
+
+
 ```
 
+
+```{r}
+reg= lm(log(c)~1+ x)
+
+zz_1= ts(i_equip_nfc_k/yk)
+
+
+dynlm(log(zz_1)~ 1+ L(log(zz_1),1))
+
+```
+
+Deseasonalize
+
+```{r}
+
+Deseason.txt="MODEL
+
+COMMENT> deseason
+
+COMMENT> Demand for Labor
+BEHAVIORAL> i_equip_nfc_k
+EQ> LOG(i_equip_nfc_k) = c1 + c2*TSLAG(LOG(i_equip_nfc_k/yk),1) + alphha_1*LOG(yk)
+COEFF> c1 c2 alphha_1
+RESTRICT> alphha_1 = 1
+
+
+END"
+```
+
+
+.003592
+```{r}
+Deseason=LOAD_MODEL(modelText = Deseason.txt)
+```
+```{r}
+S_modelData=list(  
+  yk  = TIMESERIES(c(yk),   
+                  START=c(2005,2),FREQ=4),
+   i_equip_nfc_k = TIMESERIES(c(i_equip_nfc_k),   
+                     START=c(2005,2),FREQ=4)
+)
+
+
+Deseason=LOAD_MODEL_DATA(Deseason,S_modelData)
+```
+```{r}
+#Estimate model coefficients
+S_model=ESTIMATE(Deseason
+                 ,TSRANGE=c(2005,3,2020,1)
+                 ,forceTSRANGE = TRUE
+)
+```
 
 Trying first to add all the identity equations 
 
@@ -744,15 +800,8 @@ EQ> yh_h= b2_h_r
 
 
 COMMENT> Consumption
-BEHAVIORAL> pcon_ds
-EQ> pcon_ds = beta_0 + beta_1*TSLAG(pcon_ds,1) + beta_2*yh_h+ beta_3*TSLAG(yh_h,1) 
-COEFF > beta_0 beta_1 beta_2 beta_3
-STORE> coe(2)
-
-COMMENT> Consumption
 IDENTITY> pcon
 EQ> pcon = PCON_ds + alpha_0 + alpha_1*sd1+ alpha_2*sd2 + alpha_3*sd3 - mean_pcon
-
 
 COMMENT> Test
 BEHAVIORAL> PCON_ds
@@ -810,6 +859,8 @@ S_modelData=list(
   mean_pcon = TIMESERIES(c(mean_pcon),   
                   START=c(2005,2),FREQ=4),
   g_bar=TIMESERIES(g_bar,   
+                  START=c(2005,2), END=c(2020,1),FREQ=4), 
+  g_bar=TIMESERIES(g_bar,   
                   START=c(2005,2), END=c(2020,1),FREQ=4)
 )
 
@@ -843,6 +894,7 @@ pcon_ds_00 = S_model$simulation$PCON_ds
 
 plot(pcon_00); lines(pcon_ds_00)
 
+S_model$behaviorals$PCON_ds$coefficients[2,]
 ```
 
 

@@ -823,24 +823,103 @@ COMMENT>
 IDENTITY> yd_hk_ds
 EQ> yd_hk_ds = yd1_hk_ds + yd2a_hk_ds + yd2b_hk
 
-COMMENT> Test
-BEHAVIORAL> PCON_ds
-EQ> yd1_HK_ds = yd1_HK - (q_0 + q_1*SD1 + q_2*SD2 + q_3*SD3) + mean(yd1_hk) 
-COEFF > b b_1 b_2 b_4 b_5
-STORE> coe(2)
+
+COMMENT> Savings H
+IDENTITY> s_h
+EQ> s_h = yd_h - pcon + D8_h
+
+COMMENT> Sectoral balance
+IDENTITY> nl_h
+EQ> nl_h = s_h - i_h - np_h + ctr_h 
+
+
+
+COMMENT> Equation so i can shock to G_bar
+BEHAVIORAL> pcon_ds
+EQ> TSDELTALOG(PCONK_DS) = C_1 + C_2*TSLAG(LOG(PCONK_DS),1) + C_3*TSLAG(LOG(yd1_hk_ds),1) + C_4*TSLAG(LOG(yd2a_hk_ds),1) + C_5*TSLAG(LOG(fnw_hk),2) + C_6*TSDELTALOG(yd1_hk_ds) + C_7*TSDELTALOG(yd1_hk_ds,2) + C_8*TSDELTALOG(yd2a_hk_ds) + C_9*TSDELTALOG(-yd2b_hk) + C_10*D_2008Q4 + C_11*D_2018Q2 + C_12*D_2020Q1
+COEFF> C_1 C_2 C_3 C_4 C_5 C_6 C_7 C_8 C_9 C_10 C_11 
+STORE> coe(1)
+
 
 COMMENT> 
-IDENTITY> insu_h
-EQ> insu_h = ins_h(-1)*insu(-1) + ins_h_adj
+IDENTITY> pconk
+EQ> pconk = pconk_ds + P_1 + P_2*SD1 + P_3*SD2 + P_4*SD3 - mean_pconk
+
+COMMENT> nominal private consumption
+IDENTITY> pcon
+EQ> pcon = pconk*pc
+
+COMMENT> T
+BEHAVIORAL> ?????
+EQ> TSDELTALOG(I_BD_H_K_DS/BD_H_K,1) = P_620 + P_621*TSDELTALOG(TSLAG(I_BD_H_K_DS,1)/TSLAG(BD_H_K,2))+ P_622*TSDELTALOG(TSLAG(I_BD_H_K_DS,3)/TSLAG(BD_H_K,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(I_BD_H_K_DS,1)/TSLAG(BD_H_K,2)) + P_628*LOG(TSLAG(YD_HK_DS,1)/TSLAG(BD_H_K,2)) + P_629*LOG(TSLAG(P_BD,1)/TSLAG(PI,1)) + P_630*LOG(TSLAG(-L_H,1)/TSLAG(bd_h),2)) + P_631*D_2006Q4 + P_632*D_2014Q4 
+COEFF> P_20 P_21 P_22 P_23 P_24 P_25 P_26 P_27 P_28 P_29 P_30 P_31 P_32 STORE> coe(2)
 
 COMMENT> 
-IDENTITY> insu_h
-EQ> insu_h = ins_h(-1)*insu(-1) + ins_h_adj
+IDENTITY> i_bd_h_k
+EQ> i_bd_h_k = i_bd_h_k_ds + (P_144 + P_145*SD1 + P_146*SD2 + P_147*SD3) - mean_i_bd_h_k
+
+COMMENT> Skriv om!!!!
+BEHAVIORAL> ?????
+EQ> DLOG(I_EQUIP_H_K_DS/EQUIP_H_K(-1)) = P(636) + P(637) * DLOG(I_EQUIP_H_K_DS(-1)/EQUIP_H_K(-2)) + P(638) * DLOG(I_EQUIP_H_K_DS(-2)/EQUIP_H_K(-3)) + P(639)*DLOG(YD_HK_DS/EQUIP_H_K(-1)) + P(640)*DUMMY4 
+COEFF> P_20 P_21 P_22 P_23 P_24 P_25 P_26 P_27 P_28 P_29 P_30 P_31 P_32 STORE> coe(2)
 
 COMMENT> 
-IDENTITY> insu_h
-EQ> insu_h = ins_h(-1)*insu(-1) + ins_h_adj
+IDENTITY> i_equip_h_k
+EQ>  i_equip_h_k = i_equip_h_k_ds + P_168 + P_169*SD1 + P_170*SD2 + P_171*SD3 - mean-i_equip_h_k
 
+COMMENT>
+BEHAVIORAL> NBEN_H1
+EQ> TSDELTALOG(NBEN_H1) = P_671 + P_672*TSDELTALOG(ZALAND_JESPER) + P_673*TSDELTA(UNEMP) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(NBEN_H,1)) + P_676*TSLAG(UNEMP,1) + P_677*LOG(TSLAG(ZALAND_JESPER,1))
+COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677
+STORE> coe(1)
+
+
+
+COMMENT> Financial side
+
+
+COMMENT> Skriv om!!!!
+BEHAVIORAL> pconk
+EQ> D(-L_H_TR/(YD_HK_DS*PC)) = P(641)*D(-L_H_TR(-2)/(YD_HK_DS(-2)*PC(-2))) + P(642)*D(ILOAN) + P(643)*DLOG(I_BD_H_K_DS(-3)/(YD_HK_DS(-3))) + P(644)*-L_H_TR(-1)/(YD_HK_DS(-1)*PC(-1)) + P(645)*LOG(-L_H(-2)/(YD_HK_DS(-2)*PC(-2))) + P(646) + P(647)*D_2007Q34 + P(648)*@TREND
+
+
+
+
+COMMENT> 
+IDENTITY> IBA_h
+EQ> IBA_h= IBA_h(-1) + IBA_h_tr + IBA_h_rvx
+
+COMMENT> For the time being we take sec_h_tr as exogenous. It is assumed that households' holdings of securities are entirely issued by the government.
+IDENTITY> Sec_h
+EQ> Sec_h= Sec_h(-1) + Sec_h_tr + Sec_h_rvx
+
+COMMENT> 
+IDENTITY> sec_h_tr_g
+EQ> sec_h_tr_g=sec_h_tr
+
+COMMENT> 
+IDENTITY> L_h
+EQ> L_h= L_h(-1) + L_h_tr + L_h_rvx
+
+COMMENT> 
+IDENTITY> Sec_h
+EQ> Sec_h= Sec_h(-1) + Sec_h_tr + Sec_h_rvx
+
+COMMENT> 
+IDENTITY> Sec_h
+EQ> Sec_h= Sec_h(-1) + Sec_h_tr + Sec_h_rvx
+
+COMMENT> 
+IDENTITY> Sec_h
+EQ> Sec_h= Sec_h(-1) + Sec_h_tr + Sec_h_rvx
+
+COMMENT> 
+IDENTITY> Sec_h
+EQ> Sec_h= Sec_h(-1) + Sec_h_tr + Sec_h_rvx
+
+COMMENT> 
+IDENTITY> Sec_h
+EQ> Sec_h= Sec_h(-1) + Sec_h_tr + Sec_h_rvx
 
 
 END"
