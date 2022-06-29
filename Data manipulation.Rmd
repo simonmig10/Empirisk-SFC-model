@@ -9,6 +9,7 @@ output: html_document
 
 ```{r}
 library(tstools)
+library(readxl)
 ```
 
 
@@ -679,9 +680,6 @@ pcon_reg = lm(pcon~ sd1+ sd2 + sd3)
 pcon_ds= pcon_reg$residuals + mean(pcon)
 pcon_ds=ts(pcon_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
-plot(pcon_ds); lines(pcon_ds_00)
-
-plot(pcon); lines(pcon_00)
 
 alpha_0 =pcon_reg$coefficients[1]
 alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
@@ -713,23 +711,61 @@ library(mFilter)
 library(bimets)
 library(knitr)
 
-i_equip_nfc_k
+
+```
+
+
+
+## DEseasonalyse
+```{r}
+
+## I_BD_H_K
+reg_1 = lm(i_bd_h_k~ sd1+ sd2 + sd3)
+
+i_bd_h_k_ds= reg_1$residuals + mean(i_bd_h_k)
+i_bd_h_k_ds=ts(i_bd_h_k_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## yd_hk_ds
+
+reg_2 = lm(yd_hk~ sd1+ sd2 + sd3)
+
+yd_hk_ds= reg_2$residuals + mean(yd_hk)
+yd_hk_ds=ts(yd_hk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+#alpha_0 =reg_1$coefficients[1]
+#alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+#alpha_1=pcon_reg$coefficients[2]
+#alpha_1=ts(alpha_1,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+#alpha_2=pcon_reg$coefficients[3]
+#alpha_2=ts(alpha_2,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+#alpha_3=pcon_reg$coefficients[4]
+#alpha_3=ts(alpha_3,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+#mean_pcon= mean(pcon)
+#mean_pcon=ts(mean_pcon,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 
 ```
 
 
 ```{r}
-reg= lm(log(c)~1+ x)
-
-zz_1= ts(i_equip_nfc_k/yk)
+library(dynlm)
 
 
-dynlm(log(zz_1)~ 1+ L(log(zz_1),1))
+i_bd_h_k_ds__bd_h_k = ts(i_bd_h_k_ds/stats::lag(bd_h_k,1))
+p_bd__pi= ts(stats::lag(p_bd,1)/stats::lag(pi,1)) ## Se på
+yd_hk_ds__bd_h_k= ts(yd_hk_ds/stats::lag(bd_h_k,1))
+l_h__bd_h= ts(-l_h/stats::lag(bd_h,1))
+
+
+dynlm(diff(log(i_bd_h_k_ds__bd_h_k))~ 1+ L(diff(log(i_bd_h_k_ds__bd_h_k)),1) + L(diff(log(i_bd_h_k_ds__bd_h_k)),3)+ L(diff(log(p_bd__pi)),1)+ L(diff(log(p_bd__pi)),2)+ L(diff(log(yd_hk_ds__bd_h_k)),2) + L(diff(log(l_h__bd_h)),1) + L(log(i_bd_h_k_ds__bd_h_k),1) + L(log(yd_hk_ds__bd_h_k),1)+ L(log(p_bd__pi),1) + L(log(l_h__bd_h),1) +  d_2006q4 + d_2014q4)
 
 ```
-
-Deseasonalize
 
 ```{r}
 
@@ -739,9 +775,17 @@ COMMENT> deseason
 
 COMMENT> Demand for Labor
 BEHAVIORAL> i_equip_nfc_k
-EQ> LOG(i_equip_nfc_k) = c1 + c2*TSLAG(LOG(i_equip_nfc_k/yk),1) + alphha_1*LOG(yk)
-COEFF> c1 c2 alphha_1
+EQ> LOG(i_equip_nfc_k) = c1 + c2*TSLAG(TSDELTALOG(i_equip_nfc_k/yk),1) + alphha_1*LOG(yk) + alphha_2*TSLAG(LOG(i_equip_nfc_k),1) + alphha_3*TSLAG(-LOG(yk),1) 
+COEFF> c1 c2 alphha_1 alphha_2 alphha_3
 RESTRICT> alphha_1 = 1
+alphha_2 = 1
+alphha_3 = 1
+
+COMMENT> 
+BEHAVIORAL> i_bd_h_k_ds
+EQ> TSDELTALOG(i_bd_h_k_ds/bd_h_k,1) = P_620 + P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h),2)) + P_631*D_2006Q4 + P_632*D_2014Q4 
+COEFF> P_20 P_21 P_22 P_23 P_24 P_25 P_26 P_27 P_28 P_29 P_30 P_31 P_32 
+STORE> coe(2)
 
 
 END"
@@ -766,7 +810,7 @@ Deseason=LOAD_MODEL_DATA(Deseason,S_modelData)
 ```{r}
 #Estimate model coefficients
 S_model=ESTIMATE(Deseason
-                 ,TSRANGE=c(2005,3,2020,1)
+                 ,TSRANGE=c(2005,4,2020,1)
                  ,forceTSRANGE = TRUE
 )
 ```
