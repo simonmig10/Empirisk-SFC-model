@@ -130,6 +130,26 @@ d_2020q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
  dummy_start=c(2020,1), dummy_end = c(2020,1),
  basic_value = 0, dummy_value = 1, frequency = 4)
 
+# DUMMY 4
+dummy_2018q34 =create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2018,3), dummy_end = c(2018,4),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+dummy_2011q1 =create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2011,1), dummy_end = c(2011,1),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+dummy_2009q2 =create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2009,2), dummy_end = c(2009,2),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+
+DUMMY_4= ts(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0), start = c(2005, 2), end =  c(2020,1), frequency = 4)
+
+DUMMY_10= ts(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0), start = c(2005, 2), end =  c(2020,1), frequency = 4)
+
+DUMMY_11= ts(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0), start = c(2005, 2), end =  c(2020,1), frequency = 4)
+
 ```
 
 
@@ -666,6 +686,8 @@ Ved ik helt om nedenstående skal med
 
 #equation eq41.ls emp = P(251) + P(252)*SD1 + P(253)*SD2 + P(254)*SD3
 #series  emp_ds = emp - (P(251) + P(252)*SD1 + P(253)*SD2 + P(254)*SD3) + @mean(emp)
+
+tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 ```
 
 
@@ -732,6 +754,47 @@ reg_2 = lm(yd_hk~ sd1+ sd2 + sd3)
 yd_hk_ds= reg_2$residuals + mean(yd_hk)
 yd_hk_ds=ts(yd_hk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
+## I_EQUIP_H_K
+
+
+reg_3 = lm(i_equip_h_k~ sd1+ sd2 + sd3)
+
+i_equip_h_k_ds= reg_3$residuals + mean(i_equip_h_k)
+
+reg_3$coefficients
+
+i_equip_h_k_ds=ts(i_equip_h_k_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+# i_bd_nfc_k_ds
+
+reg_4 = lm(i_bd_nfc_k~ sd1+ sd2 + sd3)
+
+i_bd_nfc_k_ds= reg_4$residuals + mean(i_bd_nfc_k)
+
+i_bd_nfc_k_ds=ts(i_bd_nfc_k_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## u_ds
+reg_5 = lm(u~ sd1+ sd2 + sd3)
+
+u_ds= reg_5$residuals + mean(u)
+
+u_ds=ts(u_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## ps_ds
+reg_6 = lm(ps~ sd1+ sd2 + sd3)
+
+ps_ds= reg_6$residuals + mean(ps)
+
+ps_ds=ts(ps_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+## i_equip_nfc_k_ds
+reg_7 = lm(i_equip_nfc_k~ sd1+ sd2 + sd3)
+
+i_equip_nfc_k_ds= reg_7$residuals + mean(i_equip_nfc_k)
+
+i_equip_nfc_k_ds=ts(i_equip_nfc_k_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 #alpha_0 =reg_1$coefficients[1]
 #alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
@@ -757,21 +820,39 @@ yd_hk_ds=ts(yd_hk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 library(dynlm)
 
 
-i_bd_h_k_ds__bd_h_k = ts(i_bd_h_k_ds/stats::lag(bd_h_k,1))
-p_bd__pi= ts(stats::lag(p_bd,1)/stats::lag(pi,1)) ## Se på
-yd_hk_ds__bd_h_k= ts(yd_hk_ds/stats::lag(bd_h_k,1))
-l_h__bd_h= ts(-l_h/stats::lag(bd_h,1))
+## Ratio 1 test: 
+
+i_bd_h_k_ds__bd_h_k = ts(i_bd_h_k_ds/stats::lag(bd_h_k,1), start = c(2005,3), end = c(2020,1), frequency = 4)
+p_bd__pi= ts(stats::lag(p_bd)/stats::lag(pi), start = c(2005,2), end = c(2020,1), frequency = 4) 
+yd_hk_ds__bd_h_k= ts(yd_hk_ds/stats::lag(bd_h_k,1), start = c(2005,3), end = c(2020,1), frequency = 4)
+l_h__bd_h= ts(-l_h/stats::lag(bd_h,1), start = c(2005,3), end = c(2020,1), frequency = 4)
 
 
-dynlm(diff(log(i_bd_h_k_ds__bd_h_k))~ 1+ L(diff(log(i_bd_h_k_ds__bd_h_k)),1) + L(diff(log(i_bd_h_k_ds__bd_h_k)),3)+ L(diff(log(p_bd__pi)),1)+ L(diff(log(p_bd__pi)),2)+ L(diff(log(yd_hk_ds__bd_h_k)),2) + L(diff(log(l_h__bd_h)),1) + L(log(i_bd_h_k_ds__bd_h_k),1) + L(log(yd_hk_ds__bd_h_k),1)+ L(log(p_bd__pi),1) + L(log(l_h__bd_h),1) +  d_2006q4 + d_2014q4)
+dynlm(diff(log(i_bd_h_k_ds__bd_h_k))~ 1+ L(diff(log(i_bd_h_k_ds__bd_h_k)),1) + L(diff(log(i_bd_h_k_ds__bd_h_k)),3)  + L(diff(log(p_bd__pi)),1) + L(diff(log(p_bd__pi)),2)+ L(diff(log(yd_hk_ds__bd_h_k)),2) + L(diff(log(l_h__bd_h)),1) + L(log(i_bd_h_k_ds__bd_h_k),1) + L(log(yd_hk_ds__bd_h_k),1)+ L(log(p_bd__pi),1) + L(log(l_h__bd_h),1) +  d_2006q4 + d_2014q4)
+
+
+## Ratio 2 test:
+
+equip_h_k_lag1= ts(stats::lag(equip_h_k,1), start = c(2005,3), end = c(2020,1), frequency = 4)
+
+i_equip_h_k_ds__equip_h_k= ts(i_equip_h_k_ds/equip_h_k_lag1, start = c(2005,3), end = c(2020,1), frequency = 4)
+
+yd_hk_ds__equip_h_k= ts(yd_hk_ds/equip_h_k_lag1, start = c(2005,3), end = c(2020,1), frequency = 4)
+
+
+
+
+
+
+dynlm(diff(log(i_equip_h_k_ds__equip_h_k)) ~ 1 + L(diff(log(i_equip_h_k_ds__equip_h_k)),1) +  L(diff(log(i_equip_h_k_ds__equip_h_k)),2) +
+        diff(log(yd_hk_ds__equip_h_k))+ DUMMY_4)
+
+
 
 ```
 
 ```{r}
-
-Deseason.txt="MODEL
-
-COMMENT> deseason
+"COMMENT> deseason
 
 COMMENT> Demand for Labor
 BEHAVIORAL> i_equip_nfc_k
@@ -779,14 +860,73 @@ EQ> LOG(i_equip_nfc_k) = c1 + c2*TSLAG(TSDELTALOG(i_equip_nfc_k/yk),1) + alphha_
 COEFF> c1 c2 alphha_1 alphha_2 alphha_3
 RESTRICT> alphha_1 = 1
 alphha_2 = 1
-alphha_3 = 1
+alphha_3 = 1"
+
+"COMMENT> 
+BEHAVIORAL> i_bd_h_k_ds
+EQ> LOG(i_bd_h_k_ds) = P_620 + P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_631*D_2006Q4 + P_632*D_2014Q4 + alpha_1*LOG(TSLAG(bd_h_k,1)) + alpha_2* TSLAG(LOG(i_bd_h_k_ds),1) + alpha_3* TSLAG(-LOG(bd_h_k),2)
+COEFF> P_620 P_621 P_622 P_623 P_624 P_625 P_626 P_627 P_628 P_629 P_630 P_631 P_632 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
+STORE> coe(2)"
+
+
+"MODEL
+
 
 COMMENT> 
-BEHAVIORAL> i_bd_h_k_ds
-EQ> TSDELTALOG(i_bd_h_k_ds/bd_h_k,1) = P_620 + P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h),2)) + P_631*D_2006Q4 + P_632*D_2014Q4 
-COEFF> P_20 P_21 P_22 P_23 P_24 P_25 P_26 P_27 P_28 P_29 P_30 P_31 P_32 
+BEHAVIORAL> i_bd_nfc_k_ds
+EQ> LOG(i_bd_nfc_k_ds) = p_800 + p_801*TSDELTALOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + p_802*TSDELTALOG(ps_ds) + p_803*TSDELTALOG(u_ds) + p_804* LOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + p_805 * LOG(TSLAG(ps_ds,1)) + p_806 * LOG(TSLAG(u_ds,1))+p_892*TSDELTALOG(tobinq)+p_893*LOG(TSLAG(tobinq,1)) + alpha_1*TSLAG(LOG(i_bd_nfc_k_ds),1) + alpha_2*TSLAG(LOG(bd_nfc_k),1) + alpha_3*TSLAG(-LOG(bd_nfc_k),2)
+COEFF> p_800 p_801 p_802 p_803 p_804 p_805 p_806 p_892 p_893 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
 STORE> coe(2)
 
+END"
+
+
+"MODEL
+
+
+COMMENT> Mangler stadig at få tilpasset til ik diff
+BEHAVIORAL> l_h_tr
+EQ> TSDELTA(l_h_tr) = p_646 + p_641*(TSDELTA(TSLAG(-l_h_tr,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2))) + p_642*TSDELTA(iloan) + p_643*(TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3))) + p_644*((TSLAG(-l_h_tr,1)/TSLAG(yd_hk_ds,1))*TSLAG(pc,1)) + p_645*(LOG(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2))) +p_647*D_2007Q34 + p_648*time
+COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648
+
+END"
+
+
+```
+
+
+
+```{r}
+ratio= i_bd_h_k_ds/p_bd
+
+summary(dynlm(diff(ratio)~1))
+
+summary(dynlm(i_bd_h_k_ds~1 + I(L(ratio,1)*p_bd)))
+
+"COMMENT> 
++ BEHAVIORAL> i_bd_h_k_ds
++ EQ>  i_bd_h_k_ds= p_111 + alpha_1* (TSLAG(i_bd_h_k_ds,1)/(TSLAG(p_bd,1)))*p_bd
++ COEFF> p_111 alpha_1
++ RESTRICT> alpha_1 = 1
++ STORE> coe(2)"
+```
+
+
+```{r}
+
+Deseason.txt="MODEL
+
+
+COMMENT>  Skkal skrives om!!!
+BEHAVIORAL> eq_h
+EQ> TSDELTA((eq_h-eq_h_rvx)/(eq_h(-1)+sec_h(-1)+iba_h(-1))) = p_770 + p_771*TSDELTA(ibd(-1)) + p_772*TSDELTA(TSLAG(div_r_h,1)+TSLAG(eq_h_rvx,1))/TSLAG(eq_h,2))  + p_773 *(TSLAG(eq_h,1)- TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2)) + p_774 * TSLAG(ibd,1) + p_775 * (TSLAG(div_r_h,2)+TSLAG(eq_h_rvx,2))/TSLAG(eq_h,3))
+COEFF> p_770 p_771 p_772 p_773 p_774 p_775
 
 END"
 ```
@@ -798,9 +938,47 @@ Deseason=LOAD_MODEL(modelText = Deseason.txt)
 ```
 ```{r}
 S_modelData=list(  
-  yk  = TIMESERIES(c(yk),   
+  i_bd_h_k_ds  = TIMESERIES(c(i_bd_h_k_ds),   
                   START=c(2005,2),FREQ=4),
-   i_equip_nfc_k = TIMESERIES(c(i_equip_nfc_k),   
+   bd_h_k = TIMESERIES(c(bd_h_k),   
+                     START=c(2005,2),FREQ=4),
+  p_bd  = TIMESERIES(c(p_bd),   
+                  START=c(2005,2),FREQ=4),
+   pi = TIMESERIES(c(pi),   
+                     START=c(2005,2),FREQ=4),
+   yd_hk_ds = TIMESERIES(c(yd_hk_ds),   
+                     START=c(2005,2),FREQ=4),
+   l_h = TIMESERIES(c(l_h),   
+                     START=c(2005,2),FREQ=4),
+  bd_h = TIMESERIES(c(bd_h),   
+                     START=c(2005,2),FREQ=4),
+  D_2006Q4 = TIMESERIES(c(d_2006q4),   
+                     START=c(2005,2),FREQ=4),
+  D_2014Q4 = TIMESERIES(c(d_2014q4),   
+                     START=c(2005,2),FREQ=4),
+  i_equip_h_k_ds = TIMESERIES(c(i_equip_h_k_ds),   
+                     START=c(2005,2),FREQ=4),
+   equip_h_k = TIMESERIES(c(equip_h_k),   
+                     START=c(2005,2),FREQ=4),
+  dummy_4 = TIMESERIES(c(DUMMY_4),   
+                     START=c(2005,2),FREQ=4),
+  i_bd_nfc_k_ds = TIMESERIES(c(i_bd_nfc_k_ds),   
+                     START=c(2005,2),FREQ=4),
+  bd_nfc_k = TIMESERIES(c(bd_nfc_k),   
+                     START=c(2005,2),FREQ=4),
+  ps_ds = TIMESERIES(c(ps_ds),   
+                     START=c(2005,2),FREQ=4),
+   u_ds = TIMESERIES(c(u_ds),   
+                     START=c(2005,2),FREQ=4),
+  tobinq = TIMESERIES(c(tobinq),   
+                     START=c(2005,2),FREQ=4),
+   dummy_10 = TIMESERIES(c(DUMMY_10),   
+                     START=c(2005,2),FREQ=4),
+   dummy_11 = TIMESERIES(c(DUMMY_11),   
+                     START=c(2005,2),FREQ=4),
+   i_equip_nfc_k_ds = TIMESERIES(c(i_equip_nfc_k_ds),   
+                     START=c(2005,2),FREQ=4),
+   equip_nfc_k = TIMESERIES(c(equip_nfc_k),   
                      START=c(2005,2),FREQ=4)
 )
 
@@ -810,7 +988,7 @@ Deseason=LOAD_MODEL_DATA(Deseason,S_modelData)
 ```{r}
 #Estimate model coefficients
 S_model=ESTIMATE(Deseason
-                 ,TSRANGE=c(2005,4,2020,1)
+                 ,TSRANGE=c(2005,3,2020,1)
                  ,forceTSRANGE = TRUE
 )
 ```
@@ -980,5 +1158,25 @@ pcon_1 = S_model$simulation$pcon
 ```{r}
 plot(g_1)
 plot(pcon_1)
+```
+
+
+
+```{r}
+
+xxxx= c(1,2,3,4,5,6,7,8,9,10)
+
+yyyy= c(10,9,8,7,6,5,4,3,2,1)
+
+cccc= c(5,3,6,8,3,5,7,9,3,5)
+
+diff(xxxx)
+
+lag_xxxx = lag(xxxx,1)
+
+lag_yyyy = lag(yyyy,1)
+
+diff(xxxx/yyyy) == (lag_xxxx/lag_yyyy)*yyyy[-1]
+
 ```
 

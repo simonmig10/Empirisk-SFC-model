@@ -129,6 +129,8 @@ d_2020q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
  dummy_start=c(2020,1), dummy_end = c(2020,1),
  basic_value = 0, dummy_value = 1, frequency = 4)
 
+DUMMY_4= ts(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0), start = c(2005, 2), end =  c(2020,1), frequency = 4)
+
 ```
 
 
@@ -859,10 +861,14 @@ COMMENT>
 IDENTITY> i_bd_h_k
 EQ> i_bd_h_k = i_bd_h_k_ds + (P_144 + P_145*SD1 + P_146*SD2 + P_147*SD3) - mean_i_bd_h_k
 
-COMMENT> Skriv om!!!!
-BEHAVIORAL> ?????
-EQ> TSDELTALOG(I_EQUIP_H_K_DS/EQUIP_H_K(-1)) = p_636 + p_637 * TSDELTALOG(I_EQUIP_H_K_DS(-1)/EQUIP_H_K(-2)) + p_638 * TSDELTALOG(I_EQUIP_H_K_DS(-2)/EQUIP_H_K(-3)) + p_639*TSDELTALOG(YD_HK_DS/EQUIP_H_K(-1)) + p_640*DUMMY4 
-COEFF> P_20 P_21 P_22 P_23 P_24 P_25 P_26 P_27 P_28 P_29 P_30 P_31 P_32 STORE> coe(2)
+COMMENT> 
+BEHAVIORAL> i_equip_h_k_ds
+EQ> LOG(i_equip_h_k_ds) = p_636 + p_637 * TSDELTALOG(TSLAG(i_equip_h_k_ds,1)/TSLAG(equip_h_k,2)) + p_638 * TSDELTALOG(TSLAG(i_equip_h_k_ds,2)/TSLAG(equip_h_k,3)) + p_639*TSDELTALOG(yd_hk_ds/TSLAG(equip_h_k,1)) + p_640*dummy_4 + alpha_1* TSLAG(LOG(i_equip_h_k_ds),1) + alpha_2* TSLAG(LOG(equip_h_k),1) + alpha_3* TSLAG(-LOG(equip_h_k),2)
+COEFF> p_636 p_637 p_638 p_639 p_640 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1 
+STORE> coe(2)
 
 COMMENT> 
 IDENTITY> i_equip_h_k
@@ -1094,10 +1100,14 @@ COMMENT>
 IDENTITY> tobinq
 EQ> tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 
-COMMENT> Skal skrives om!!!
-BEHAVIORAL> I_BD_NFC_K_DS
-EQ> TSDELTALOG(I_BD_NFC_K_DS/BD_NFC_K(-1)) = p_800 + p_801*TSDELTALOG(I_BD_NFC_K_DS(-1)/BD_NFC_K(-2)) + p_802*TSDELTALOG(PS_DS) + p_803 * TSDELTALOG(U_DS) + p_804* LOG(I_BD_NFC_K_DS(-1)/BD_NFC_K(-2)) + p_805 * LOG(PS_DS(-1)) + p_806 * LOG(U_DS(-1))+p_892*TSDELTALOG(TOBINQ)+p_893*LOG(TOBINQ(-1))
-COEFF> p_800 p_801 p_802 p_803 p_804 p_805 p_806 p_892 p_893
+COMMENT> Er fixet
+BEHAVIORAL> i_bd_nfc_k_ds
+EQ> LOG(i_bd_nfc_k_ds) = p_800 + p_801*TSDELTALOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + p_802*TSDELTALOG(ps_ds) + p_803*TSDELTALOG(u_ds) + p_804* LOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + p_805 * LOG(TSLAG(ps_ds,1)) + p_806 * LOG(TSLAG(u_ds,1)) + alpha_1*TSLAG(LOG(i_bd_nfc_k_ds),1) + alpha_2*TSLAG(LOG(bd_nfc_k),1) + alpha_3*TSLAG(-LOG(bd_nfc_k),2)
+COEFF> p_800 p_801 p_802 p_803 p_804 p_805 p_806 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
+STORE> coe(2)
 
 COMMENT> 
 IDENTITY> i_bd_nfc_k
@@ -1131,10 +1141,14 @@ COMMENT>
 IDENTITY> i
 EQ> i = i_nf + i_f + i_g + i_h 
 
-COMMENT> Skal skrives om!!!
-BEHAVIORAL> I_EQUIP_NFC_K_DS
-EQ> TSDELTALOG(I_EQUIP_NFC_K_DS/EQUIP_NFC_K(-1)) = p_807 + p_808 * TSDELTALOG(I_EQUIP_NFC_K_DS(-1)/EQUIP_NFC_K(-2)) + p_809 * TSDELTALOG(PS_DS) + p_810 * TSDELTALOG(U_DS) + p_811 *  LOG(I_EQUIP_NFC_K_DS(-1)/EQUIP_NFC_K(-2)) + p_812 * LOG(PS_DS(-1)) + p_813 * LOG(U_DS(-1)) + p_814 * DUMMY10 + p_815 * DUMMY11 + p_890*TSDELTALOG(TOBINQ) + p_891*LOG(TOBINQ(-1))
-COEFF> p_807 p_808 p_809 p_810 p_811 p_812 p_813 p_814 p_815 p_890 p_891
+COMMENT> 
+BEHAVIORAL> i_equip_nfc_k_ds
+EQ> LOG(i_equip_nfc_k_ds) = p_807 + p_808 * TSDELTALOG(TSLAG(i_equip_nfc_k_ds,1)/TSLAG(equip_nfc_k,2)) + p_809 * TSDELTALOG(ps_ds) + p_810 * TSDELTALOG(u_ds) + p_811 *  LOG(TSLAG(i_equip_nfc_k_ds,1)/TSLAG(equip_nfc_k,2)) + p_812 * LOG(TSLAG(ps_ds,1)) + p_813 * LOG(TSLAG(u_ds,1)) + p_814 * dummy_10 + p_815 * dummy_11 + p_890*TSDELTALOG(tobinq) + p_891*LOG(TSLAG(tobinq,1)) + alpha_1*TSLAG(LOG(i_equip_nfc_k_ds),1) + alpha_2*TSLAG(LOG(equip_nfc_k),1) + alpha_3*TSLAG(-LOG(equip_nfc_k),2)
+COEFF> p_807 p_808 p_809 p_810 p_811 p_812 p_813 p_814 p_815 p_890 p_891 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
+STORE> coe(2)
 
 COMMENT> 
 IDENTITY> int_nf
