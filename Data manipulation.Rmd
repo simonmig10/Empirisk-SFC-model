@@ -1118,40 +1118,6 @@ y_ds=ts(y_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 ```
 
 
-```{r}
-library(dynlm)
-
-
-## Ratio 1 test: 
-
-i_bd_h_k_ds__bd_h_k = ts(i_bd_h_k_ds/stats::lag(bd_h_k,1), start = c(2005,3), end = c(2020,1), frequency = 4)
-p_bd__pi= ts(stats::lag(p_bd)/stats::lag(pi), start = c(2005,2), end = c(2020,1), frequency = 4) 
-yd_hk_ds__bd_h_k= ts(yd_hk_ds/stats::lag(bd_h_k,1), start = c(2005,3), end = c(2020,1), frequency = 4)
-l_h__bd_h= ts(-l_h/stats::lag(bd_h,1), start = c(2005,3), end = c(2020,1), frequency = 4)
-
-
-dynlm(diff(log(i_bd_h_k_ds__bd_h_k))~ 1+ L(diff(log(i_bd_h_k_ds__bd_h_k)),1) + L(diff(log(i_bd_h_k_ds__bd_h_k)),3)  + L(diff(log(p_bd__pi)),1) + L(diff(log(p_bd__pi)),2)+ L(diff(log(yd_hk_ds__bd_h_k)),2) + L(diff(log(l_h__bd_h)),1) + L(log(i_bd_h_k_ds__bd_h_k),1) + L(log(yd_hk_ds__bd_h_k),1)+ L(log(p_bd__pi),1) + L(log(l_h__bd_h),1) +  d_2006q4 + d_2014q4)
-
-
-## Ratio 2 test:
-
-equip_h_k_lag1= ts(stats::lag(equip_h_k,1), start = c(2005,3), end = c(2020,1), frequency = 4)
-
-i_equip_h_k_ds__equip_h_k= ts(i_equip_h_k_ds/equip_h_k_lag1, start = c(2005,3), end = c(2020,1), frequency = 4)
-
-yd_hk_ds__equip_h_k= ts(yd_hk_ds/equip_h_k_lag1, start = c(2005,3), end = c(2020,1), frequency = 4)
-
-
-
-
-
-
-dynlm(diff(log(i_equip_h_k_ds__equip_h_k)) ~ 1 + L(diff(log(i_equip_h_k_ds__equip_h_k)),1) +  L(diff(log(i_equip_h_k_ds__equip_h_k)),2) +
-        diff(log(yd_hk_ds__equip_h_k))+ DUMMY_4)
-
-
-
-```
 
 ```{r}
 "COMMENT> deseason
@@ -1211,6 +1177,26 @@ COEFF> p_770 p_771 p_772 p_773 p_774 p_775
 END"
 
 
+"MODEL
+
+COMMENT>  Skkal skrives om!!!
+BEHAVIORAL> eq_h
+EQ> eq_h = p_770 
++ p_771 * (TSDELTA(TSLAG(ibd,1))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ p_772 * ((TSDELTA(TSLAG(div_r_h,1)+TSLAG(eq_h_rvx,1))/TSLAG(eq_h,2))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ p_773 * ((TSLAG(eq_h,1)- TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ p_774 * (TSLAG(ibd,1) * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ p_775 * ((TSLAG(div_r_h,2)+TSLAG(eq_h_rvx,2))/TSLAG(eq_h,3)) * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1))
++ alpha_1* eq_h_rvx
++ alpha_2* (((TSLAG(eq_h,1)-TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2)))*(TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
+COEFF> p_770 p_771 p_772 p_773 p_774 p_775 alpha_1 alpha_2
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+STORE> coe(1)
+
+END"
+
+
 ```
 
 
@@ -1218,8 +1204,24 @@ END"
 ```{r}
 ratio= i_bd_h_k_ds/p_bd
 
-summary(dynlm(diff(ratio)~1))
+x_x = ik
+y_y= yk
+z_z= u
 
+
+
+mean(diff(i_bd_h_k_ds/p_bd))
+
+summary(dynlm(diff(ik/yk)~0+ L((ik/yk),1) + L(z_z,1) + diff(z_z)+ L(diff(ik/yk),1 )))
+
+summary(dynlm(diff(ik/yk)~0+ L((ik/yk),1)))
+
+summary(dynlm(ik~ 0 + I(L((ik/yk),1)*yk) + I(L(z_z,1)*yk) + I(diff(z_z)*yk)+ I(L(diff(ik/yk),1 )*yk)))
+
+
+w= (stats::lag(ik,1)/stats::lag(yk,1))^2* diff(yk)
+
+summary(dynlm(diff(ik)~0+ w))
 
 
 "COMMENT> 
@@ -1235,21 +1237,18 @@ STORE> coe(2)"
 
 Deseason.txt="MODEL
 
-
 COMMENT> 
 BEHAVIORAL> i_bd_h_k_ds
-EQ> LOG(i_bd_h_k_ds) = P_620 + P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_631*D_2006Q4 + P_632*D_2014Q4 + alpha_1*LOG(TSLAG(bd_h_k,1)) + alpha_2* TSLAG(LOG(i_bd_h_k_ds),1) + alpha_3* TSLAG(-LOG(bd_h_k),2)
-COEFF> P_620 P_621 P_622 P_623 P_624 P_625 P_626 P_627 P_628 P_629 P_630 P_631 P_632 alpha_1 alpha_2 alpha_3
+EQ>  TSDELTA(i_bd_h_k_ds)= alpha_1* (TSLAG(i_bd_h_k_ds,1)/(TSLAG(p_bd,1)))*(TSLAG(i_bd_h_k_ds,1)/(TSLAG(p_bd,1))
+COEFF> p_111 alpha_1
 RESTRICT> alpha_1 = 1
-alpha_2 = 1
-alpha_3 = 1
 STORE> coe(2)
+
 
 END"
 ```
 
 
-.003592
 ```{r}
 Deseason=LOAD_MODEL(modelText = Deseason.txt)
 ```
@@ -1296,7 +1295,28 @@ S_modelData=list(
    i_equip_nfc_k_ds = TIMESERIES(c(i_equip_nfc_k_ds),   
                      START=c(2005,2),FREQ=4),
    equip_nfc_k = TIMESERIES(c(equip_nfc_k),   
+                     START=c(2005,2),FREQ=4),
+  eq_h = TIMESERIES(c(eq_h),   
+                     START=c(2005,2),FREQ=4),
+  
+  ibd = TIMESERIES(c(ibd),   
+                     START=c(2005,2),FREQ=4),
+  
+  sec_h = TIMESERIES(c(sec_h),   
+                     START=c(2005,2),FREQ=4),
+  
+  iba_h = TIMESERIES(c(iba_h),   
+                     START=c(2005,2),FREQ=4),
+  div_r_h = TIMESERIES(c(div_r_h),   
+                     START=c(2005,2),FREQ=4),
+  
+  eq_h_rvx = TIMESERIES(c(eq_h_rvx),   
+                     START=c(2005,3),FREQ=4),
+  
+  sec_h = TIMESERIES(c(sec_h),   
                      START=c(2005,2),FREQ=4)
+  
+
 )
 
 
@@ -1305,7 +1325,7 @@ Deseason=LOAD_MODEL_DATA(Deseason,S_modelData)
 ```{r}
 #Estimate model coefficients
 S_model=ESTIMATE(Deseason
-                 ,TSRANGE=c(2006,3,2020,1)
+                 ,TSRANGE=c(2006,1,2020,1)
                  ,forceTSRANGE = TRUE
 )
 ```
