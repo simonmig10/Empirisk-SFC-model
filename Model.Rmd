@@ -723,22 +723,21 @@ EQ> int_p_h =  - TSLAG(iloan,1)*TSLAG(l_h,1)  + int_p_h_adj
 
 COMMENT> 
 IDENTITY> div_h
-EQ> div_h = d_20124*((TSLAG(Eq_h_nf,1) + TSLAG(Eq_h_f,1))*TSLAG(divd,1) + TSLAG(Eq_h_row,1)*TSLAG(diva,1)) + (1-d_20124)*(TSLAG(Eq_h,1)*TSLAG(divd,1)) +  div_h_adj
+EQ> div_h = d_20124*((TSLAG(eq_h_nf,1) + TSLAG(eq_h_f,1))*TSLAG(divd,1) + TSLAG(eq_h_row,1)*TSLAG(diva,1)) + (1-d_20124)*(TSLAG(eq_h,1)*TSLAG(divd,1)) +  div_h_adj
 
 COMMENT> 
 IDENTITY> int_r_h
 EQ> int_r_h = TSLAG(idep,1)*TSLAG(iba_h,1)  + TSLAG(ibd,1)*TSLAG(sec_h,1)  + int_r_h_adj
 
 
-
 COMMENT> 
 IDENTITY> aa_check
-EQ> aa_check = Eq_h_f(-1)*divd(-1)
+EQ> aa_check = TSLAG(eq_h_f,1)*TSLAG(divd,1)
 
 
 COMMENT> 
 IDENTITY> insu_h
-EQ> insu_h = ins_h(-1)*insu(-1) + ins_h_adj
+EQ> insu_h = TSLAG(ins_h,1)*TSLAG(insu,1) + ins_h_adj
 
 COMMENT> 
 IDENTITY> propinc_r_h
@@ -790,8 +789,7 @@ EQ> tax_h = -(tax_rate2*(yh2a+yh2b) +  tax_rate1*yh1 +  tax_h_adj)
 
 COMMENT> 
 IDENTITY> insu_h
-EQ> insu_h = ins_h(-1)*insu(-1) + ins_h_adj
-
+EQ> insu_h = TSLAG(ins_h,1)*TSLAG(insu,1) + ins_h_adj
 
 COMMENT> 
 IDENTITY> yd1_hk
@@ -838,7 +836,7 @@ EQ> nl_h = s_h - i_h - np_h + ctr_h
 
 COMMENT> Equation so i can shock to G_bar
 BEHAVIORAL> pcon_ds
-EQ> TSDELTALOG(PCONK_DS) = C_1 + C_2*TSLAG(LOG(PCONK_DS),1) + C_3*TSLAG(LOG(yd1_hk_ds),1) + C_4*TSLAG(LOG(yd2a_hk_ds),1) + C_5*TSLAG(LOG(fnw_hk),2) + C_6*TSDELTALOG(yd1_hk_ds) + C_7*TSDELTALOG(yd1_hk_ds,2) + C_8*TSDELTALOG(yd2a_hk_ds) + C_9*TSDELTALOG(-yd2b_hk) + C_10*D_2008Q4 + C_11*D_2018Q2 + C_12*D_2020Q1
+EQ> TSDELTALOG(pcon_ds) = C_1 + C_2*TSLAG(LOG(pcon_ds),1) + C_3*TSLAG(LOG(yd1_hk_ds),1) + C_4*TSLAG(LOG(yd2a_hk_ds),1) + C_5*TSLAG(LOG(fnw_hk),2) + C_6*TSDELTALOG(yd1_hk_ds) + C_7*TSDELTALOG(yd1_hk_ds,2) + C_8*TSDELTALOG(yd2a_hk_ds) + C_9*TSDELTALOG(-yd2b_hk) + C_10*D_2008Q4 + C_11*D_2018Q2 + C_12*D_2020Q1
 COEFF> C_1 C_2 C_3 C_4 C_5 C_6 C_7 C_8 C_9 C_10 C_11 
 STORE> coe(1)
 
@@ -868,7 +866,7 @@ COEFF> p_636 p_637 p_638 p_639 p_640 alpha_1 alpha_2 alpha_3
 RESTRICT> alpha_1 = 1
 alpha_2 = 1
 alpha_3 = 1 
-STORE> coe(2)
+STORE> coe(3)
 
 COMMENT> 
 IDENTITY> i_equip_h_k
@@ -878,7 +876,7 @@ COMMENT>
 BEHAVIORAL> NBEN_H1
 EQ> TSDELTALOG(NBEN_H1) = P_671 + P_672*TSDELTALOG(ZALAND_JESPER) + P_673*TSDELTA(UNEMP) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(NBEN_H,1)) + P_676*TSLAG(UNEMP,1) + P_677*LOG(TSLAG(ZALAND_JESPER,1))
 COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677
-STORE> coe(1)
+STORE> coe(4)
 
 
 
@@ -889,14 +887,15 @@ COMMENT> Skriv om!!!! Find ud af hhvordan jeg fikser trend
 BEHAVIORAL> pconk
 EQ> TSDELTA(-L_H_TR/(YD_HK_DS*PC)) = p_641*TSDELTA(-L_H_TR(-2)/(YD_HK_DS(-2)*PC(-2))) + p_642*TSDELTA(ILOAN) + p_643*TSDELTALOG(I_BD_H_K_DS(-3)/(YD_HK_DS(-3))) + p_644*-L_H_TR(-1)/(YD_HK_DS(-1)*PC(-1)) + p_645*LOG(-L_H(-2)/(YD_HK_DS(-2)*PC(-2))) + p_646 + p_647*D_2007Q34 + p_648*time
 COEFF> P_641 P_642 P_643 P_644 P_645 P_646 P_647 P_648
+STORE> coe(1)
 
 COMMENT> 
-IDENTITY> IBA_h
-EQ> IBA_h= IBA_h(-1) + IBA_h_tr + IBA_h_rvx
+IDENTITY> iba_h
+EQ> iba_h= TSLAG(iba_h,1) + iba_h_tr + iba_h_rvx
 
 COMMENT> For the time being we take sec_h_tr as exogenous. It is assumed that households' holdings of securities are entirely issued by the government.
-IDENTITY> Sec_h
-EQ> Sec_h= Sec_h(-1) + Sec_h_tr + Sec_h_rvx
+IDENTITY> sec_h
+EQ> sec_h= TSLAG(sec_h,1) + sec_h_tr + sec_h_rvx
 
 COMMENT> 
 IDENTITY> sec_h_tr_g
@@ -904,16 +903,17 @@ EQ> sec_h_tr_g=sec_h_tr
 
 COMMENT> 
 IDENTITY> L_h
-EQ> L_h= L_h(-1) + L_h_tr + L_h_rvx
+EQ> L_h= TSLAG(L_h,1) + L_h_tr + L_h_rvx
 
 COMMENT>  Skkal skrives om!!!
-BEHAVIORAL> Sec_h
-EQ> TSDELTA((EQ_H-EQ_H_RVX)/(EQ_H(-1)+SEC_H(-1)+IBA_H(-1))) = p_770 + p_771*TSDELTA(IBD(-1)) + p_772*TSDELTA((DIV_R_H(-1)+EQ_H_RVX(-1))/EQ_H(-2))  + p_773 * ((EQ_H(-1)-EQ_H_RVX(-1))/(EQ_H(-2)+SEC_H(-2)+IBA_H(-2))) + p_774 * IBD(-1) + p_775 * ((DIV_R_H(-2)+EQ_H_RVX(-2))/EQ_H(-3))
+BEHAVIORAL> sec_h
+EQ> TSDELTA((EQ_H-EQ_H_RVX)/(EQ_H(-1)+SEC_H(-1)+iba_H(-1))) = p_770 + p_771*TSDELTA(IBD(-1)) + p_772*TSDELTA((DIV_R_H(-1)+EQ_H_RVX(-1))/EQ_H(-2))  + p_773 * ((EQ_H(-1)-EQ_H_RVX(-1))/(EQ_H(-2)+SEC_H(-2)+iba_H(-2))) + p_774 * IBD(-1) + p_775 * ((DIV_R_H(-2)+EQ_H_RVX(-2))/EQ_H(-3))
 COEFF> p_770 p_771 p_772 p_773 p_774 p_775
+STORE> coe(5)
 
 COMMENT> 
 IDENTITY> eq_h_tr
-EQ> eq_h_tr = TSDELTA(Eq_h) - Eq_h_rvx
+EQ> eq_h_tr = TSDELTA(eq_h) - eq_h_rvx
 
 COMMENT> 
 IDENTITY> iba_h_tr
@@ -950,7 +950,7 @@ EQ> eq_h_test = eq_h - (eq_h_nf + eq_h_f + eq_h_row)
 
 COMMENT> 
 IDENTITY> ins_h
-EQ> ins_h= ins_h(-1) + ins_h_tr + ins_h_rvx
+EQ> ins_h= TSLAG(ins_h,1) + ins_h_tr + ins_h_rvx
 
 COMMENT> 
 IDENTITY> ins_h_tr
@@ -958,8 +958,9 @@ EQ> ins_h_tr = d8_h + ins_h_tr_excl_d8
 
 COMMENT> 
 BEHAVIORAL> D8_H
-EQ> TSDELTALOG(D8_H) = p_701*TSDELTALOG(D8_H(-1)) + p_702*TSDELTALOG(W_H_R) + p_703*TSDELTALOG(OLD_AGE_RATIO(-1)) + p_704*LOG(D8_H(-1)) + p_705*LOG(W_H_R(-1)) + p_706*LOG(OLD_AGE_RATIO(-1)) + p_707*D_2014Q3
+EQ> TSDELTALOG(D8_H) = p_701*TSDELTALOG(TSLAG(D8_H,1)) + p_702*TSDELTALOG(W_H_R) + p_703*TSDELTALOG(TSLAG(OLD_AGE_RATIO,1)) + p_704*LOG(TSLAG(D8_H,1)) + p_705*LOG(TSLAG(W_H_R,1)) + p_706*LOG(TSLAG(OLD_AGE_RATIO,1)) + p_707*D_2014Q3
 COEFF> p_701 p_702 p_703 p_704 p_705 p_706 p_707
+STORE> coe(6)
 
 COMMENT> 
 IDENTITY> lev_h
@@ -969,7 +970,7 @@ COMMENT> NET WEALTH AND FINANCIAL NET WEALTH
 
 COMMENT> 
 IDENTITY> fa_h
-EQ> fa_h = IBA_h + Sec_h + eq_h + ins_h
+EQ> fa_h = iba_h + sec_h + eq_h + ins_h
 
 COMMENT> 
 IDENTITY> fnw_h
@@ -991,19 +992,19 @@ EQ> i_equip_h = i_equip_h_k * p_equip
 
 COMMENT> Real net stock of buildings and dwellings
 IDENTITY> bd_h_k
-EQ> TSDELTA(bd_h_k) = i_bd_h_k - bd_h_k(-1) * delta_bd_h
+EQ> TSDELTA(bd_h_k) = i_bd_h_k - TSLAG(bd_h_k,1) * delta_bd_h
 
 COMMENT>  Real net stock of equipment
 IDENTITY> equip_h_k
-EQ> TSDELTA(equip_h_k) = i_equip_h_k - equip_h_k(-1) * delta_equip_h
+EQ> TSDELTA(equip_h_k) = i_equip_h_k - TSLAG(equip_h_k,1) * delta_equip_h
 
 COMMENT> Nominal net stock of buildings and dwellings
 IDENTITY> bd_h
-EQ> TSDELTA(bd_h) = i_bd_h + bd_h_k(-1) * (1-delta_bd_h)*TSDELTA(p_bd) - bd_h_k(-1) * delta_bd_h * p_bd
+EQ> TSDELTA(bd_h) = i_bd_h + TSLAG(bd_h_k,1) * (1-delta_bd_h)*TSDELTA(p_bd) - TSLAG(bd_h_k,1) * delta_bd_h * p_bd
 
 COMMENT> Nominal net stock of equipment
 IDENTITY> equip_h
-EQ> TSDELTA(equip_h) = i_equip_h + equip_h_k(-1) * (1-delta_equip_h)*TSDELTA(p_equip) - equip_h_k(-1) * delta_equip_h * p_equip
+EQ> TSDELTA(equip_h) = i_equip_h + TSLAG(equip_h_k,1) * (1-delta_equip_h)*TSDELTA(p_equip) - TSLAG(equip_h_k,1) * delta_equip_h * p_equip
 
 
 COMMENT> NON-FINANCIAL SECTOR
@@ -1036,8 +1037,9 @@ EQ> rer = pc*xr/pf
 
 COMMENT> 
 BEHAVIORAL> XK_DS
-EQ> TSDELTALOG(XK_DS) =  p_651 + p_652*TSDELTALOG(GDP_TP(-4)) + p_653*TSDELTALOG(RER) + p_654*LOG(XK_DS(-1)) + p_655*LOG(GDP_TP(-1)) + p_657*D_2008Q2
+EQ> TSDELTALOG(XK_DS) =  p_651 + p_652*TSDELTALOG(TSLAG(GDP_TP,4)) + p_653*TSDELTALOG(RER) + p_654*LOG(TSLAG(XK_DS,1)) + p_655*LOG(TSLAG(GDP_TP,1)) + p_657*D_2008Q2
 COEFF> p_651 p_652 p_653 p_654 p_655 p_657
+STORE> coe(7)
 
 COMMENT> 
 IDENTITY> xk
@@ -1049,8 +1051,9 @@ EQ> m = mk*pm
 
 COMMENT> 
 BEHAVIORAL> MK_DS
-EQ> TSDELTALOG(MK_DS) = p_661 + p_662*TSDELTALOG(MK_DS(-2)) + p_663*TSDELTALOG(RER(-1)) + p_664*TSDELTALOG(RER(-3)) + p_665*TSDELTALOG(YK_DS) + p_666*LOG(MK_DS(-1)) + p_667*LOG(YK_DS(-1)) + p_668*D_20091 + p_669*D_2009Q4
+EQ> TSDELTALOG(MK_DS) = p_661 + p_662*TSDELTALOG(TSLAG(MK_DS,2)) + p_663*TSDELTALOG(TSLAG(RER,1)) + p_664*TSDELTALOG(TSLAG(RER,3)) + p_665*TSDELTALOG(YK_DS) + p_666*LOG(TSLAG(MK_DS,1)) + p_667*LOG(TSLAG(YK_DS,1)) + p_668*D_20091 + p_669*D_2009Q4
 COEFF> p_661 p_662 p_663 p_664 p_665 p_666 p_667 p_668 p_669
+STORE> coe(8)
 
 COMMENT> 
 IDENTITY> mk
@@ -1093,8 +1096,8 @@ IDENTITY> u
 EQ> u=yk/(bd_nfc_k+equip_nfc_k)
 
 COMMENT> Profit rate
-IDENTITY> ps
-EQ> prate=s_nf/(bd_nfc(-1)+equip_nfc(-1))
+IDENTITY> prate
+EQ> prate=s_nf/(TSLAG(bd_nfc,1)+TSLAG(equip_nfc,1))
 
 COMMENT> 
 IDENTITY> tobinq
@@ -1107,7 +1110,7 @@ COEFF> p_800 p_801 p_802 p_803 p_804 p_805 p_806 alpha_1 alpha_2 alpha_3
 RESTRICT> alpha_1 = 1
 alpha_2 = 1
 alpha_3 = 1
-STORE> coe(2)
+STORE> coe(9)
 
 COMMENT> 
 IDENTITY> i_bd_nfc_k
@@ -1148,19 +1151,19 @@ COEFF> p_807 p_808 p_809 p_810 p_811 p_812 p_813 p_814 p_815 p_890 p_891 alpha_1
 RESTRICT> alpha_1 = 1
 alpha_2 = 1
 alpha_3 = 1
-STORE> coe(2)
+STORE> coe(10)
 
 COMMENT> 
 IDENTITY> int_nf
-EQ> int_nf = (idep(-1)*iba_nf(-1) + ibd(-1)*sec_nf(-1) + iloan(-1)*l_nf(-1)) 
+EQ> int_nf = (TSLAG(idep,1)*TSLAG(iba_nf,1) + TSLAG(ibd,1)*TSLAG(sec_nf,1) + TSLAG(iloan,1)*TSLAG(l_nf,1)) 
 
 COMMENT> 
 IDENTITY> div_nf
-EQ> div_nf =d_20124*((Eq_nf_a_nf(-1) + Eq_nf_a_f(-1) - (eq_nf_l_nf(-1) + eq_h_nf (-1)+ eq_row_a_nf(-1) + eq_f_a_nf(-1) + eq_g_nf(-1)))* divd(-1) + Eq_nf_a_row(-1)*diva(-1)) + (1-d_20124)*(Neq_nf(-1)*divd(-1)) + div_nf_adj 
+EQ> div_nf =d_20124*((TSLAG(eq_nf_a_nf,1) + TSLAG(eq_nf_a_f,1) - (TSLAG(eq_nf_l_nf,1) + TSLAG(eq_h_nf,1)+ TSLAG(eq_row_a_nf,1) + TSLAG(eq_f_a_nf,1) + TSLAG(eq_g_nf,1)))* TSLAG(divd,1) + TSLAG(eq_nf_a_row,1)*TSLAG(diva,1)) + (1-d_20124)*(TSLAG(neq_nf,1)*TSLAG(divd,1)) + div_nf_adj 
 
 COMMENT> 
 IDENTITY> insu_nf
-EQ> insu_nf =  ins_nf(-1)*insu(-1) 
+EQ> insu_nf =  TSLAG(ins_nf,1)*TSLAG(insu,1) 
 
 COMMENT> 
 IDENTITY> npropinc_nf
@@ -1187,32 +1190,32 @@ COMMENT> Financial side
 
 COMMENT> Change in stocks
 
-COMMENT> IBA
-IDENTITY> IBA_nf
-EQ> IBA_nf = IBA_nf(-1) + IBA_nf_tr + IBA_nf_rvx 
+COMMENT> iba
+IDENTITY> iba_nf
+EQ> iba_nf = TSLAG(iba_nf,1) + iba_nf_tr + iba_nf_rvx 
 
 COMMENT> 
 IDENTITY> iba_nf_tr
 EQ> iba_nf_tr = nl_nf + nl_nf_adj - neq_nf_tr - l_nf_tr - sec_nf_tr - ins_nf_tr
 
 COMMENT> SEC . For the time being, we take sec_nf_tr as exogenous.
-IDENTITY> Sec_nf
-EQ> Sec_nf = Sec_nf(-1) + Sec_nf_tr + Sec_nf_rvx
+IDENTITY> sec_nf
+EQ> sec_nf = TSLAG(sec_nf,1) + sec_nf_tr + sec_nf_rvx
 
 COMMENT>  Loans
 IDENTITY> l_nf
-EQ> l_nf = l_nf(-1) + l_nf_tr + l_nf_rvx
+EQ> l_nf = TSLAG(l_nf,1) + l_nf_tr + l_nf_rvx
 
 COMMENT> CHANGE in STOCKS OF EQUITIES:
 
 COMMENT> Equities held as assets by NFC
 IDENTITY> eq_nf_a
-EQ> eq_nf_a = (1-d_20124)*(eq_nf_a(-1) + eq_nf_a_tr + eq_nf_a_rvx)  + d_20124*eq_nf_ax 
+EQ> eq_nf_a = (1-d_20124)*(TSLAG(eq_nf_a,1) + eq_nf_a_tr + eq_nf_a_rvx)  + d_20124*eq_nf_ax 
 
 
 COMMENT> 
 IDENTITY> eq_nf_a_nf
-EQ> eq_nf_a_nf = d_20124 * (eq_nf_a_nf(-1) + eq_nf_a_nf_tr + eq_nf_a_nf_rv)
+EQ> eq_nf_a_nf = d_20124 * (TSLAG(eq_nf_a_nf,1) + eq_nf_a_nf_tr + eq_nf_a_nf_rv)
 
 COMMENT> equiteies NFC-NFC asset is obviously equal to equities NFC-NFC liability
 IDENTITY> eq_nf_l_nf
@@ -1224,23 +1227,23 @@ EQ> eq_nf_ax =  eq_nf_a_nf + eq_nf_a_f + eq_nf_a_row
 
 COMMENT> 
 IDENTITY> eq_nf_a_f
-EQ> eq_nf_a_f = d_20124 * (eq_nf_a_f(-1) + eq_nf_a_f_tr + eq_nf_a_f_rv)
+EQ> eq_nf_a_f = d_20124 * (TSLAG(eq_nf_a_f,1) + eq_nf_a_f_tr + eq_nf_a_f_rv)
 
 COMMENT> 
 IDENTITY> eq_nf_a_row
-EQ> eq_nf_a_row = d_20124 * (eq_nf_a_row(-1) + eq_nf_a_row_tr + eq_nf_a_row_rv)
+EQ> eq_nf_a_row = d_20124 * (TSLAG(eq_nf_a_row,1) + eq_nf_a_row_tr + eq_nf_a_row_rv)
 
 COMMENT> total gross liabilities of equities on firms balance sheet is defined as the sum of NFC-NFC asset + the sum of NFC equities held by other sectors
 IDENTITY> eq_nf_l
-EQ> eq_nf_l = (1- d_20124)*(eq_nf_l(-1) + eq_nf_l_tr + eq_nf_l_rvx)   +  d_20124*eq_nf_lx
+EQ> eq_nf_l = (1- d_20124)*(TSLAG(eq_nf_l,1) + eq_nf_l_tr + eq_nf_l_rvx)   +  d_20124*eq_nf_lx
 
 COMMENT> 
 IDENTITY> eq_nf_lx
-EQ> Neq_nf =d_20123*(-alpha_neq_nf * i_nf) + d_20124*( (eq_nf_a_f+ eq_nf_a_row)-(eq_f_a_nf + eq_g_nf + eq_h_nf + eq_row_a_nf))
+EQ> neq_nf =d_20123*(-alpha_neq_nf * i_nf) + d_20124*( (eq_nf_a_f+ eq_nf_a_row)-(eq_f_a_nf + eq_g_nf + eq_h_nf + eq_row_a_nf))
 
 COMMENT> 
-IDENTITY> Neq_nf_tr
-EQ> Neq_nf_tr = TSDELTA(Neq_nf)-(Neq_nf_rvx)
+IDENTITY> neq_nf_tr
+EQ> neq_nf_tr = TSDELTA(neq_nf)-(neq_nf_rvx)
 
 
 COMMENT>Some consistency check eqs:
@@ -1257,13 +1260,13 @@ EQ> eq_nf_l_test = eq_nf_l - eq_nf_lx
 
 COMMENT> insurance NFC
 IDENTITY> ins_nf
-EQ> ins_nf = ins_nf(-1) + ins_nf_tr + ins_nf_rvx 
+EQ> ins_nf = TSLAG(ins_nf,1) + ins_nf_tr + ins_nf_rvx 
 
 COMMENT> FINANCIAL NET WEALTH
 
 COMMENT> net financial wealth
 IDENTITY> fnw_nf
-EQ> fnw_nf = IBA_nf + EQ_nf_a - EQ_nf_l + Sec_nf + L_nf + INS_nf 
+EQ> fnw_nf = iba_nf + EQ_nf_a - EQ_nf_l + sec_nf + L_nf + INS_nf 
 
 COMMENT> 
 IDENTITY> fnw_nfk
@@ -1282,19 +1285,19 @@ EQ> i_equip_nfc = i_equip_nfc_k * p_equip
 
 COMMENT>  Real net stock of buildings and dwellings
 IDENTITY> bd_nfc_k
-EQ> TSDELTA(bd_nfc_k) = i_bd_nfc_k - bd_nfc_k(-1) * delta_bd_nfc
+EQ> TSDELTA(bd_nfc_k) = i_bd_nfc_k - TSLAG(bd_nfc_k,1) * delta_bd_nfc
 
 COMMENT> Real net stock of equipment
 IDENTITY> equip_nfc_k
-EQ> TSDELTA(equip_nfc_k) = i_equip_nfc_k - equip_nfc_k(-1) * delta_equip_nfc 
+EQ> TSDELTA(equip_nfc_k) = i_equip_nfc_k - TSLAG(equip_nfc_k,1) * delta_equip_nfc 
 
 COMMENT> Nominal net stock of buildings and dwellings
 IDENTITY> bd_nfc
-EQ> TSDELTA(bd_nfc) = i_bd_nfc + bd_nfc_k(-1) * (1-delta_bd_nfc)*TSDELTA(p_bd) - bd_nfc_k(-1) * delta_bd_nfc * p_bd 
+EQ> TSDELTA(bd_nfc) = i_bd_nfc + TSLAG(bd_nfc_k,1) * (1-delta_bd_nfc)*TSDELTA(p_bd) - TSLAG(bd_nfc_k,1) * delta_bd_nfc * p_bd 
 
 COMMENT> Nominal net stock of equipment
 IDENTITY> equip_nfc
-EQ> TSDELTA(equip_nfc) = i_equip_nfc + equip_nfc_k(-1) * (1-delta_equip_nfc)*TSDELTA(p_equip) - equip_nfc_k(-1) * delta_equip_nfc * p_equip 
+EQ> TSDELTA(equip_nfc) = i_equip_nfc + TSLAG(equip_nfc_k,1) * (1-delta_equip_nfc)*TSDELTA(p_equip) - TSLAG(equip_nfc_k,1) * delta_equip_nfc * p_equip 
 
 COMMENT> FINANCIAL CORP
 
@@ -1302,15 +1305,15 @@ COMMENT> Real side
 
 COMMENT> 
 IDENTITY> int_f
-EQ> int_f = (idep(-1)*iba_f(-1) + iloan(-1)*l_f(-1) + ibd(-1)*sec_f_d(-1) + iboa(-1)*sec_f_a(-1)) 
+EQ> int_f = (TSLAG(idep,1)*TSLAG(iba_f,1) + TSLAG(iloan,1)*TSLAG(l_f,1) + TSLAG(ibd,1)*TSLAG(sec_f_d,1) + TSLAG(iboa,1)*TSLAG(sec_f_a,1)) 
 
 COMMENT> 
 IDENTITY> div_f
-EQ> div_f = d_20124 *(((Eq_f_a_f(-1) + Eq_f_a_nf(-1)) - (eq_f_l_f(-1) + eq_h_f (-1)+ eq_row_a_f(-1) + eq_nf_a_f(-1) + eq_g_f(-1)))* divd(-1) + Eq_f_a_row(-1)*diva(-1)) + (1-d_20124)*((Neq_f(-1)*divd(-1))) +  div_f_adj 
+EQ> div_f = d_20124 *(((TSLAG(eq_f_a_f,1) + TSLAG(eq_f_a_nf,1)) - (TSLAG(eq_f_l_f,1) + TSLAG(eq_h_f ,1)+ TSLAG(eq_row_a_f,1) + TSLAG(eq_nf_a_f,1) + TSLAG(eq_g_f,1)))* TSLAG(divd,1) + TSLAG(eq_f_a_row,1)*TSLAG(diva,1)) + (1-d_20124)*((TSLAG(neq_f,1)*TSLAG(divd,1))) +  div_f_adj 
 
 COMMENT> 
 IDENTITY> insu_f
-EQ> insu_f = ins_f(-1)*insu(-1)
+EQ> insu_f = TSLAG(ins_f,1)*TSLAG(insu,1)
 
 COMMENT> 
 IDENTITY> propinc_r_f
@@ -1350,11 +1353,11 @@ EQ> nl_f = s_f - i_f - np_f + ctr_f
 
 COMMENT> FInancial side
 
-COMMENT> Change in stocks of IBAs
+COMMENT> Change in stocks of ibas
 
 COMMENT> 
 IDENTITY> iba_f
-EQ>  iba_f = iba_f(-1) + iba_f_tr + iba_f_rvx
+EQ>  iba_f = TSLAG(iba_f,1) + iba_f_tr + iba_f_rvx
 
 COMMENT> 
 IDENTITY> iba_f_tr
@@ -1364,15 +1367,15 @@ COMMENT> Change in stocks of equities:
 
 COMMENT> 
 IDENTITY> eq_f_a
-EQ> eq_f_a = (1-d_20124)*(eq_f_a(-1) + eq_f_a_tr + eq_f_a_rvx)  + d_20124*eq_f_ax
+EQ> eq_f_a = (1-d_20124)*(TSLAG(eq_f_a,1) + eq_f_a_tr + eq_f_a_rvx)  + d_20124*eq_f_ax
 
 COMMENT> 
 IDENTITY> eq_f_a_nf
-EQ> eq_f_a_nf = d_20124 * (eq_f_a_nf(-1) + eq_f_a_nf_tr + eq_f_a_nf_rv)
+EQ> eq_f_a_nf = d_20124 * (TSLAG(eq_f_a_nf,1) + eq_f_a_nf_tr + eq_f_a_nf_rv)
 
 COMMENT> 
 IDENTITY> eq_f_a_f
-EQ> eq_f_a_f = d_20124 * (eq_f_a_f(-1) + eq_f_a_f_tr + eq_f_a_f_rv)
+EQ> eq_f_a_f = d_20124 * (TSLAG(eq_f_a_f,1) + eq_f_a_f_tr + eq_f_a_f_rv)
 
 COMMENT> 
 IDENTITY> eq_f_l_f
@@ -1380,7 +1383,7 @@ EQ> eq_f_l_f = eq_f_a_f
 
 COMMENT> 
 IDENTITY> eq_f_a_row
-EQ> eq_f_a_row = d_20124 * (eq_f_a_row(-1) + eq_f_a_row_tr + eq_f_a_row_rv)
+EQ> eq_f_a_row = d_20124 * (TSLAG(eq_f_a_row,1) + eq_f_a_row_tr + eq_f_a_row_rv)
 
 COMMENT> this is the data for quities as assets for NFC viz-a-viz counter parties, e.g., NFC purchase equities from NFC, FC, and RoW
 IDENTITY> eq_f_ax
@@ -1388,19 +1391,19 @@ EQ> eq_f_ax =  eq_f_a_nf + eq_f_a_f + eq_f_a_row
 
 COMMENT> 
 IDENTITY> eq_f_l
-EQ> eq_f_l = (1- d_20124)*(eq_f_l(-1) + eq_f_l_tr + eq_f_l_rvx)   +  d_20124*eq_f_lx 
+EQ> eq_f_l = (1- d_20124)*(TSLAG(eq_f_l,1) + eq_f_l_tr + eq_f_l_rvx)   +  d_20124*eq_f_lx 
 
 COMMENT> 
 IDENTITY> eq_f_lx
 EQ> eq_f_lx =   eq_nf_a_f + eq_h_f + eq_row_a_f + eq_f_a_f + eq_g_f 
 
 COMMENT> 
-IDENTITY> Neq_f
-EQ> Neq_f = Eq_f_A - Eq_f_L
+IDENTITY> neq_f
+EQ> neq_f = eq_f_A - eq_f_L
 
 COMMENT> 
 IDENTITY> neq_f_tr
-EQ> neq_f_tr = TSDELTA(Neq_f) - neq_f_rvx
+EQ> neq_f_tr = TSDELTA(neq_f) - neq_f_rvx
 
 COMMENT> 
 IDENTITY> eq_f_l_test
@@ -1409,8 +1412,8 @@ EQ> eq_f_l_test = eq_f_l - (eq_f_l_f + eq_h_f + eq_row_a_f + eq_nf_a_f + eq_g_f)
 COMMENT> Change in stocks of securities
 
 COMMENT> 
-IDENTITY> Sec_f_d
-EQ> Sec_f_d = Sec_f_d(-1) + Sec_f_d_tr + Sec_f_d_rvx
+IDENTITY> sec_f_d
+EQ> sec_f_d = TSLAG(sec_f_d,1) + sec_f_d_tr + sec_f_d_rvx
 
 COMMENT> 
 IDENTITY> sec_f_d_tr
@@ -1425,8 +1428,8 @@ IDENTITY> sec_f_d_tr_g
 EQ> sec_f_d_tr_g=sec_f_d_tr-sec_f_d_tr_nf
 
 COMMENT> 
-IDENTITY> Sec_f_a
-EQ> Sec_f_a = Sec_f_a(-1) + Sec_f_a_tr + Sec_f_a_rvx
+IDENTITY> sec_f_a
+EQ> sec_f_a = TSLAG(sec_f_a,1) + sec_f_a_tr + sec_f_a_rvx
 
 COMMENT> 
 IDENTITY> sec_f_a_tr
@@ -1452,7 +1455,7 @@ COMMENT> 'WEALTH
 
 COMMENT> 
 IDENTITY> fnw_f
-EQ> fnw_f = iba_f + Sec_f_a + Sec_f_d + L_f + eq_f_a - eq_f_l + ins_f
+EQ> fnw_f = iba_f + sec_f_a + sec_f_d + L_f + eq_f_a - eq_f_l + ins_f
 
 COMMENT> 
 IDENTITY> fnw_fk
@@ -1470,19 +1473,19 @@ EQ> i_equip_fc = i_equip_fc_k * p_equip
 
 COMMENT> 
 IDENTITY> bd_fc_k
-EQ> TSDELTA(bd_fc_k) = i_bd_fc_k - bd_fc_k(-1) * delta_bd_fc
+EQ> TSDELTA(bd_fc_k) = i_bd_fc_k - TSLAG(bd_fc_k,1) * delta_bd_fc
 
 COMMENT> 
 IDENTITY> equip_fc_k
-EQ> TSDELTA(equip_fc_k) = i_equip_fc_k - equip_fc_k(-1) * delta_equip_fc
+EQ> TSDELTA(equip_fc_k) = i_equip_fc_k - TSLAG(equip_fc_k,1) * delta_equip_fc
 
 COMMENT> 
 IDENTITY> bd_fc
-EQ> TSDELTA(bd_fc) = i_bd_fc + bd_fc_k(-1) * (1-delta_bd_fc)*TSDELTA(p_bd) - bd_fc_k(-1) * delta_bd_fc * p_bd
+EQ> TSDELTA(bd_fc) = i_bd_fc + TSLAG(bd_fc_k,1) * (1-delta_bd_fc)*TSDELTA(p_bd) - TSLAG(bd_fc_k,1) * delta_bd_fc * p_bd
 
 COMMENT> 
 IDENTITY> equip_fc
-EQ> TSDELTA(equip_fc) = i_equip_fc + equip_fc_k(-1) * (1-delta_equip_fc)*TSDELTA(p_equip) - equip_fc_k(-1) * delta_equip_fc * p_equip
+EQ> TSDELTA(equip_fc) = i_equip_fc + TSLAG(equip_fc_k,1) * (1-delta_equip_fc)*TSDELTA(p_equip) - TSLAG(equip_fc_k,1) * delta_equip_fc * p_equip
 
 COMMENT> GOVT 
 
@@ -1490,15 +1493,15 @@ COMMENT> Real side
 
 COMMENT> 
 IDENTITY> int_g
-EQ> int_g = (idep(-1)*iba_g(-1) + iloan(-1)*l_g(-1) + ibd(-1)*sec_g(-1))
+EQ> int_g = (TSLAG(idep,1)*TSLAG(iba_g,1) + TSLAG(iloan,1)*TSLAG(l_g,1) + TSLAG(ibd,1)*TSLAG(sec_g,1))
 
 COMMENT> 
 IDENTITY> div_g
-EQ> div_g = d_20124 * ( (Eq_g_nf(-1) + Eq_g_f(-1))*divd(-1) + Eq_g_row(-1)*diva(-1) ) + (1-d_20124) * ((eq_g(-1)*divd(-1))) + div_g_adj
+EQ> div_g = d_20124 * ( (TSLAG(eq_g_nf,1) + TSLAG(eq_g_f,1))*TSLAG(divd,1) + TSLAG(eq_g_row,1)*TSLAG(diva,1) ) + (1-d_20124) * ((TSLAG(eq_g,1)*TSLAG(divd,1))) + div_g_adj
 
 COMMENT> 
 IDENTITY> insu_g
-EQ> insu_g = ins_g(-1)*insu(-1)
+EQ> insu_g = TSLAG(ins_g,1)*TSLAG(insu,1)
 
 COMMENT> 
 IDENTITY> propinc_r_g
@@ -1542,23 +1545,23 @@ COMMENT> Change in stocks ' we need to have an accomodating asset
 
 COMMENT> 
 IDENTITY> iba_g
-EQ> iba_g= iba_g(-1) + iba_g_tr + iba_g_rvx
+EQ> iba_g= TSLAG(iba_g,1) + iba_g_tr + iba_g_rvx
 
 COMMENT> 
 IDENTITY> eq_g
-EQ> eq_g = (1-d_20124)*(eq_g(-1) + eq_g_tr + eq_g_rvx) + d_20124*eq_g_ax
+EQ> eq_g = (1-d_20124)*(TSLAG(eq_g,1) + eq_g_tr + eq_g_rvx) + d_20124*eq_g_ax
 
 COMMENT> 
 IDENTITY> eq_g_nf
-EQ> eq_g_nf = d_20124 * (eq_g_nf(-1) + eq_g_nf_tr + eq_g_nf_rv)
+EQ> eq_g_nf = d_20124 * (TSLAG(eq_g_nf,1) + eq_g_nf_tr + eq_g_nf_rv)
 
 COMMENT> 
 IDENTITY> eq_g_f
-EQ> eq_g_f = d_20124 * (eq_g_f(-1) + eq_g_f_tr + eq_g_f_rv)
+EQ> eq_g_f = d_20124 * (TSLAG(eq_g_f,1) + eq_g_f_tr + eq_g_f_rv)
 
 COMMENT> 
 IDENTITY> eq_g_row
-EQ> eq_g_row = d_20124 * (eq_g_row(-1) + eq_g_row_tr + eq_g_row_rv)
+EQ> eq_g_row = d_20124 * (TSLAG(eq_g_row,1) + eq_g_row_tr + eq_g_row_rv)
 
 COMMENT> 
 IDENTITY> eq_g_ax
@@ -1569,8 +1572,8 @@ IDENTITY> eq_g_test
 EQ> eq_g_test = eq_g - (eq_g_nf + eq_g_f + eq_g_row)
 
 COMMENT> 
-IDENTITY> Sec_g
-EQ> Sec_g = Sec_g(-1) + Sec_g_tr + Sec_g_rvx
+IDENTITY> sec_g
+EQ> sec_g = TSLAG(sec_g,1) + sec_g_tr + sec_g_rvx
 
 COMMENT> 
 IDENTITY> sec_g_tr
@@ -1580,17 +1583,17 @@ COMMENT> SKAL REDDUNDANT EQ MED HER???? redundant = (sec_g_tr_0+(sec_h_tr_g_0+se
 
 COMMENT> 
 IDENTITY> l_g
-EQ> l_g = l_g(-1) + l_g_tr + l_g_rvx
+EQ> l_g = TSLAG(l_g,1) + l_g_tr + l_g_rvx
 
 COMMENT> 
 IDENTITY> ins_g
-EQ> ins_g = ins_g(-1) + ins_g_tr + ins_g_rvx
+EQ> ins_g = TSLAG(ins_g,1) + ins_g_tr + ins_g_rvx
 
 COMMENT> WEALTH
 
 COMMENT> 
 IDENTITY> fnw_g
-EQ> fnw_g = Iba_g + Eq_g + Sec_g + L_g + ins_g
+EQ> fnw_g = Iba_g + eq_g + sec_g + L_g + ins_g
 
 COMMENT> 
 IDENTITY> fnw_gk
@@ -1608,19 +1611,19 @@ EQ> i_equip_g = i_equip_g_k * p_equip
 
 COMMENT> Real net stock of buildings and dwellings
 IDENTITY> bd_g_k
-EQ> TSDELTA(bd_g_k) = i_bd_g_k - bd_g_k(-1) * delta_bd_g
+EQ> TSDELTA(bd_g_k) = i_bd_g_k - TSLAG(bd_g_k,1) * delta_bd_g
 
 COMMENT> 
 IDENTITY> equip_g_k
-EQ> TSDELTA(equip_g_k) = i_equip_g_k - equip_g_k(-1) * delta_equip_g
+EQ> TSDELTA(equip_g_k) = i_equip_g_k - TSLAG(equip_g_k,1) * delta_equip_g
 
 COMMENT> 
 IDENTITY> bd_g
-EQ> TSDELTA(bd_g) = i_bd_g + bd_g_k(-1) * (1-delta_bd_g)*TSDELTA(p_bd) - bd_g_k(-1) * delta_bd_g * p_bd 
+EQ> TSDELTA(bd_g) = i_bd_g + TSLAG(bd_g_k,1) * (1-delta_bd_g)*TSDELTA(p_bd) - TSLAG(bd_g_k,1) * delta_bd_g * p_bd 
 
 COMMENT> 
 IDENTITY> equip_g
-EQ> TSDELTA(equip_g) = i_equip_g + equip_g_k(-1) * (1-delta_equip_g)*TSDELTA(p_equip) - equip_g_k(-1) * delta_equip_g * p_equip
+EQ> TSDELTA(equip_g) = i_equip_g + TSLAG(equip_g_k,1) * (1-delta_equip_g)*TSDELTA(p_equip) - TSLAG(equip_g_k,1) * delta_equip_g * p_equip
 
 COMMENT> REST OF THE WORLD
 
@@ -1628,15 +1631,15 @@ COMMENT> Real side
 
 COMMENT> 
 IDENTITY> int_row
-EQ> int_row = (idep(-1)*iba_row(-1) + iboa(-1)*sec_row(-1) + iloan(-1)*l_row(-1))
+EQ> int_row = (TSLAG(idep,1)*TSLAG(iba_row,1) + TSLAG(iboa,1)*TSLAG(sec_row,1) + TSLAG(iloan,1)*TSLAG(l_row,1))
 
 COMMENT> 
 IDENTITY> div_row
-EQ> div_row = d_20124*(  (Eq_row_a_nf(-1) + Eq_row_a_f(-1))*divd(-1) - ((Eq_nf_a_row(-1)+Eq_f_a_row(-1)+Eq_g_row(-1)+Eq_h_row(-1))*diva(-1))) + (1-d_20124) * ((neq_row(-1)*divd(-1))) + div_row_adj 
+EQ> div_row = d_20124*(  (TSLAG(eq_row_a_nf,1) + TSLAG(eq_row_a_f,1))*TSLAG(divd,1) - ((TSLAG(eq_nf_a_row,1)+TSLAG(eq_f_a_row,1)+TSLAG(eq_g_row,1)+TSLAG(eq_h_row,1))*TSLAG(diva,1))) + (1-d_20124) * ((TSLAG(neq_row,1)*TSLAG(divd,1))) + div_row_adj 
 
 COMMENT> 
 IDENTITY> insu_row
-EQ> insu_row = ins_row(-1)*insu(-1)
+EQ> insu_row = TSLAG(ins_row,1)*TSLAG(insu,1)
 
 COMMENT> 
 IDENTITY> propinc_r_row
@@ -1682,71 +1685,71 @@ COMMENT> Financial side
 
 COMMENT> 
 IDENTITY> iba_row
-EQ> iba_row= iba_row(-1) + iba_row_tr + iba_row_rvx
+EQ> iba_row= TSLAG(iba_row,1) + iba_row_tr + iba_row_rvx
 
 COMMENT> 
 IDENTITY> iba_row_tr
 EQ> iba_row_tr = NL_row + nl_row_adj - neq_row_tr - sec_row_tr - L_row_tr - ins_row_tr 
 
 COMMENT> 
-IDENTITY> Sec_row
-EQ> Sec_row = Sec_row(-1) + Sec_row_tr + Sec_row_rvx
+IDENTITY> sec_row
+EQ> sec_row = TSLAG(sec_row,1) + sec_row_tr + sec_row_rvx
 
 COMMENT> 
 IDENTITY> L_row
-EQ> L_row = L_row(-1) + L_row_tr + L_row_rvx
+EQ> L_row = TSLAG(L_row,1) + L_row_tr + L_row_rvx
 
 COMMENT> CHANGE in equities
 
 COMMENT> 
 IDENTITY> eq_row_a
-EQ> eq_row_a = (1-d_20124)*(eq_row_a(-1) + eq_row_a_tr + eq_row_a_rvx)  + d_20124*eq_row_ax
+EQ> eq_row_a = (1-d_20124)*(TSLAG(eq_row_a,1) + eq_row_a_tr + eq_row_a_rvx)  + d_20124*eq_row_ax
 
 COMMENT> 
-IDENTITY> Eq_row_a_nf
-EQ> Eq_row_a_nf = d_20124 * (eq_row_a_nf(-1) + eq_row_a_nf_tr + eq_row_a_nf_rv)
+IDENTITY> eq_row_a_nf
+EQ> eq_row_a_nf = d_20124 * (TSLAG(eq_row_a_nf,1) + eq_row_a_nf_tr + eq_row_a_nf_rv)
 
 COMMENT> 
-IDENTITY> Eq_row_a_f
-EQ> Eq_row_a_f = d_20124 * (eq_row_a_f(-1) + eq_row_a_f_tr + eq_row_a_f_rv)
+IDENTITY> eq_row_a_f
+EQ> eq_row_a_f = d_20124 * (TSLAG(eq_row_a_f,1) + eq_row_a_f_tr + eq_row_a_f_rv)
 
 COMMENT> 
 IDENTITY> eq_row_ax
 EQ> eq_row_ax =  eq_row_a_nf + eq_row_a_f
 
 COMMENT> 
-IDENTITY> Eq_row_a_test
-EQ> Eq_row_a_test = Eq_row_a - (Eq_row_a_nf + Eq_row_a_f)
+IDENTITY> eq_row_a_test
+EQ> eq_row_a_test = eq_row_a - (eq_row_a_nf + eq_row_a_f)
 
 COMMENT> 
-IDENTITY> Eq_row_L
-EQ> Eq_row_L = (1-d_20124)*(Eq_row_l(-1) + Eq_row_l_tr + Eq_row_l_rvx) + d_20124*(eq_row_lx)
+IDENTITY> eq_row_L
+EQ> eq_row_L = (1-d_20124)*(TSLAG(eq_row_l,1) + eq_row_l_tr + eq_row_l_rvx) + d_20124*(eq_row_lx)
 
 COMMENT> 
 IDENTITY> eq_row_lx
 EQ> eq_row_lx = eq_nf_a_row + eq_h_row + eq_f_a_row + eq_g_row
 
 COMMENT> 
-IDENTITY> Eq_row_l_test
-EQ> Eq_row_l_test = Eq_row_l - (Eq_nf_a_row + Eq_f_a_row + eq_g_row + eq_h_row)
+IDENTITY> eq_row_l_test
+EQ> eq_row_l_test = eq_row_l - (eq_nf_a_row + eq_f_a_row + eq_g_row + eq_h_row)
 
 COMMENT> 
-IDENTITY> Neq_row
-EQ> Neq_row =-d_20123*(Neq_nf + Eq_h + Neq_f + Eq_g) + d_20124*( Eq_row_a_nf + Eq_row_a_f - (Eq_nf_a_row + Eq_f_a_row + eq_g_row + eq_h_row))
+IDENTITY> neq_row
+EQ> neq_row =-d_20123*(neq_nf + eq_h + neq_f + eq_g) + d_20124*( eq_row_a_nf + eq_row_a_f - (eq_nf_a_row + eq_f_a_row + eq_g_row + eq_h_row))
 
 COMMENT> 
-IDENTITY> Neq_row_tr
-EQ> Neq_row_tr = TSDELTA(Neq_row) - neq_row_rvx
+IDENTITY> neq_row_tr
+EQ> neq_row_tr = TSDELTA(neq_row) - neq_row_rvx
 
 COMMENT> 
 IDENTITY> ins_row
-EQ> ins_row = ins_row(-1) + ins_row_tr + ins_row_rvx
+EQ> ins_row = TSLAG(ins_row,1) + ins_row_tr + ins_row_rvx
 
 COMMENT> WEALTH
 
 COMMENT> 
 IDENTITY> fnw_row
-EQ> fnw_row = IBA_row + EQ_row_A - EQ_row_L + Sec_row + L_row + INS_row
+EQ> fnw_row = iba_row + EQ_row_A - EQ_row_L + sec_row + L_row + INS_row
 
 COMMENT> 
 IDENTITY> fnw_rowk
@@ -1779,8 +1782,9 @@ COMMENT> The pricing equation implies a mark-up of (1 + 0.38) in the long-run, i
 
 COMMENT> 
 BEHAVIORAL> insu_row
-EQ> TSDELTA(PC_DS) = C_21*TSDELTA(PC_DS(-1)) + C_22*TSDELTA(PC_DS(-2)) + C_23*TSDELTA(PC_DS(-4)) + C_24*TSDELTA(WAGE_DS/PROD_DS+PM_DS) + C_25*PC_DS(-1) + eta*(WAGE_DS(-1)/PROD_DS(-1)+PM_DS(-1))
+EQ> TSDELTA(PC_DS) = C_21*TSDELTA(TSLAG(PC_DS,1)) + C_22*TSDELTA(TSLAG(PC_DS,2)) + C_23*TSDELTA(TSLAG(PC_DS,4)) + C_24*TSDELTA(WAGE_DS/PROD_DS+PM_DS) + C_25*TSLAG(PC_DS,1) + eta*(TSLAG(WAGE_DS,1)/TSLAG(PROD_DS,1)+TSLAG(PM_DS,1))
 COEFF> C_21 C_22 C_23 C_24 C_25
+STORE> coe(11)
 
 COMMENT> 
 IDENTITY> pc
@@ -1800,8 +1804,9 @@ EQ> urterm = ur - urs
 
 COMMENT> 
 BEHAVIORAL> RW_DS
-EQ> TSDELTA(LOG(RW_DS)) = phi + p_521*TSDELTA(UR(-4)) + p_522*TSDELTA(LOG(PRODK_DS)) + p_523*LOG(RW_DS(-1)) + p_524*UR_DS(-2) + p_525*LOG(PRODK_DS(-2)) + p_526*D_2009Q4 + p_527*D_2011Q1
+EQ> TSDELTA(LOG(RW_DS)) = phi + p_521*TSDELTA(TSLAG(UR,4)) + p_522*TSDELTA(LOG(PRODK_DS)) + p_523*LOG(TSLAG(RW_DS,1)) + p_524*TSLAG(UR_DS,2) + p_525*LOG(TSLAG(PRODK_DS,2)) + p_526*D_2009Q4 + p_527*D_2011Q1
 COEFF> p_521 p_522 p_523 p_524 p_525 p_526 p_527 
+STORE> coe(12)
 
 COMMENT> 
 IDENTITY> wage

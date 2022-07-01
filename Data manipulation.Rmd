@@ -698,25 +698,9 @@ tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 
 
 ```{r}
-pcon_reg = lm(pcon~ sd1+ sd2 + sd3)
-pcon_ds= pcon_reg$residuals + mean(pcon)
-pcon_ds=ts(pcon_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 
-alpha_0 =pcon_reg$coefficients[1]
-alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
-alpha_1=pcon_reg$coefficients[2]
-alpha_1=ts(alpha_1,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_2=pcon_reg$coefficients[3]
-alpha_2=ts(alpha_2,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_3=pcon_reg$coefficients[4]
-alpha_3=ts(alpha_3,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-mean_pcon= mean(pcon)
-mean_pcon=ts(mean_pcon,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 # I create g_bar to be able to shock the variable
 
@@ -741,11 +725,48 @@ library(knitr)
 ## DEseasonalyse
 ```{r}
 
+## pcon
+
+pcon_reg = lm(pcon~ sd1+ sd2 + sd3)
+pcon_ds= pcon_reg$residuals + mean(pcon)
+pcon_ds=ts(pcon_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_0 =pcon_reg$coefficients[1]
+alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_1=pcon_reg$coefficients[2]
+alpha_1=ts(alpha_1,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_2=pcon_reg$coefficients[3]
+alpha_2=ts(alpha_2,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_3=pcon_reg$coefficients[4]
+alpha_3=ts(alpha_3,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_pcon= mean(pcon)
+mean_pcon=ts(mean_pcon,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
 ## I_BD_H_K
 reg_1 = lm(i_bd_h_k~ sd1+ sd2 + sd3)
 
 i_bd_h_k_ds= reg_1$residuals + mean(i_bd_h_k)
+
 i_bd_h_k_ds=ts(i_bd_h_k_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_10 =reg_1$coefficients[1]
+alpha_10=ts(alpha_10,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_11=reg_1$coefficients[2]
+alpha_11=ts(alpha_11,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_12=reg_1$coefficients[3]
+alpha_12=ts(alpha_12,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_13=reg_1$coefficients[4]
+alpha_13=ts(alpha_13,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_i_bd_h_k= mean(i_bd_h_k)
+mean_i_bd_h_k=ts(mean_i_bd_h_k,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 ## yd_hk_ds
 
@@ -761,9 +782,22 @@ reg_3 = lm(i_equip_h_k~ sd1+ sd2 + sd3)
 
 i_equip_h_k_ds= reg_3$residuals + mean(i_equip_h_k)
 
-reg_3$coefficients
-
 i_equip_h_k_ds=ts(i_equip_h_k_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_20 =reg_3$coefficients[1]
+alpha_20=ts(alpha_20,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_21=reg_3$coefficients[2]
+alpha_21=ts(alpha_21,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_22=reg_3$coefficients[3]
+alpha_22=ts(alpha_22,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_23=reg_3$coefficients[4]
+alpha_23=ts(alpha_23,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_i_equip_h_k= mean(i_equip_h_k)
+mean_i_equip_h_k=ts(mean_i_equip_h_k,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 
 # i_bd_nfc_k_ds
@@ -773,6 +807,22 @@ reg_4 = lm(i_bd_nfc_k~ sd1+ sd2 + sd3)
 i_bd_nfc_k_ds= reg_4$residuals + mean(i_bd_nfc_k)
 
 i_bd_nfc_k_ds=ts(i_bd_nfc_k_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+alpha_30 =reg_4$coefficients[1]
+alpha_30=ts(alpha_30,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_31=reg_4$coefficients[2]
+alpha_31=ts(alpha_31,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_32=reg_4$coefficients[3]
+alpha_32=ts(alpha_32,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_33=reg_4$coefficients[4]
+alpha_33=ts(alpha_33,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_i_bd_nfc_k= mean(i_bd_nfc_k)
+mean_i_bd_nfc_k=ts(mean_i_bd_nfc_k,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 ## u_ds
 reg_5 = lm(u~ sd1+ sd2 + sd3)
@@ -795,6 +845,258 @@ reg_7 = lm(i_equip_nfc_k~ sd1+ sd2 + sd3)
 i_equip_nfc_k_ds= reg_7$residuals + mean(i_equip_nfc_k)
 
 i_equip_nfc_k_ds=ts(i_equip_nfc_k_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_40 =reg_7$coefficients[1]
+alpha_40=ts(alpha_40,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_41=reg_7$coefficients[2]
+alpha_41=ts(alpha_41,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_42=reg_7$coefficients[3]
+alpha_42=ts(alpha_42,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_43=reg_7$coefficients[4]
+alpha_43=ts(alpha_43,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_i_equip_nfc_k= mean(i_equip_nfc_k)
+mean_i_equip_nfc_k=ts(mean_i_equip_nfc_k,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+## pconk_ds 
+
+reg_8 = lm(pconk~ sd1+ sd2 + sd3)
+
+pconk_ds= reg_8$residuals + mean(pconk)
+
+pconk_ds=ts(pconk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## B2_HK_ds 
+
+reg_9 = lm(b2_hk~ sd1+ sd2 + sd3)
+
+b2_hk_ds= reg_9$residuals + mean(b2_hk)
+
+b2_hk_ds=ts(b2_hk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## yd1_hk 
+
+reg_10 = lm(yd1_hk~ sd1+ sd2 + sd3)
+
+yd1_hk_ds= reg_7$residuals + mean(yd1_hk)
+
+yd1_hk_ds=ts(yd1_hk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## yd2a_hk 
+
+reg_11 = lm(yd2a_hk~ sd1+ sd2 + sd3)
+
+yd2a_hk_ds= reg_11$residuals + mean(yd2a_hk)
+
+yd2a_hk_ds=ts(yd2a_hk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+##w_h_rk
+
+reg_12 = lm(w_h_rk~ sd1+ sd2 + sd3)
+
+w_h_rk_ds= reg_12$residuals + mean(w_h_rk)
+
+w_h_rk_ds=ts(w_h_rk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## wage 
+
+reg_13 = lm(wage~ sd1+ sd2 + sd3)
+
+wage_ds= reg_13$residuals + mean(wage)
+
+wage_ds=ts(wage_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_50 =reg_13$coefficients[1]
+alpha_50=ts(alpha_50,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_51=reg_13$coefficients[2]
+alpha_51=ts(alpha_51,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_52=reg_13$coefficients[3]
+alpha_52=ts(alpha_52,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_53=reg_13$coefficients[4]
+alpha_53=ts(alpha_53,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_wage= mean(wage)
+mean_wage=ts(mean_wage,start = c(2005,2), end = c(2020,1), frequency = 4)
+
+## pc 
+
+reg_14 = lm(pc~ sd1+ sd2 + sd3)
+
+pc_ds= reg_14$residuals + mean(pc)
+
+pc_ds=ts(pc_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_60 =reg_14$coefficients[1]
+alpha_60=ts(alpha_60,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_61=reg_14$coefficients[2]
+alpha_61=ts(alpha_61,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_62=reg_14$coefficients[3]
+alpha_62=ts(alpha_62,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_63=reg_14$coefficients[4]
+alpha_63=ts(alpha_63,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_pc= mean(pc)
+mean_pc=ts(mean_pc,start = c(2005,2), end = c(2020,1), frequency = 4)
+
+## pm 
+
+reg_15 = lm(pm~ sd1+ sd2 + sd3)
+
+pm_ds= reg_15$residuals + mean(pm)
+
+pm_ds=ts(pm_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+### ur 
+
+
+reg_16 = lm(UR~ sd1+ sd2 + sd3)
+
+UR_ds= reg_16$residuals + mean(UR)
+
+UR_ds=ts(UR_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## yk 
+
+reg_17 = lm(yk~ sd1+ sd2 + sd3)
+
+yk_ds= reg_17$residuals + mean(yk)
+
+yk_ds=ts(yk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## wageindex 
+
+reg_18 = lm(wageindex~ sd1+ sd2 + sd3)
+
+wageindex_ds= reg_18$residuals + mean(wageindex)
+
+wageindex_ds=ts(wageindex_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## priv 
+
+reg_19 = lm(priv~ sd1+ sd2 + sd3)
+
+priv_ds= reg_19$residuals + mean(priv)
+
+priv_ds=ts(priv_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## mk 
+
+reg_20 = lm(mk~ sd1+ sd2 + sd3)
+
+mk_ds= reg_20$residuals + mean(mk)
+
+mk_ds=ts(mk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_70 =reg_20$coefficients[1]
+alpha_70=ts(alpha_70,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_71=reg_20$coefficients[2]
+alpha_71=ts(alpha_71,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_72=reg_20$coefficients[3]
+alpha_72=ts(alpha_72,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_73=reg_20$coefficients[4]
+alpha_73=ts(alpha_73,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_mk= mean(mk)
+mean_mk=ts(mean_mk,start = c(2005,2), end = c(2020,1), frequency = 4)
+
+## prodk 
+
+reg_21 = lm(prodk~ sd1+ sd2 + sd3)
+
+prodk_ds= reg_21$residuals + mean(prodk)
+
+prodk_ds=ts(prodk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+## prate 
+
+##This one is shorter but not sure it also is in the Eviews code
+
+reg_22 = lm(prate~ sd1+ sd2 + sd3)
+
+prate_ds= reg_22$residuals + mean(prate)
+
+prate_ds=ts(prate_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+## bd_nfc_k 
+
+reg_23 = lm(bd_nfc_k~ sd1+ sd2 + sd3)
+
+bd_nfc_k_ds= reg_23$residuals + mean(bd_nfc_k)
+
+bd_nfc_k_ds=ts(bd_nfc_k_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+
+## xk 
+
+reg_24 = lm(xk~ sd1+ sd2 + sd3)
+
+xk_ds= reg_24$residuals + mean(xk)
+
+xk_ds=ts(xk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+
+alpha_80 =reg_24$coefficients[1]
+alpha_80=ts(alpha_80,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_81=reg_24$coefficients[2]
+alpha_81=ts(alpha_81,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_82=reg_24$coefficients[3]
+alpha_82=ts(alpha_82,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_83=reg_24$coefficients[4]
+alpha_83=ts(alpha_83,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_xk= mean(xk)
+mean_xk=ts(mean_xk,start = c(2005,2), end = c(2020,1), frequency = 4)
+## rer 
+
+reg_25 = lm(rer~ sd1+ sd2 + sd3)
+
+rer_ds= reg_25$residuals + mean(rer)
+
+rer_ds=ts(rer_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## prod 
+
+reg_27 = lm(prod~ sd1+ sd2 + sd3)
+
+prod_ds= reg_27$residuals + mean(prod)
+
+prod_ds=ts(prod_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## ps 
+
+reg_28 = lm(ps~ sd1+ sd2 + sd3)
+
+ps_ds= reg_28$residuals + mean(ps)
+
+ps_ds=ts(ps_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+## y 
+
+reg_29 = lm(y~ sd1+ sd2 + sd3)
+
+y_ds= reg_29$residuals + mean(y)
+
+y_ds=ts(y_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
 
 #alpha_0 =reg_1$coefficients[1]
 #alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
@@ -898,6 +1200,17 @@ COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648
 END"
 
 
+"MODEL
+
+
+COMMENT>  Skkal skrives om!!!
+BEHAVIORAL> eq_h
+EQ> TSDELTA((eq_h-eq_h_rvx)/(eq_h(-1)+sec_h(-1)+iba_h(-1))) = p_770 + p_771*TSDELTA(ibd(-1)) + p_772*TSDELTA(TSLAG(div_r_h,1)+TSLAG(eq_h_rvx,1))/TSLAG(eq_h,2))  + p_773 *(TSLAG(eq_h,1)- TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2)) + p_774 * TSLAG(ibd,1) + p_775 * (TSLAG(div_r_h,2)+TSLAG(eq_h_rvx,2))/TSLAG(eq_h,3))
+COEFF> p_770 p_771 p_772 p_773 p_774 p_775
+
+END"
+
+
 ```
 
 
@@ -907,14 +1220,14 @@ ratio= i_bd_h_k_ds/p_bd
 
 summary(dynlm(diff(ratio)~1))
 
-summary(dynlm(i_bd_h_k_ds~1 + I(L(ratio,1)*p_bd)))
+
 
 "COMMENT> 
-+ BEHAVIORAL> i_bd_h_k_ds
-+ EQ>  i_bd_h_k_ds= p_111 + alpha_1* (TSLAG(i_bd_h_k_ds,1)/(TSLAG(p_bd,1)))*p_bd
-+ COEFF> p_111 alpha_1
-+ RESTRICT> alpha_1 = 1
-+ STORE> coe(2)"
+BEHAVIORAL> i_bd_h_k_ds
+EQ>  i_bd_h_k_ds= p_111 + alpha_1* (TSLAG(i_bd_h_k_ds,1)/(TSLAG(p_bd,1)))*p_bd
+COEFF> p_111 alpha_1
+RESTRICT> alpha_1 = 1
+STORE> coe(2)"
 ```
 
 
@@ -923,10 +1236,14 @@ summary(dynlm(i_bd_h_k_ds~1 + I(L(ratio,1)*p_bd)))
 Deseason.txt="MODEL
 
 
-COMMENT>  Skkal skrives om!!!
-BEHAVIORAL> eq_h
-EQ> TSDELTA((eq_h-eq_h_rvx)/(eq_h(-1)+sec_h(-1)+iba_h(-1))) = p_770 + p_771*TSDELTA(ibd(-1)) + p_772*TSDELTA(TSLAG(div_r_h,1)+TSLAG(eq_h_rvx,1))/TSLAG(eq_h,2))  + p_773 *(TSLAG(eq_h,1)- TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2)) + p_774 * TSLAG(ibd,1) + p_775 * (TSLAG(div_r_h,2)+TSLAG(eq_h_rvx,2))/TSLAG(eq_h,3))
-COEFF> p_770 p_771 p_772 p_773 p_774 p_775
+COMMENT> 
+BEHAVIORAL> i_bd_h_k_ds
+EQ> LOG(i_bd_h_k_ds) = P_620 + P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_631*D_2006Q4 + P_632*D_2014Q4 + alpha_1*LOG(TSLAG(bd_h_k,1)) + alpha_2* TSLAG(LOG(i_bd_h_k_ds),1) + alpha_3* TSLAG(-LOG(bd_h_k),2)
+COEFF> P_620 P_621 P_622 P_623 P_624 P_625 P_626 P_627 P_628 P_629 P_630 P_631 P_632 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
+STORE> coe(2)
 
 END"
 ```
@@ -988,7 +1305,7 @@ Deseason=LOAD_MODEL_DATA(Deseason,S_modelData)
 ```{r}
 #Estimate model coefficients
 S_model=ESTIMATE(Deseason
-                 ,TSRANGE=c(2005,3,2020,1)
+                 ,TSRANGE=c(2006,3,2020,1)
                  ,forceTSRANGE = TRUE
 )
 ```
@@ -1162,21 +1479,4 @@ plot(pcon_1)
 
 
 
-```{r}
-
-xxxx= c(1,2,3,4,5,6,7,8,9,10)
-
-yyyy= c(10,9,8,7,6,5,4,3,2,1)
-
-cccc= c(5,3,6,8,3,5,7,9,3,5)
-
-diff(xxxx)
-
-lag_xxxx = lag(xxxx,1)
-
-lag_yyyy = lag(yyyy,1)
-
-diff(xxxx/yyyy) == (lag_xxxx/lag_yyyy)*yyyy[-1]
-
-```
 
