@@ -17,6 +17,7 @@ library(readxl)
 
 ```{r}
 AAMK <- read_excel("AAMK.xlsx")
+globaldemand1 <- read_excel("C:/Users/Simon ik mig/Desktop/9. Semester/Empirisk sfc i r/globaldemand1.xlsx")
 
 names(AAMK) <- tolower(names(AAMK))
 
@@ -144,6 +145,13 @@ dummy_2009q2 =create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
  basic_value = 0, dummy_value = 1, frequency = 4)
 
 
+dummy_2009q2 =create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2009,2), dummy_end = c(2009,2),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
+time= ts(1:length(dummy_2009q2), start = c(2005,2), frequency = 4)
+
+
 DUMMY_4= ts(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0), start = c(2005, 2), end =  c(2020,1), frequency = 4)
 
 DUMMY_10= ts(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0), start = c(2005, 2), end =  c(2020,1), frequency = 4)
@@ -215,9 +223,6 @@ we can compare ik with ikk. just to make sure we have all components of investme
 ik =  i_equip_h_k + i_equip_nfc_k  +  i_equip_g_k + i_equip_fc_k +  i_bd_h_k + i_bd_nfc_k  +  i_bd_g_k  + i_bd_fc_k + i_adj_h_k + i_adj_nfc_k + i_adj_fc_k + i_adj_g_k
 
 ikk = i/pi
-
-
-cbind(ik, ikk) # spg Mikael
 ```
 
 
@@ -258,6 +263,7 @@ eq_h = - ((eq_f_a - eq_f_l) + (eq_nf_a - eq_nf_l) + eq_g + (eq_row_a - eq_row_l)
 ```{r}
 ### Der ages diff så de sarer alle i 2005Q3
 
+
 eq_h_rvx=diff(eq_h)-eq_h_tr[-1]
 eq_f_a_rvx=diff(eq_f_a)-eq_f_a_tr[-1]
 eq_f_l_rvx=diff(eq_f_l)-eq_f_l_tr[-1]
@@ -287,6 +293,7 @@ Neq_row_tr = diff(Neq_row) - Neq_row_rvx
 
 ```{r}
 # Igen starter førsst i 2005Q3
+
 
 eq_h_tr = - (Neq_nf_tr  + Neq_f_tr + eq_g_tr[-1] + Neq_row_tr) # The data from the database is not consistent (the sum of the stocks of equities does not add up to zero). I fix it by assuming that eq_h_tr absorbbs the small discrepancies that come from the database.
 ```
@@ -691,6 +698,22 @@ tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 ```
 
 
+```{r}
+rw_ds = wage_ds/pc_ds #real wage rate based on deseasonalized variables
+reprate_bd_h = (mean(delta_bd_h)*stats::lag(bd_h_k,1))/i_bd_h_k_ds # replacement rate 
+```
+
+
+
+## Extra variables created to run the model:
+
+```{r}
+yh2a = propinc_r_h + b2_h_r
+yh2b = - propinc_p_h
+```
+
+
+
 # Estimation
 
 
@@ -698,15 +721,10 @@ tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 
 
 ```{r}
-
-
-
-
 # I create g_bar to be able to shock the variable
 
 g_bar=rep(0,length(y))
 g_bar= ts(g_bar, start = c(2005,2), frequency = 4)
-
 ```
 
 
@@ -716,8 +734,6 @@ g_bar= ts(g_bar, start = c(2005,2), frequency = 4)
 library(mFilter)
 library(bimets)
 library(knitr)
-
-
 ```
 
 
@@ -1098,23 +1114,6 @@ y_ds= reg_29$residuals + mean(y)
 y_ds=ts(y_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 
-#alpha_0 =reg_1$coefficients[1]
-#alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-#alpha_1=pcon_reg$coefficients[2]
-#alpha_1=ts(alpha_1,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-#alpha_2=pcon_reg$coefficients[3]
-#alpha_2=ts(alpha_2,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-#alpha_3=pcon_reg$coefficients[4]
-#alpha_3=ts(alpha_3,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-
-#mean_pcon= mean(pcon)
-#mean_pcon=ts(mean_pcon,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-
 ```
 
 
@@ -1166,29 +1165,20 @@ COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648
 END"
 
 
-"MODEL
-
-
-COMMENT>  Skkal skrives om!!!
-BEHAVIORAL> eq_h
-EQ> TSDELTA((eq_h-eq_h_rvx)/(eq_h(-1)+sec_h(-1)+iba_h(-1))) = p_770 + p_771*TSDELTA(ibd(-1)) + p_772*TSDELTA(TSLAG(div_r_h,1)+TSLAG(eq_h_rvx,1))/TSLAG(eq_h,2))  + p_773 *(TSLAG(eq_h,1)- TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2)) + p_774 * TSLAG(ibd,1) + p_775 * (TSLAG(div_r_h,2)+TSLAG(eq_h_rvx,2))/TSLAG(eq_h,3))
-COEFF> p_770 p_771 p_772 p_773 p_774 p_775
-
-END"
 
 
 "MODEL
 
 COMMENT>  Skkal skrives om!!!
 BEHAVIORAL> eq_h
-EQ> eq_h = p_770 
+EQ> TSDELTA(eq_h) =  p_770 * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)) 
 + p_771 * (TSDELTA(TSLAG(ibd,1))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
 + p_772 * ((TSDELTA(TSLAG(div_r_h,1)+TSLAG(eq_h_rvx,1))/TSLAG(eq_h,2))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
 + p_773 * ((TSLAG(eq_h,1)- TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
 + p_774 * (TSLAG(ibd,1) * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
-+ p_775 * ((TSLAG(div_r_h,2)+TSLAG(eq_h_rvx,2))/TSLAG(eq_h,3)) * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1))
++ p_775 * (((TSLAG(div_r_h,2)+TSLAG(eq_h_rvx,2))/TSLAG(eq_h,3)) * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
 + alpha_1* eq_h_rvx
-+ alpha_2* (((TSLAG(eq_h,1)-TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2)))*(TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ alpha_2* ((TSLAG(eq_h,1)*(TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1))- (TSLAG(eq_h,1)*(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2))) - (TSLAG(eq_h_rvx,1)*(TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1))))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2)))
 COEFF> p_770 p_771 p_772 p_773 p_774 p_775 alpha_1 alpha_2
 RESTRICT> alpha_1 = 1
 alpha_2 = 1
@@ -1197,31 +1187,32 @@ STORE> coe(1)
 END"
 
 
+"COMMENT> 
+BEHAVIORAL> mk_ds
+EQ> TSDELTALOG(mk_ds) = p_661 + p_662*TSDELTALOG(TSLAG(mk_ds,2)) + p_663*TSDELTALOG(TSLAG(rer,1)) + p_664*TSDELTALOG(TSLAG(rer,3)) + p_665*TSDELTALOG(yk_ds) + p_666*LOG(TSLAG(mk_ds,1)) + p_667*LOG(TSLAG(yk_ds,1)) + p_668*D_20091 + p_669*D_2009Q4
+COEFF> p_661 p_662 p_663 p_664 p_665 p_666 p_667 p_668 p_669
+STORE> coe(8)"
+
+
+"COMMENT>
+BEHAVIORAL> nben_h
+EQ> TSDELTALOG(nben_h) = P_671 + P_672*TSDELTALOG(zaland_jesper) + P_673*TSDELTA(unemp) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(nben_h,1)) + P_676*TSLAG(unemp,1) + P_677*LOG(TSLAG(zaland_jesper,1))
+COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677
+STORE> coe(4)"
+
+"COMMENT> 
+BEHAVIORAL> pconk_ds
+EQ> TSDELTALOG(pconk_ds) = C_1 + C_2*TSLAG(LOG(pcon_ds),1) + C_3*TSLAG(LOG(yd1_hk_ds),1) + C_4*TSLAG(LOG(yd2a_hk_ds),1) + C_5*TSLAG(LOG(fnw_hk),2) + C_6*TSDELTALOG(yd1_hk_ds) + C_7*TSDELTALOG(yd1_hk_ds,2) + C_8*TSDELTALOG(yd2a_hk_ds) + C_9*TSDELTALOG(-yd2b_hk) + C_10*D_2008Q4 + C_11*D_2018Q2 + C_12*D_2020Q1
+COEFF> C_1 C_2 C_3 C_4 C_5 C_6 C_7 C_8 C_9 C_10 C_11 C_12
+STORE> coe(1)"
+
+
 ```
 
 
 
 ```{r}
-ratio= i_bd_h_k_ds/p_bd
 
-x_x = ik
-y_y= yk
-z_z= u
-
-
-
-mean(diff(i_bd_h_k_ds/p_bd))
-
-summary(dynlm(diff(ik/yk)~0+ L((ik/yk),1) + L(z_z,1) + diff(z_z)+ L(diff(ik/yk),1 )))
-
-summary(dynlm(diff(ik/yk)~0+ L((ik/yk),1)))
-
-summary(dynlm(ik~ 0 + I(L((ik/yk),1)*yk) + I(L(z_z,1)*yk) + I(diff(z_z)*yk)+ I(L(diff(ik/yk),1 )*yk)))
-
-
-w= (stats::lag(ik,1)/stats::lag(yk,1))^2* diff(yk)
-
-summary(dynlm(diff(ik)~0+ w))
 
 
 "COMMENT> 
@@ -1235,14 +1226,14 @@ STORE> coe(2)"
 
 ```{r}
 
+
+
 Deseason.txt="MODEL
 
+
 COMMENT> 
-BEHAVIORAL> i_bd_h_k_ds
-EQ>  TSDELTA(i_bd_h_k_ds)= alpha_1* (TSLAG(i_bd_h_k_ds,1)/(TSLAG(p_bd,1)))*(TSLAG(i_bd_h_k_ds,1)/(TSLAG(p_bd,1))
-COEFF> p_111 alpha_1
-RESTRICT> alpha_1 = 1
-STORE> coe(2)
+IDENTITY> yh2a
+EQ> yh2a = propinc_r_h + b2_h_r
 
 
 END"
@@ -1250,57 +1241,61 @@ END"
 
 
 ```{r}
+
+
 Deseason=LOAD_MODEL(modelText = Deseason.txt)
 ```
+
+
 ```{r}
 S_modelData=list(  
   i_bd_h_k_ds  = TIMESERIES(c(i_bd_h_k_ds),   
-                  START=c(2005,2),FREQ=4),
-   bd_h_k = TIMESERIES(c(bd_h_k),   
-                     START=c(2005,2),FREQ=4),
+                            START=c(2005,2),FREQ=4),
+  bd_h_k = TIMESERIES(c(bd_h_k),   
+                      START=c(2005,2),FREQ=4),
   p_bd  = TIMESERIES(c(p_bd),   
+                     START=c(2005,2),FREQ=4),
+  pi = TIMESERIES(c(pi),   
                   START=c(2005,2),FREQ=4),
-   pi = TIMESERIES(c(pi),   
-                     START=c(2005,2),FREQ=4),
-   yd_hk_ds = TIMESERIES(c(yd_hk_ds),   
-                     START=c(2005,2),FREQ=4),
-   l_h = TIMESERIES(c(l_h),   
-                     START=c(2005,2),FREQ=4),
+  yd_hk_ds = TIMESERIES(c(yd_hk_ds),   
+                        START=c(2005,2),FREQ=4),
+  l_h = TIMESERIES(c(l_h),   
+                   START=c(2005,2),FREQ=4),
   bd_h = TIMESERIES(c(bd_h),   
-                     START=c(2005,2),FREQ=4),
+                    START=c(2005,2),FREQ=4),
   D_2006Q4 = TIMESERIES(c(d_2006q4),   
-                     START=c(2005,2),FREQ=4),
+                        START=c(2005,2),FREQ=4),
   D_2014Q4 = TIMESERIES(c(d_2014q4),   
-                     START=c(2005,2),FREQ=4),
+                        START=c(2005,2),FREQ=4),
   i_equip_h_k_ds = TIMESERIES(c(i_equip_h_k_ds),   
-                     START=c(2005,2),FREQ=4),
-   equip_h_k = TIMESERIES(c(equip_h_k),   
-                     START=c(2005,2),FREQ=4),
+                              START=c(2005,2),FREQ=4),
+  equip_h_k = TIMESERIES(c(equip_h_k),   
+                         START=c(2005,2),FREQ=4),
   dummy_4 = TIMESERIES(c(DUMMY_4),   
-                     START=c(2005,2),FREQ=4),
+                       START=c(2005,2),FREQ=4),
   i_bd_nfc_k_ds = TIMESERIES(c(i_bd_nfc_k_ds),   
-                     START=c(2005,2),FREQ=4),
+                             START=c(2005,2),FREQ=4),
   bd_nfc_k = TIMESERIES(c(bd_nfc_k),   
-                     START=c(2005,2),FREQ=4),
+                        START=c(2005,2),FREQ=4),
   ps_ds = TIMESERIES(c(ps_ds),   
                      START=c(2005,2),FREQ=4),
-   u_ds = TIMESERIES(c(u_ds),   
-                     START=c(2005,2),FREQ=4),
+  u_ds = TIMESERIES(c(u_ds),   
+                    START=c(2005,2),FREQ=4),
   tobinq = TIMESERIES(c(tobinq),   
-                     START=c(2005,2),FREQ=4),
-   dummy_10 = TIMESERIES(c(DUMMY_10),   
-                     START=c(2005,2),FREQ=4),
-   dummy_11 = TIMESERIES(c(DUMMY_11),   
-                     START=c(2005,2),FREQ=4),
-   i_equip_nfc_k_ds = TIMESERIES(c(i_equip_nfc_k_ds),   
-                     START=c(2005,2),FREQ=4),
-   equip_nfc_k = TIMESERIES(c(equip_nfc_k),   
-                     START=c(2005,2),FREQ=4),
+                      START=c(2005,2),FREQ=4),
+  dummy_10 = TIMESERIES(c(DUMMY_10),   
+                        START=c(2005,2),FREQ=4),
+  dummy_11 = TIMESERIES(c(DUMMY_11),   
+                        START=c(2005,2),FREQ=4),
+  i_equip_nfc_k_ds = TIMESERIES(c(i_equip_nfc_k_ds),   
+                                START=c(2005,2),FREQ=4),
+  equip_nfc_k = TIMESERIES(c(equip_nfc_k),   
+                           START=c(2005,2),FREQ=4),
   eq_h = TIMESERIES(c(eq_h),   
-                     START=c(2005,2),FREQ=4),
+                    START=c(2005,2),FREQ=4),
   
   ibd = TIMESERIES(c(ibd),   
-                     START=c(2005,2),FREQ=4),
+                   START=c(2005,2),FREQ=4),
   
   sec_h = TIMESERIES(c(sec_h),   
                      START=c(2005,2),FREQ=4),
@@ -1308,27 +1303,217 @@ S_modelData=list(
   iba_h = TIMESERIES(c(iba_h),   
                      START=c(2005,2),FREQ=4),
   div_r_h = TIMESERIES(c(div_r_h),   
-                     START=c(2005,2),FREQ=4),
+                       START=c(2005,2),FREQ=4),
   
   eq_h_rvx = TIMESERIES(c(eq_h_rvx),   
-                     START=c(2005,3),FREQ=4),
+                        START=c(2005,3),FREQ=4),
   
   sec_h = TIMESERIES(c(sec_h),   
-                     START=c(2005,2),FREQ=4)
+                     START=c(2005,2),FREQ=4),
   
+  D_2007Q34 = TIMESERIES(c(d_2007q34),   
+                         START=c(2005,2),FREQ=4),
+  time = TIMESERIES(c(time),   
+                    START=c(2005,2),FREQ=4),
+  pc = TIMESERIES(c(pc),   
+                  START=c(2005,2),FREQ=4),
+  iloan = TIMESERIES(c(iloan),   
+                     START=c(2005,2),FREQ=4),
+  l_h_tr = TIMESERIES(c(l_h_tr),   
+                      START=c(2005,2),FREQ=4),
+  D_2008Q4 = TIMESERIES(c(d_2008q4),   
+                        START=c(2005,2),FREQ=4),
+  int_r_h = TIMESERIES(c(int_r_h),   
+                      START=c(2005,2),FREQ=4),
+  int_p_h = TIMESERIES(c(int_p_h),   
+                      START=c(2005,2),FREQ=4),
+  div_h = TIMESERIES(c(div_h),   
+                      START=c(2005,2),FREQ=4),
+  int_r_h = TIMESERIES(c(int_r_h),   
+                      START=c(2005,2),FREQ=4),
+  
+  propinc_r_h = TIMESERIES(c(propinc_r_h),   
+                      START=c(2005,2),FREQ=4),
+  propinc_p_h = TIMESERIES(c(propinc_p_h),   
+                      START=c(2005,2),FREQ=4),
+  yh_h = TIMESERIES(c(yh_h),   
+                   
+                        START=c(2005,2),FREQ=4),
+  w_h_r = TIMESERIES(c(w_h_r),   
+                     
+                       START=c(2005,2),FREQ=4),
+  yd2a_h = TIMESERIES(c(yd2a_h),
+                      
+                       START=c(2005,2),FREQ=4),
+  yd2b_h = TIMESERIES(c(yd2b_h),  
+                      
+                     START=c(2005,2),FREQ=4),
+  yd1_h = TIMESERIES(c(yd1_h),  
+                     
+                       START=c(2005,2),FREQ=4),
+  tax_h = TIMESERIES(c(tax_h),   
+                     
+                        START=c(2005,2),FREQ=4),
+  yd1_hk = TIMESERIES(c(yd1_hk),   
+                      START=c(2005,2),FREQ=4),
+  
+  yd2a_hk = TIMESERIES(c(yd2a_hk),   
+                           START=c(2005,2),FREQ=4),
+  
+  yd2b_hk = TIMESERIES(c(yd2b_hk),   
+                           START=c(2005,2),FREQ=4),
+  
+  yd_h = TIMESERIES(c(yd_h),   
+                    START=c(2005,2),FREQ=4),
+  
+  nsben_h = TIMESERIES(c(nsben_h),   
+                    START=c(2005,2),FREQ=4),
+  
+  yd_hk = TIMESERIES(c(yd_hk),   
+                        START=c(2005,2),FREQ=4),
+  
+  s_h = TIMESERIES(c(s_h),   
+                       START=c(2005,2),FREQ=4),
+  
+  nl_h = TIMESERIES(c(nl_h),   
+                       START=c(2005,2),FREQ=4),
+  
+  pcon_ds = TIMESERIES(c(pcon_ds),   
+                     START=c(2005,2),FREQ=4),
+  
+  pconk = TIMESERIES(c(pconk),   
+                       START=c(2005,2),FREQ=4),
+  
+  pcon = TIMESERIES(c(pcon),   
+                        START=c(2005,2),FREQ=4),
+  
+  i_bd_h_k = TIMESERIES(c(i_bd_h_k),   
+                      START=c(2005,2),FREQ=4),
+  
+  i_equip_h_k = TIMESERIES(c(i_equip_h_k),   
+                           START=c(2005,2),FREQ=4),
+  
+  propinc_p_h = TIMESERIES(c(propinc_p_h),   
+                           START=c(2005,2),FREQ=4),
+  nben_h = TIMESERIES(c(nben_h),   
+                    START=c(2005,2),FREQ=4), ##Skal laves om!!!
+  zaland_jesper = TIMESERIES(c(zaland_jesper),   
+                     START=c(2005,2),FREQ=4),
+  
+  unemp = TIMESERIES(c(unemp),   
+                     START=c(2005,2),FREQ=4),
+  
+  s_h = TIMESERIES(c(s_h),   
+                   START=c(2005,2),FREQ=4),
+  
+  nl_h = TIMESERIES(c(nl_h),   
+                    START=c(2005,2),FREQ=4),
+  
+  pcon_ds = TIMESERIES(c(pcon_ds),   
+                       START=c(2005,2),FREQ=4),
+  
+  i_bd_h_k = TIMESERIES(c(i_bd_h_k),   
+                        START=c(2005,2),FREQ=4),
+  
+  i_equip_h_k = TIMESERIES(c(i_equip_h_k),   
+                           START=c(2005,2),FREQ=4),
+  
+  propinc_p_h = TIMESERIES(c(propinc_p_h),   
+                           START=c(2005,2),FREQ=4),
+  NBEN_H1 = TIMESERIES(c(nben_h),   
+                       START=c(2005,2),FREQ=4),
+  rw_ds = TIMESERIES(c(rw_ds),   
+                       START=c(2005,2),FREQ=4),
+  ur = TIMESERIES(c(UR),   
+                       START=c(2005,2),FREQ=4),
+  prodk_ds = TIMESERIES(c(prodk_ds),   
+                       START=c(2005,2),FREQ=4),
+  D_2009Q4 = TIMESERIES(c(d_2009q4),   
+                       START=c(2005,2),FREQ=4),
+  ur_ds = TIMESERIES(c(ur_ds),   
+                       START=c(2005,2),FREQ=4),
+  D_2011Q1 = TIMESERIES(c(d_2011q1),   
+                       START=c(2005,2),FREQ=4),
+  pc_ds = TIMESERIES(c(pc_ds),   
+                       START=c(2005,2),FREQ=4),
+  
+  wage_ds = TIMESERIES(c(wage_ds),   
+                       START=c(2005,2),FREQ=4),
+  pm_ds = TIMESERIES(c(pm_ds),   
+                       START=c(2005,2),FREQ=4),
+  prod_ds = TIMESERIES(c(prod_ds),   
+                       START=c(2005,2),FREQ=4),
+  mk_ds = TIMESERIES(c(pc_ds),   
+                       START=c(2005,2),FREQ=4),
+  
+  rer = TIMESERIES(c(rer),   
+                       START=c(2005,2),FREQ=4),
 
+  yk_ds = TIMESERIES(c(yk_ds),   
+                       START=c(2005,2),FREQ=4),
+  
+   D_20091 = TIMESERIES(c(d_2009q1),   
+                       START=c(2005,2),FREQ=4),
+    xk_ds = TIMESERIES(c(xk_ds),   
+                       START=c(2005,2),FREQ=4),
+  
+   D_2008Q2 = TIMESERIES(c(d_2008q2),   
+                       START=c(2005,2),FREQ=4),
+   d8_h = TIMESERIES(c(d8_h),   
+                       START=c(2005,2),FREQ=4),
+    w_h_r = TIMESERIES(c(w_h_r),   
+                       START=c(2005,2),FREQ=4),
+
+  old_age_ratio = TIMESERIES(c(old_age_ratio),   
+                       START=c(2005,2),FREQ=4),
+  
+   D_2014Q3 = TIMESERIES(c(d_2014q3),   
+                       START=c(2005,2),FREQ=4),
+  
+  yd1_hk_ds = TIMESERIES(c(yd1_hk_ds),   
+                       START=c(2005,2),FREQ=4),
+  
+   yd2a_hk_ds = TIMESERIES(c(yd2a_hk_ds),   
+                       START=c(2005,2),FREQ=4),
+   fnw_hk = TIMESERIES(c(fnw_hk),   
+                       START=c(2005,2),FREQ=4),
+  
+   D_2018Q2  = TIMESERIES(c(d_2018q2 ),   
+                       START=c(2005,2),FREQ=4),
+  
+  D_2020Q1 = TIMESERIES(c(d_2020q1),   
+                       START=c(2005,2),FREQ=4),
+   pconk_ds = TIMESERIES(c(pconk_ds),   
+                       START=c(2005,2),FREQ=4)
+  
 )
+
 
 
 Deseason=LOAD_MODEL_DATA(Deseason,S_modelData)
 ```
+
+
+
+
 ```{r}
 #Estimate model coefficients
 S_model=ESTIMATE(Deseason
-                 ,TSRANGE=c(2006,1,2020,1)
+                 ,TSRANGE=c(2005,2,2020,1)
                  ,forceTSRANGE = TRUE
 )
 ```
+
+
+```{r}
+S_model <- SIMULATE(Deseason
+                    ,simType='STATIC'
+                    ,TSRANGE=c(2005,4,2020,1)
+                    ,simConvergence=0.00001
+                    ,simIterLimit=100
+                   )
+```
+
 
 Trying first to add all the identity equations 
 

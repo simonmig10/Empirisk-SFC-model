@@ -739,9 +739,9 @@ COMMENT>
 IDENTITY> insu_h
 EQ> insu_h = TSLAG(ins_h,1)*TSLAG(insu,1) + ins_h_adj
 
-COMMENT> 
+COMMENT>  property income H
 IDENTITY> propinc_r_h
-EQ> propinc_r_h = int_r_h + div_h + insu_h + res_r_h ' property income H
+EQ> propinc_r_h = int_r_h + div_h + insu_h + res_r_h 
 
 COMMENT> ' property expenditure H
 IDENTITY> propinc_p_h
@@ -788,10 +788,6 @@ IDENTITY> tax_h
 EQ> tax_h = -(tax_rate2*(yh2a+yh2b) +  tax_rate1*yh1 +  tax_h_adj)
 
 COMMENT> 
-IDENTITY> insu_h
-EQ> insu_h = TSLAG(ins_h,1)*TSLAG(insu,1) + ins_h_adj
-
-COMMENT> 
 IDENTITY> yd1_hk
 EQ> yd1_hk = yd1_h/pc
 
@@ -834,10 +830,10 @@ EQ> nl_h = s_h - i_h - np_h + ctr_h
 
 
 
-COMMENT> Equation so i can shock to G_bar
+COMMENT> 
 BEHAVIORAL> pcon_ds
 EQ> TSDELTALOG(pcon_ds) = C_1 + C_2*TSLAG(LOG(pcon_ds),1) + C_3*TSLAG(LOG(yd1_hk_ds),1) + C_4*TSLAG(LOG(yd2a_hk_ds),1) + C_5*TSLAG(LOG(fnw_hk),2) + C_6*TSDELTALOG(yd1_hk_ds) + C_7*TSDELTALOG(yd1_hk_ds,2) + C_8*TSDELTALOG(yd2a_hk_ds) + C_9*TSDELTALOG(-yd2b_hk) + C_10*D_2008Q4 + C_11*D_2018Q2 + C_12*D_2020Q1
-COEFF> C_1 C_2 C_3 C_4 C_5 C_6 C_7 C_8 C_9 C_10 C_11 
+COEFF> C_1 C_2 C_3 C_4 C_5 C_6 C_7 C_8 C_9 C_10 C_11 C_12
 STORE> coe(1)
 
 
@@ -849,10 +845,19 @@ COMMENT> nominal private consumption
 IDENTITY> pcon
 EQ> pcon = pconk*pc
 
-COMMENT> 
-BEHAVIORAL> ?????
-EQ> TSDELTALOG(I_BD_H_K_DS/BD_H_K,1) = P_620 + P_621*TSDELTALOG(TSLAG(I_BD_H_K_DS,1)/TSLAG(BD_H_K,2))+ P_622*TSDELTALOG(TSLAG(I_BD_H_K_DS,3)/TSLAG(BD_H_K,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(I_BD_H_K_DS,1)/TSLAG(BD_H_K,2)) + P_628*LOG(TSLAG(YD_HK_DS,1)/TSLAG(BD_H_K,2)) + P_629*LOG(TSLAG(P_BD,1)/TSLAG(PI,1)) + P_630*LOG(TSLAG(-L_H,1)/TSLAG(bd_h),2)) + P_631*D_2006Q4 + P_632*D_2014Q4 
-COEFF> P_20 P_21 P_22 P_23 P_24 P_25 P_26 P_27 P_28 P_29 P_30 P_31 P_32 
+
+COMMENT> Er ikke helt korrekt 
+BEHAVIORAL> i_bd_h_k_ds
+EQ> LOG(i_bd_h_k_ds) = P_620 + P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + 
+P_631*D_2006Q4 + 
+P_632*D_2014Q4 + 
+alpha_1*LOG(TSLAG(bd_h_k,1)) + 
+alpha_2* TSLAG(LOG(i_bd_h_k_ds),1) + 
+alpha_3* TSLAG(-LOG(bd_h_k),2)
+COEFF> P_620 P_621 P_622 P_623 P_624 P_625 P_626 P_627 P_628 P_629 P_630 P_631 P_632 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
 STORE> coe(2)
 
 COMMENT> 
@@ -883,11 +888,20 @@ STORE> coe(4)
 COMMENT> Financial side
 
 
-COMMENT> Skriv om!!!! Find ud af hhvordan jeg fikser trend
-BEHAVIORAL> pconk
-EQ> TSDELTA(-L_H_TR/(YD_HK_DS*PC)) = p_641*TSDELTA(-L_H_TR(-2)/(YD_HK_DS(-2)*PC(-2))) + p_642*TSDELTA(ILOAN) + p_643*TSDELTALOG(I_BD_H_K_DS(-3)/(YD_HK_DS(-3))) + p_644*-L_H_TR(-1)/(YD_HK_DS(-1)*PC(-1)) + p_645*LOG(-L_H(-2)/(YD_HK_DS(-2)*PC(-2))) + p_646 + p_647*D_2007Q34 + p_648*time
-COEFF> P_641 P_642 P_643 P_644 P_645 P_646 P_647 P_648
-STORE> coe(1)
+COMMENT> Mangler stadig at få tilpasset til ik diff
+BEHAVIORAL> l_h_tr
+EQ> TSDELTA(l_h_tr) = p_646 *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_641*((TSDELTA(TSLAG(-l_h_tr,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)))*(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))) 
++ p_642*TSDELTA(iloan) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_643*(TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3))) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_644*((TSLAG(-l_h_tr,1)/TSLAG(yd_hk_ds,1))*TSLAG(pc,1)) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_645*(LOG(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2))) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_647*D_2007Q34 *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_648*time*(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ alpha_1* ((l_h_tr*(yd_hk_ds*pc - TSLAG(yd_hk_ds,1)*TSLAG(pc,1)))/(yd_hk_ds*pc))
+COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648 alpha_1
+RESTRICT> alpha_1 = 1
+STORE>  coe(1)
 
 COMMENT> 
 IDENTITY> iba_h
@@ -906,10 +920,19 @@ IDENTITY> L_h
 EQ> L_h= TSLAG(L_h,1) + L_h_tr + L_h_rvx
 
 COMMENT>  Skkal skrives om!!!
-BEHAVIORAL> sec_h
-EQ> TSDELTA((EQ_H-EQ_H_RVX)/(EQ_H(-1)+SEC_H(-1)+iba_H(-1))) = p_770 + p_771*TSDELTA(IBD(-1)) + p_772*TSDELTA((DIV_R_H(-1)+EQ_H_RVX(-1))/EQ_H(-2))  + p_773 * ((EQ_H(-1)-EQ_H_RVX(-1))/(EQ_H(-2)+SEC_H(-2)+iba_H(-2))) + p_774 * IBD(-1) + p_775 * ((DIV_R_H(-2)+EQ_H_RVX(-2))/EQ_H(-3))
-COEFF> p_770 p_771 p_772 p_773 p_774 p_775
-STORE> coe(5)
+BEHAVIORAL> eq_h
+EQ> TSDELTA(eq_h) =  p_770 * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)) 
++ p_771 * (TSDELTA(TSLAG(ibd,1))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ p_772 * ((TSDELTA(TSLAG(div_r_h,1)+TSLAG(eq_h_rvx,1))/TSLAG(eq_h,2))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ p_773 * ((TSLAG(eq_h,1)- TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ p_774 * (TSLAG(ibd,1) * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ p_775 * (((TSLAG(div_r_h,2)+TSLAG(eq_h_rvx,2))/TSLAG(eq_h,3)) * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
++ alpha_1* eq_h_rvx
++ alpha_2* ((TSLAG(eq_h,1)*(TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1))- (TSLAG(eq_h,1)*(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2))) - (TSLAG(eq_h_rvx,1)*(TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1))))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2)))
+COEFF> p_770 p_771 p_772 p_773 p_774 p_775 alpha_1 alpha_2
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+STORE> coe(1)
 
 COMMENT> 
 IDENTITY> eq_h_tr
@@ -957,8 +980,8 @@ IDENTITY> ins_h_tr
 EQ> ins_h_tr = d8_h + ins_h_tr_excl_d8
 
 COMMENT> 
-BEHAVIORAL> D8_H
-EQ> TSDELTALOG(D8_H) = p_701*TSDELTALOG(TSLAG(D8_H,1)) + p_702*TSDELTALOG(W_H_R) + p_703*TSDELTALOG(TSLAG(OLD_AGE_RATIO,1)) + p_704*LOG(TSLAG(D8_H,1)) + p_705*LOG(TSLAG(W_H_R,1)) + p_706*LOG(TSLAG(OLD_AGE_RATIO,1)) + p_707*D_2014Q3
+BEHAVIORAL> d8_h
+EQ> TSDELTALOG(d8_h) = p_701*TSDELTALOG(TSLAG(d8_h,1)) + p_702*TSDELTALOG(w_h_r) + p_703*TSDELTALOG(TSLAG(old_age_ratio,1)) + p_704*LOG(TSLAG(d8_h,1)) + p_705*LOG(TSLAG(w_h_r,1)) + p_706*LOG(TSLAG(old_age_ratio,1)) + p_707*D_2014Q3
 COEFF> p_701 p_702 p_703 p_704 p_705 p_706 p_707
 STORE> coe(6)
 
@@ -987,7 +1010,7 @@ IDENTITY> i_bd_h
 EQ> i_bd_h = i_bd_h_k * p_bd
 
 COMMENT> gross fixed capital formation (equipment)
-IDENTITY> fnw_h
+IDENTITY> i_equip_h
 EQ> i_equip_h = i_equip_h_k * p_equip
 
 COMMENT> Real net stock of buildings and dwellings
@@ -1043,7 +1066,7 @@ STORE> coe(7)
 
 COMMENT> 
 IDENTITY> xk
-EQ> xk = xk_ds + p_172 + p_173*SD1 + p_174*SD2 + p_175*SD3 - mean__xk
+EQ> xk = xk_ds + p_172 + p_173*SD1 + p_174*SD2 + p_175*SD3 - mean_xk
 
 COMMENT> nominal import
 IDENTITY> m
@@ -1064,7 +1087,7 @@ IDENTITY> py
 EQ> py = y/yk
 
 COMMENT> nominal sales
-IDENTITY> fnw_h
+IDENTITY> s
 EQ> s = pcon + g + i + x
 
 COMMENT> wage bill paid by NFC
@@ -1238,7 +1261,7 @@ IDENTITY> eq_nf_l
 EQ> eq_nf_l = (1- d_20124)*(TSLAG(eq_nf_l,1) + eq_nf_l_tr + eq_nf_l_rvx)   +  d_20124*eq_nf_lx
 
 COMMENT> 
-IDENTITY> eq_nf_lx
+IDENTITY> neq_nf
 EQ> neq_nf =d_20123*(-alpha_neq_nf * i_nf) + d_20124*( (eq_nf_a_f+ eq_nf_a_row)-(eq_f_a_nf + eq_g_nf + eq_h_nf + eq_row_a_nf))
 
 COMMENT> 
@@ -1781,9 +1804,9 @@ EQ> LF = (part*pop)/1000
 COMMENT> The pricing equation implies a mark-up of (1 + 0.38) in the long-run, i.e., the long-run (co-integrating vector) impact of the indepenent variable on pc_ds = 0.029/0.021
 
 COMMENT> 
-BEHAVIORAL> insu_row
-EQ> TSDELTA(PC_DS) = C_21*TSDELTA(TSLAG(PC_DS,1)) + C_22*TSDELTA(TSLAG(PC_DS,2)) + C_23*TSDELTA(TSLAG(PC_DS,4)) + C_24*TSDELTA(WAGE_DS/PROD_DS+PM_DS) + C_25*TSLAG(PC_DS,1) + eta*(TSLAG(WAGE_DS,1)/TSLAG(PROD_DS,1)+TSLAG(PM_DS,1))
-COEFF> C_21 C_22 C_23 C_24 C_25
+BEHAVIORAL> pc_ds
+EQ> TSDELTA(pc_ds) = C_21*TSDELTA(TSLAG(pc_ds,1)) + C_22*TSDELTA(TSLAG(pc_ds,2)) + C_23*TSDELTA(TSLAG(pc_ds,4)) + C_24*TSDELTA(wage_ds/prod_ds+pm_ds) + C_25*TSLAG(pc_ds,1) + eta*(TSLAG(wage_ds,1)/TSLAG(prod_ds,1)+TSLAG(pm_ds,1))
+COEFF> C_21 C_22 C_23 C_24 C_25 eta
 STORE> coe(11)
 
 COMMENT> 
@@ -1803,9 +1826,9 @@ IDENTITY> urterm
 EQ> urterm = ur - urs
 
 COMMENT> 
-BEHAVIORAL> RW_DS
-EQ> TSDELTA(LOG(RW_DS)) = phi + p_521*TSDELTA(TSLAG(UR,4)) + p_522*TSDELTA(LOG(PRODK_DS)) + p_523*LOG(TSLAG(RW_DS,1)) + p_524*TSLAG(UR_DS,2) + p_525*LOG(TSLAG(PRODK_DS,2)) + p_526*D_2009Q4 + p_527*D_2011Q1
-COEFF> p_521 p_522 p_523 p_524 p_525 p_526 p_527 
+BEHAVIORAL> rw_ds
+EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,4)) + p_522*TSDELTA(LOG(prodk_ds)) + p_523*LOG(TSLAG(rw_ds,1)) + p_524*TSLAG(ur_ds,2) + p_525*LOG(TSLAG(prodk_ds,2)) + p_526*D_2009Q4 + p_527*D_2011Q1
+COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 
 STORE> coe(12)
 
 COMMENT> 
