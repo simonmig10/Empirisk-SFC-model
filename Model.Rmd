@@ -725,10 +725,6 @@ COMMENT>
 IDENTITY> div_h
 EQ> div_h = d_20124*((TSLAG(eq_h_nf,1) + TSLAG(eq_h_f,1))*TSLAG(divd,1) + TSLAG(eq_h_row,1)*TSLAG(diva,1)) + (1-d_20124)*(TSLAG(eq_h,1)*TSLAG(divd,1)) +  div_h_adj
 
-COMMENT> 
-IDENTITY> int_r_h
-EQ> int_r_h = TSLAG(idep,1)*TSLAG(iba_h,1)  + TSLAG(ibd,1)*TSLAG(sec_h,1)  + int_r_h_adj
-
 
 COMMENT> 
 IDENTITY> aa_check
@@ -877,9 +873,9 @@ COMMENT>
 IDENTITY> i_equip_h_k
 EQ>  i_equip_h_k = i_equip_h_k_ds + P_168 + P_169*SD1 + P_170*SD2 + P_171*SD3 - mean-i_equip_h_k
 
-COMMENT>
-BEHAVIORAL> NBEN_H1
-EQ> TSDELTALOG(NBEN_H1) = P_671 + P_672*TSDELTALOG(ZALAND_JESPER) + P_673*TSDELTA(UNEMP) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(NBEN_H,1)) + P_676*TSLAG(UNEMP,1) + P_677*LOG(TSLAG(ZALAND_JESPER,1))
+COMMENT> Har ændret fra NBEN_H1 til nben_h
+BEHAVIORAL> nben_h
+EQ> TSDELTALOG(nben_h) = P_671 + P_672*TSDELTALOG(ZALAND_JESPER) + P_673*TSDELTA(UNEMP) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(NBEN_H,1)) + P_676*TSLAG(unemp,1) + P_677*LOG(TSLAG(ZALAND_JESPER,1))
 COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677
 STORE> coe(4)
 
