@@ -797,6 +797,14 @@ library(bimets)
 library(knitr)
 ```
 
+## Shock variables
+
+```{r}
+g_shock= g
+```
+
+
+
 ## DEseasonalyse
 ```{r}
 
@@ -2665,6 +2673,10 @@ COMMENT>
 IDENTITY> check_sec
 EQ> check_sec = sec_h + sec_f_a + sec_f_d + sec_nf + sec_g + sec_row
 
+COMMENT> 
+IDENTITY> g
+EQ> g = g_shock
+
 
 END"
 ```
@@ -4249,7 +4261,10 @@ S_modelData=list(
   iba_row_rv  = TIMESERIES(c(iba_row_rv ),   
                            START=c(2005,2),FREQ=4),
   fnl_h  = TIMESERIES(c(fnl_h ),   
+                           START=c(2005,2),FREQ=4),
+  g_shock  = TIMESERIES(c(g_shock ),   
                            START=c(2005,2),FREQ=4)
+  
 )
 ```
 
@@ -4335,6 +4350,9 @@ eq_g_nf_00 = S_model$simulation$eq_g_nf
 eq_nf_a_row_00 = S_model$simulation$eq_nf_a_row
 neq_nf_00 = S_model$simulation$neq_nf
 check_div_00 = S_model$simulation$check_div
+xk_ds_00 = S_model$simulation$xk_ds
+pc_00 = S_model$simulation$pc
+yk_ds_00 = S_model$simulation$yk_ds
 
 
 ```
@@ -4367,7 +4385,7 @@ plot(nl_nf_00); lines(nl_nf, col = "blue"); grid()
 plot(neq_nf_tr_00); lines(Neq_nf_tr, col = "blue"); grid()
 plot(rw_ds_00); lines(rw_ds, col = "blue"); grid()
 plot(i_nf_00); lines(i_nf, col = "blue"); grid()
-plot(np_nf_00); lines(np_nf, col = "blue"); grid()
+#plot(np_nf_00); lines(np_nf, col = "blue"); grid()
 plot(s_nf_00); lines(s_nf, col = "blue"); grid()
 plot(yh_nf_00); lines(yh_nf, col = "blue"); grid()
 plot(y_00); lines(y, col = "blue"); grid()
@@ -4405,7 +4423,7 @@ For now just shocking 3 quarters to see if it has any effect
 # Define add-factor list (defining shock)
 constantAdjList <- list(
   
-  komp_r = TIMESERIES(c(0.15,0.15,0.15,0.15, 0.15, 0.15, 0.15) ,START=c(2014,1),  FREQ='Q'),
+  komp_r = TIMESERIES(c(0.15,0.15,0.15,0.15, 0.15, 0.15, 0.15) ,START=c(2014,1),  FREQ='Q')
   
 
 )
@@ -4448,6 +4466,9 @@ iba_h_01 = Shock_g$simulation$iba_h
 iba_f_tr_01 = Shock_g$simulation$iba_f_tr
 yd1_hk_ds_01 = Shock_g$simulation$yd1_hk_ds
 rw_ds_01 = Shock_g$simulation$rw_ds
+xk_ds_01 = Shock_g$simulation$xk_ds
+pc_01 = Shock_g$simulation$pc
+
 ```
 
 ```{r}
@@ -4469,12 +4490,104 @@ plot(iba_h_01, col= "red"); lines(iba_h_00, col = "blue"); grid()
 plot(yd1_hk_ds_01, col= "red"); lines(yd1_hk_ds_00, col = "blue"); grid()
 plot(eq_h_01, col= "red"); lines(eq_h_00, col = "blue"); grid()
 plot(rw_ds_01, col= "red"); lines(rw_ds_00, col = "blue"); grid()
+plot(xk_ds_01, col= "red"); lines(xk_ds_00, col = "blue"); grid()
+plot(pc_01, col= "red"); lines(pc_00, col = "blue"); grid()
 
 eq_h_01 - eq_h_00 #ser ik ud til ændringen i iba_h gør noget
 emp_01 - emp_00
 rw_ds_01 - rw_ds_00 #Ser ikke ud til der sker en ændring selv om komp_r ændres?
 ```
 
+
+
+
+## Scenario 2
+
+```{r}
+shock_g=g %>% window(start= c(2010,1))
+```
+
+
+```{r}
+# Define add-factor list (defining shock)
+constantAdjList <- list(
+  
+  g = TIMESERIES(shock_g*0.02 ,START=c(2010,1),  FREQ='Q')
+  
+
+)
+
+```
+
+
+```{r}
+# Simulate the model (following shock)
+Shock_gg <- SIMULATE(S_model
+                    ,simType='STATIC'
+                    ,TSRANGE=c(2006,4,2019,4)
+                    ,simConvergence=0.00001
+                    ,simIterLimit=100
+                    ,ConstantAdjustment=constantAdjList
+                    )
+
+```
+
+
+```{r}
+part_02 = Shock_gg$simulation$part
+lf_02 = Shock_gg$simulation$lf
+pconk_ds_02 = Shock_gg$simulation$pconk_ds
+yk_ds_02 = Shock_gg$simulation$yk_ds 
+nben_h_rest_02 = Shock_gg$simulation$nben_h_rest
+nben_h_un_02 = Shock_gg$simulation$nben_h_un
+komp_r_02 = Shock_gg$simulation$komp_r
+emp_02 = Shock_gg$simulation$emp
+nben_h_02 = Shock_gg$simulation$nben_h
+yd_h1_02 = Shock_gg$simulation$yd_h1
+yh1_02 = Shock_gg$simulation$yh1
+yd1_h_02 = Shock_gg$simulation$yd1_h
+yd_hk_02 =  Shock_gg$simulation$yd_hk
+yd_h_02 =  Shock_gg$simulation$yd_h
+l_h_tr_02 = Shock_gg$simulation$l_h_tr
+s_h_02 = Shock_gg$simulation$s_h
+eq_h_02 = Shock_gg$simulation$eq_h
+iba_h_02 = Shock_gg$simulation$iba_h
+iba_f_tr_02 = Shock_gg$simulation$iba_f_tr
+yd1_hk_ds_02 = Shock_gg$simulation$yd1_hk_ds
+rw_ds_02 = Shock_gg$simulation$rw_ds
+xk_ds_02 = Shock_gg$simulation$xk_ds
+pc_02 = Shock_gg$simulation$pc
+yk_ds_02 = Shock_gg$simulation$yk_ds
+
+```
+
+```{r}
+plot(part_01, col= "red"); lines(part_00, col = "blue"); grid()
+plot(lf_01, col= "red"); lines(lf_00, col= "red")
+plot(nben_h_rest_01, col= "red"); lines(nben_h_rest_00, col = "blue"); grid()
+plot(nben_h_un_01, col= "red"); lines(nben_h_un_00, col = "blue"); grid() 
+plot(komp_r_01, col= "red"); lines(komp_r_00, col = "blue"); grid()
+plot(emp_02, col= "red"); lines(emp_00, col = "blue"); grid()
+plot(nben_h_01, col= "red"); lines(nben_h_00, col = "blue"); grid()
+plot(yd_h1_01, col= "red"); lines(yd_h1_00, col = "blue"); grid()
+plot(yh1_01, col= "red"); lines(yh1_00, col = "blue"); grid()
+plot(yd1_h_01, col= "red"); lines(yd1_h_00, col = "blue"); grid()
+plot(yd_hk_01, col= "red"); lines(yd_hk_00, col = "blue"); grid()
+plot(yd_h_01, col= "red"); lines(yd_h_00, col = "blue"); grid()
+plot(l_h_tr_01, col= "red"); lines(l_h_tr_00, col = "blue"); grid()
+plot(s_h_01, col= "red"); lines(s_h_00, col = "blue"); grid()
+plot(iba_h_01, col= "red"); lines(iba_h_00, col = "blue"); grid()
+plot(yd1_hk_ds_01, col= "red"); lines(yd1_hk_ds_00, col = "blue"); grid()
+plot(eq_h_01, col= "red"); lines(eq_h_00, col = "blue"); grid()
+plot(rw_ds_01, col= "red"); lines(rw_ds_00, col = "blue"); grid()
+plot(xk_ds_01, col= "red"); lines(xk_ds_00, col = "blue"); grid()
+plot(pc_01, col= "red"); lines(pc_00, col = "blue"); grid()
+plot(yk_ds_02, col= "red"); lines(yk_ds_00, col = "blue"); grid()
+
+eq_h_01 - eq_h_00 #ser ik ud til ændringen i iba_h gør noget
+emp_01 - emp_00
+rw_ds_01 - rw_ds_00 #Ser ikke ud til der sker en ændring selv om komp_r ændres?
+```
 
 # Empirical testing
 
