@@ -779,13 +779,16 @@ komp_r = dp_person/ wage_trim
 
 ## forskel i løn og maks dagpenge 
 
-#diff_wageindex=as.data.frame(diff(wageindex_ds))
+diff_wageindex=as.data.frame(diff(wageindex_ds))
 
-#maks_dagpenge_index_ds = diff_wageindex %>%
-  #mutate(dagpenge_index= ifelse(x >= 0.02 & x <= 0.023 , 0.02, ifelse(x >0.02, x - 0.003, x)))
+maks_dagpenge_index_ds = diff_wageindex %>%
+  mutate(dagpenge_index= ifelse(x >= 0.02 & x <= 0.023 , 0.02, ifelse(x >0.02, x - 0.003, x)))
 
-#sum(maks_dagpenge_index_ds$x)
-#sum(maks_dagpenge_index_ds$dagpenge_index)
+sum(maks_dagpenge_index_ds$x)
+sum(maks_dagpenge_index_ds$dagpenge_index)
+
+manglende_stigning= ylim= diff_wageindex %>%
+  mutate(dagpenge_index= ifelse(x >= 0.02 & x <= 0.023 , 0.02, ifelse(x >0.02, x - 0.003, x)))
 
 ```
 

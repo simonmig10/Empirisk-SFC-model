@@ -26,6 +26,7 @@ AAMK <- read_excel("AAMK.xlsx")
 globaldemand1 <- read_excel("globaldemand1.xlsx")
 
 
+
 names(AAMK) <- tolower(names(AAMK))
 names(globaldemand1) <- tolower(names(globaldemand1))
 
@@ -35,6 +36,7 @@ globaldemand1=lapply(globaldemand1, function(t) ts(t, start=c(2005, 2), end=c(20
 attach(AAMK)
 attach(globaldemand1)
 ```
+
 
 
 
@@ -203,8 +205,7 @@ shock= ts(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 #### TEST
 
-test= g/2
-test1= test
+g_shock= g
 
 ```
 
@@ -227,7 +228,7 @@ d_2017q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
 ```{r}
 pc = pc/100
 px = px/100
-pi = pi/100
+pi_1 = pi/100
 pg= pg/100
 pm = pm/100
 py = py/100
@@ -281,7 +282,7 @@ we can compare ik with ikk. just to make sure we have all components of investme
 ```{r}
 ik =  i_equip_h_k + i_equip_nfc_k  +  i_equip_g_k + i_equip_fc_k +  i_bd_h_k + i_bd_nfc_k  +  i_bd_g_k  + i_bd_fc_k + i_adj_h_k + i_adj_nfc_k + i_adj_fc_k + i_adj_g_k
 
-ikk = i/pi
+ikk = i/pi_1
 ```
 
 
@@ -406,9 +407,9 @@ l_row_rvx=diff(l_row)-l_row_tr[-1]
 ```
 
 ```{r}
-int_nf_adj = (int_r_nf - int_p_nf) - (stats::lag(idep,n=1)*stats::lag(iba_nf,-1) + stats::lag(ibd,-1)*stats::lag(sec_nf,-1) + stats::lag(iloan,-1)*stats::lag(l_nf,-1))
+int_nf_adj = (int_r_nf - int_p_nf) - (stats::lag(idep,-1)*stats::lag(iba_nf,-1) + stats::lag(ibd,-1)*stats::lag(sec_nf,-1) + stats::lag(iloan,-1)*stats::lag(l_nf,-1))
 
-int_h_adj = (int_r_h - int_p_h) - (stats::lag(idep,n=1)*stats::lag(iba_h,-1) + stats::lag(ibd,-1)*stats::lag(sec_h,-1) + stats::lag(iloan,-1)*stats::lag(l_h,-1)) # this calculation calculates the discrepancy for interest payments as net flow.
+int_h_adj = (int_r_h - int_p_h) - (stats::lag(idep,-1)*stats::lag(iba_h,-1) +stats::lag(iloan,-1)*stats::lag(l_h,-1)+ stats::lag(ibd,-1)*stats::lag(sec_h,-1) ) # this calculation calculates the discrepancy for interest payments as net flow.
 ```
 
 ```{r}
@@ -520,14 +521,6 @@ div_nf1_adj =  (div_r_nf  - div_p_nf) - (stats::lag(Neq_nf,-1)*stats::lag(divd,-
 
 ```{r}
 div_nf_adj = d_20124*(div_nf2_adj) + (1-d_20124)*(div_nf1_adj)
-```
-
-
-
-```{r}
-"COMMENT> 
-IDENTITY> div_nf
-EQ> div_nf =d_20124*(((TSLAG(eq_nf_a_nf,1) + TSLAG(eq_nf_a_f,1) - TSLAG(eq_nf_l_nf,1) + TSLAG(eq_h_nf,1)+ TSLAG(eq_row_a_nf,1) + TSLAG(eq_f_a_nf,1) + TSLAG(eq_g_nf,1)))* TSLAG(divd,1) + TSLAG(eq_nf_a_row,1)*TSLAG(diva,1)) + (1-d_20124)*(TSLAG(neq_nf,1)*TSLAG(divd,1)) + div_nf_adj"
 ```
 
 
@@ -859,13 +852,6 @@ alpha_13=ts(alpha_13,start = c(2005,2), end = c(2020,1), frequency = 4 )
 mean_i_bd_h_k= mean(i_bd_h_k)
 mean_i_bd_h_k=ts(mean_i_bd_h_k,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
-## yd_hk_ds
-
-reg_2 = lm(yd_hk~ sd1+ sd2 + sd3)
-
-yd_hk_ds= reg_2$residuals + mean(yd_hk)
-
-yd_hk_ds=ts(yd_hk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 ## I_EQUIP_H_K
 
@@ -1324,11 +1310,8 @@ yh2a = propinc_r_h + b2_h_r
 yh2b = - propinc_p_h
 aa_check = TSLAG(eq_h_f,1)*TSLAG(divd,1)
 insu_h = TSLAG(ins_h,1)*TSLAG(insu,1) + ins_h_adj
-npropinc_h = propinc_r_h - propinc_p_h
 yd_h1 = yh_h + tax_h + nben_h
-yd_hk_ds = yd1_hk_ds + yd2a_hk_ds + yd2b_hk
 sec_h_tr_g=sec_h_tr
-l_h= TSLAG(l_h,1) + l_h_tr + l_h_rvx
 eq_h_test = eq_h - (eq_h_nf + eq_h_f + eq_h_row)
 lev_h = l_h/yd_h
 fa_h = iba_h + sec_h + eq_h + ins_h
@@ -1372,8 +1355,19 @@ fnw_rowk = fnw_row/pc
 mkp = pc_ds / (wage_ds/prodk_ds + pm_ds)
 acc_rate = ik / (bd_h_k+equip_h_k+bd_nfc_k+equip_nfc_k+bd_fc_k+equip_fc_k+bd_g_k+equip_g_k)
 yh1 = w_h_r +  nsben_h + oth_h
+yd_hk_ds = yd1_hk_ds +yd2a_hk_ds + yd2b_hk
+propinc_p_nf = int_p_nf + div_p_nf + ins_p_nf + res_p_nf
+propinc_r_nf = int_r_nf + div_r_nf + ins_r_nf + res_r_nf
+
+propinc_r_nf- propinc_p_nf
+
+npropinc_nf
 ```
 
+
+# Genskabning
+
+Jeg bliver nødt til at ændre nogle af variablene for at lave genskabning
 
 
 
@@ -1525,7 +1519,17 @@ EQ> pcon = pconk*pc
 
 COMMENT> Er ikke helt korrekt 
 BEHAVIORAL> i_bd_h_k_ds
-EQ> LOG(i_bd_h_k_ds) = P_620 + P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + 
+EQ> LOG(i_bd_h_k_ds) = P_620 + 
+P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ 
+P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ 
+P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi_1,1)) + 
+P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi_1,2)) + 
+P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ 
+P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + 
+P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + 
+P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + 
+P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi_1,1)) +
+P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + 
 P_631*d_2006q4 + 
 P_632*d_2014q4 + 
 alpha_1*LOG(TSLAG(bd_h_k,1)) + 
@@ -1819,8 +1823,19 @@ EQ> tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 
 COMMENT> Er fixet
 BEHAVIORAL> i_bd_nfc_k_ds
-EQ> LOG(i_bd_nfc_k_ds) = p_800 + p_801*TSDELTALOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + p_802*TSDELTALOG(ps_ds) + p_803*TSDELTALOG(u_ds) + p_804* LOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + p_805 * LOG(TSLAG(ps_ds,1)) + p_806 * LOG(TSLAG(u_ds,1)) + alpha_1*TSLAG(LOG(i_bd_nfc_k_ds),1) + alpha_2*TSLAG(LOG(bd_nfc_k),1) + alpha_3*TSLAG(-LOG(bd_nfc_k),2)
-COEFF> p_800 p_801 p_802 p_803 p_804 p_805 p_806 alpha_1 alpha_2 alpha_3
+EQ> LOG(i_bd_nfc_k_ds) = p_800 + 
+p_801*TSDELTALOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + 
+p_802*TSDELTALOG(ps_ds) + 
+p_803*TSDELTALOG(u_ds) + 
+p_804* LOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + 
+p_805 * LOG(TSLAG(ps_ds,1)) + 
+p_806 * LOG(TSLAG(u_ds,1)) + 
+p_807 * TSDELTALOG(tobinq) +
+p_808 * LOG(TSLAG(tobinq,1)) +
+alpha_1*TSLAG(LOG(i_bd_nfc_k_ds),1) + 
+alpha_2*TSLAG(LOG(bd_nfc_k),1) + 
+alpha_3*TSLAG(-LOG(bd_nfc_k),2)
+COEFF> p_800 p_801 p_802 p_803 p_804 p_805 p_806 p_807 p_808 alpha_1 alpha_2 alpha_3
 RESTRICT> alpha_1 = 1
 alpha_2 = 1
 alpha_3 = 1
@@ -1883,9 +1898,9 @@ COMMENT>
 IDENTITY> npropinc_nf
 EQ> npropinc_nf = int_nf + int_nf_adj + div_nf + insu_nf + ins_nf_adj + (res_r_nf ) - (res_p_nf) 
 
-COMMENT> gross income NFC
+COMMENT> gross income NFC Ændret yil den anden i modellen 
 IDENTITY> yh_nf
-EQ> yh_nf = y + b2_nf_r - b2 - (p_tax + p_tax_row) + (p_sub+p_sub_row) - w_nf + (npropinc_nf) 
+EQ> yh_nf = y + b2_nf_r - b2 - (p_tax + p_tax_row) + (p_sub+p_sub_row) - w_nf + (propinc_r_nf - propinc_p_nf) 
 
 COMMENT> savings NFC TAX_NF is negative
 IDENTITY> s_nf
@@ -2657,7 +2672,7 @@ EQ> check_sec = sec_h + sec_f_a + sec_f_d + sec_nf + sec_g + sec_row
 
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> g
-EQ> g = test + test1
+EQ> g = g_shock
 
 
 END"
@@ -2679,10 +2694,7 @@ S_model=LOAD_MODEL(modelText = S_model.txt)
 S_modelData=list(  
   ## Households
   
-  test = TIMESERIES(c(test),   
-                       START=c(2005,2),FREQ=4),
-  test1 = TIMESERIES(c(test1),   
-                       START=c(2005,2),FREQ=4),
+  
   int_r_h = TIMESERIES(c(int_r_h),   
                        START=c(2005,2),FREQ=4),
   int_p_h = TIMESERIES(c(int_p_h),   
@@ -2695,6 +2707,10 @@ S_modelData=list(
                       START=c(2005,3),FREQ=4),
   propinc_r_h = TIMESERIES(c(propinc_r_h),   
                            START=c(2005,2),FREQ=4),
+  propinc_r_nf = TIMESERIES(c(propinc_r_nf ),   
+                           START=c(2005,2),FREQ=4),
+  propinc_p_nf= TIMESERIES(c(propinc_p_nf),   
+                           START=c(2005,2),FREQ=4),
   propinc_p_h = TIMESERIES(c(propinc_p_h),   
                            START=c(2005,2),FREQ=4),
   npropinc_h = TIMESERIES(c(npropinc_h),   
@@ -2703,7 +2719,7 @@ S_modelData=list(
                     START=c(2005,2),FREQ=4),
   yh2a = TIMESERIES(c(yh2a),   
                     START=c(2005,2),FREQ=4),
-  yh2b = TIMESERIES(c(yh2a),   
+  yh2b = TIMESERIES(c(yh2b),   
                     START=c(2005,2),FREQ=4),
   yh1 = TIMESERIES(c(yh1),   
                    START=c(2005,2),FREQ=4),
@@ -2778,7 +2794,7 @@ S_modelData=list(
                           START=c(2005,2),FREQ=4),
   
   l_h = TIMESERIES(c(l_h),   
-                   START=c(2005,3),FREQ=4),
+                   START=c(2005,2),FREQ=4),
   iba_h_tr = TIMESERIES(c(iba_h_tr),   
                         START=c(2005,2),FREQ=4),
   
@@ -2973,7 +2989,7 @@ S_modelData=list(
                       START=c(2005,2),FREQ=4),
   
   neq_nf_tr = TIMESERIES(c(Neq_nf_tr),   
-                         START=c(2005,2),FREQ=4),
+                         START=c(2005,3),FREQ=4),
   eq_nf_a_test = TIMESERIES(c(eq_nf_a_test),   
                             START=c(2005,2),FREQ=4),
   eq_nf_l_test = TIMESERIES(c(eq_nf_l_test),   
@@ -3058,7 +3074,7 @@ S_modelData=list(
   neq_f = TIMESERIES(c(Neq_f),   
                      START=c(2005,2),FREQ=4),
   neq_f_tr = TIMESERIES(c(Neq_f_tr),   
-                        START=c(2005,2),FREQ=4),
+                        START=c(2005,3),FREQ=4),
   eq_f_l_test = TIMESERIES(c(eq_f_l_test),   
                            START=c(2005,2),FREQ=4),
   sec_f_d = TIMESERIES(c(sec_f_d),   
@@ -3247,7 +3263,7 @@ S_modelData=list(
                        START=c(2005,2),FREQ=4),
   
   neq_row_tr = TIMESERIES(c(Neq_row_tr),   
-                          START=c(2005,2),FREQ=4),
+                          START=c(2005,3),FREQ=4),
   ins_row = TIMESERIES(c(ins_row),   
                        START=c(2005,2),FREQ=4),
   fnw_row = TIMESERIES(c(fnw_row),   
@@ -3318,9 +3334,9 @@ S_modelData=list(
                         START=c(2005,2),FREQ=4),
   komp_r = TIMESERIES(c(komp_r),   
                         START=c(2005,2),FREQ=4),
-  shock_g = TIMESERIES(c(shock_g),   
-                        START=c(2005,2),FREQ=4),
   shock = TIMESERIES(c(shock),   
+                        START=c(2005,2),FREQ=4),
+  g_shock = TIMESERIES(c(g_shock),   
                         START=c(2005,2),FREQ=4),
   wage_trim = TIMESERIES(c(wage_trim),   
                         START=c(2005,2),FREQ=4),
@@ -3609,9 +3625,6 @@ S_modelData=list(
   
   pcon_ds = TIMESERIES(c(pcon_ds),   
                        START=c(2005,2),FREQ=4),
-  
-  i_bd_h_k_ds = TIMESERIES(c(i_bd_h_k_ds),   
-                           START=c(2005,2),FREQ=4),
   yd_hk_ds = TIMESERIES(c(yd_hk_ds),   
                         START=c(2005,2),FREQ=4),
   i_equip_h_k_ds = TIMESERIES(c(i_equip_h_k_ds),   
@@ -3715,7 +3728,7 @@ S_modelData=list(
   
   p_bd = TIMESERIES(c(p_bd),   
                     START=c(2005,2),FREQ=4),
-  pi = TIMESERIES(c(pi),   
+  pi_1 = TIMESERIES(c(pi_1),   
                   START=c(2005,2),FREQ=4),
   zaland_jesper = TIMESERIES(c(zaland_jesper ),   
                              START=c(2005,2),FREQ=4),
@@ -3751,7 +3764,7 @@ S_modelData=list(
                     START=c(2005,2),FREQ=4),
   int_r_h_adj = TIMESERIES(c(int_r_h_adj),   
                            START=c(2005,3),FREQ=4),
-  int_p_h_adj = TIMESERIES(c(int_r_h_adj),   
+  int_p_h_adj = TIMESERIES(c(int_p_h_adj),   
                            START=c(2005,3),FREQ=4),
   div_h_adj = TIMESERIES(c(div_h_adj),   
                          START=c(2005,3),FREQ=4),
@@ -3773,12 +3786,12 @@ S_modelData=list(
                      START=c(2005,2),FREQ=4),
   
   tax_rate2 = TIMESERIES(c(tax_rate2),   
-                     START=c(2005,3),FREQ=4),
+                     START=c(2005,2),FREQ=4),
   
   tax_rate1 = TIMESERIES(c(tax_rate1),   
                        START=c(2005,2),FREQ=4),
   tax_h_adj = TIMESERIES(c(tax_h_adj),   
-                        START=c(2005,3),FREQ=4),
+                        START=c(2005,2),FREQ=4),
   
   np_h = TIMESERIES(c(np_h),   
                              START=c(2005,2),FREQ=4),
@@ -3825,7 +3838,7 @@ S_modelData=list(
   w_row_p = TIMESERIES(c(w_row_p),   
                          START=c(2005,2),FREQ=4),
   b2_h_r = TIMESERIES(c(b2_h_r),   
-                         START=c(2005,3),FREQ=4),
+                         START=c(2005,2),FREQ=4),
   
   b2_f_r = TIMESERIES(c(b2_f_r),   
                     START=c(2005,2),FREQ=4),
@@ -3883,7 +3896,7 @@ S_modelData=list(
   l_nf_tr = TIMESERIES(c(l_nf_tr),   
                        START=c(2005,2),FREQ=4),
   sec_nf_tr = TIMESERIES(c(sec_nf_tr),   
-                      START=c(2005,3),FREQ=4),
+                      START=c(2005,2),FREQ=4),
   
   ins_nf_tr = TIMESERIES(c(ins_nf_tr),   
                       START=c(2005,2),FREQ=4),
@@ -3952,7 +3965,7 @@ S_modelData=list(
   oth_f = TIMESERIES(c(oth_f),   
                        START=c(2005,2),FREQ=4),
   ctr_f = TIMESERIES(c(ctr_f),   
-                         START=c(2005,3),FREQ=4),
+                         START=c(2005,2),FREQ=4),
   
   iba_f_rvx = TIMESERIES(c(iba_f_rvx),   
                          START=c(2005,3),FREQ=4),
@@ -4008,7 +4021,7 @@ S_modelData=list(
   div_r_g = TIMESERIES(c(div_r_g),   
                      START=c(2005,2),FREQ=4),
   res_r_g = TIMESERIES(c(res_r_g),   
-                     START=c(2005,3),FREQ=4),
+                     START=c(2005,2),FREQ=4),
   
   int_p_g = TIMESERIES(c(int_p_g),   
                          START=c(2005,2),FREQ=4),
@@ -4075,7 +4088,7 @@ S_modelData=list(
   div_r_row = TIMESERIES(c(div_r_row),   
                        START=c(2005,2),FREQ=4),
   ins_r_row = TIMESERIES(c(ins_r_row),   
-                       START=c(2005,3),FREQ=4),
+                       START=c(2005,2),FREQ=4),
   
   res_r_row = TIMESERIES(c(res_r_row),   
                        START=c(2005,2),FREQ=4),
@@ -4107,8 +4120,6 @@ S_modelData=list(
                          START=c(2005,2),FREQ=4),
   
   sben_row_p = TIMESERIES(c(sben_row_p),   
-                           START=c(2005,2),FREQ=4),
-  fnl_row = TIMESERIES(c(fnl_row),   
                            START=c(2005,2),FREQ=4),
   iba_row_rvx = TIMESERIES(c(iba_row_rvx),   
                          START=c(2005,3),FREQ=4),
@@ -4214,11 +4225,11 @@ S_modelData=list(
   check_iba_tr  = TIMESERIES(c(check_iba_tr ),   
                            START=c(2005,2),FREQ=4),
   check_eq  = TIMESERIES(c(check_eq ),   
-                           START=c(2005,3),FREQ=4),
+                           START=c(2005,2),FREQ=4),
   check_eq_tr  = TIMESERIES(c(check_eq_tr ),   
                            START=c(2005,3),FREQ=4),
   check_div  = TIMESERIES(c(check_div ),   
-                           START=c(2005,2),FREQ=4),
+                           START=c(2005,3),FREQ=4),
   check_l  = TIMESERIES(c(check_l ),   
                            START=c(2005,2),FREQ=4),
   check_l_tr  = TIMESERIES(c(check_l_tr ),   
@@ -4231,13 +4242,13 @@ S_modelData=list(
                            START=c(2005,2),FREQ=4),
   
   fnl_f  = TIMESERIES(c(fnl_f ),   
-                           START=c(2005,3),FREQ=4),
+                           START=c(2005,2),FREQ=4),
   fnl_nf  = TIMESERIES(c(fnl_nf ),   
                            START=c(2005,3),FREQ=4),
   fnl_g   = TIMESERIES(c(fnl_g ),   
                            START=c(2005,2),FREQ=4),
   fnl_row   = TIMESERIES(c(fnl_row),   
-                           START=c(2005,2),FREQ=4),
+                           START=c(2005,3),FREQ=4),
   iba_h_rv   = TIMESERIES(c(iba_h_rv),   
                            START=c(2005,2),FREQ=4),
   iba_f_rv   = TIMESERIES(c(iba_f_rv  ),   
@@ -4249,7 +4260,7 @@ S_modelData=list(
   iba_row_rv  = TIMESERIES(c(iba_row_rv ),   
                            START=c(2005,2),FREQ=4),
   fnl_h  = TIMESERIES(c(fnl_h ),   
-                           START=c(2005,2),FREQ=4)
+                           START=c(2005,3),FREQ=4)
 )
 ```
 
@@ -4258,6 +4269,8 @@ S_modelData=list(
 
 ```{r}
 S_model=LOAD_MODEL_DATA(S_model,S_modelData)
+
+
 ```
 
 
@@ -4271,14 +4284,14 @@ S_model=ESTIMATE(S_model
 
 
 
-
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
                     ,simType='STATIC'
-                    ,TSRANGE=c(2006,4,2019,4)
+                    ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
+                    
                    )
 ```
 
@@ -4339,8 +4352,9 @@ eq_nf_a_row_00 = S_model$simulation$eq_nf_a_row
 neq_nf_00 = S_model$simulation$neq_nf
 check_div_00 = S_model$simulation$check_div
 xk_ds_00 = S_model$simulation$xk_ds
-pc_00 = S_model$simulation$pc
 g_00 = S_model$simulation$g
+rw_ds_00 = S_model$simulation$rw_ds
+b2_00 = S_model$simulation$b2
 
 
 
@@ -4349,6 +4363,50 @@ yk_ds_00 = S_model$simulation$yk_ds
 emp_00 = S_model$simulation$emp
 wage_ds_00 = S_model$simulation$wage_ds
 unemp_00 = S_model$simulation$unemp
+ik_00 = S_model$simulation$ik
+pc_ds_00 = S_model$simulation$pc_ds
+yd_hk_ds_00 = S_model$simulation$yd_hk_ds ## kunne godt se ud som om noget er galt med den her.
+
+
+### TEsst
+
+yd1_hk_ds_00 = S_model$simulation$yd1_hk_ds
+yd2a_hk_ds_00 = S_model$simulation$yd2a_hk_ds
+yd2b_hk_00 = S_model$simulation$yd2b_hk
+yd1_hk_00 = S_model$simulation$yd1_hk
+yd2a_hk_00 = S_model$simulation$yd2a_hk
+yd1_h_00 = S_model$simulation$yd1_h
+yh1_00 = S_model$simulation$yh1
+sec_g_tr_00 = S_model$simulation$sec_g_tr
+sec_f_d_tr_g_00 = S_model$simulation$sec_f_d_tr_g
+sec_h_tr_g_00 = S_model$simulation$sec_h_tr_g
+l_h_00 = S_model$simulation$l_h
+yd2b_h_00 = S_model$simulation$yd2b_h
+yh2b_00 = S_model$simulation$yh2b
+propinc_p_h_00 = S_model$simulation$propinc_p_h
+int_p_h_00 = S_model$simulation$int_p_h
+iloan_00 = S_model$simulation$iloan
+int_p_h_adj_00 = S_model$simulation$int_p_h_adj
+
+
+## RESCHECK
+yk_00 = S_model$simulation$yk
+prodk_00 = S_model$simulation$prodk
+pcon_00 = S_model$simulation$pcon
+i_00 = S_model$simulation$i
+x_00 = S_model$simulation$x
+m_00 = S_model$simulation$m
+i_h_00 = S_model$simulation$i_h
+w_nf_00 = S_model$simulation$w_nf
+s_nf_00 = S_model$simulation$s_nf
+
+
+
+
+
+
+
+
 
 ```
 
@@ -4399,13 +4457,57 @@ plot(eq_g_nf_00); lines(eq_g_nf, col = "blue"); grid()
 plot(eq_nf_a_row_00); lines(eq_nf_a_row, col = "blue"); grid()
 plot(neq_nf_00); lines(Neq_nf, col = "blue"); grid()
 plot(check_div_00); lines(check_div, col = "blue"); grid()
+plot(rw_ds_00); lines(rw_ds, col = "blue"); grid()
+plot(pi_00); lines(pi, col = "blue"); grid()
+plot(l_h_00); lines(l_h, col = "blue"); grid()
+
 
 
 ### Gengivelse
-plot(yk_ds_00, ylim= c(430000, 540000), col= "green"); lines(yk_ds, col = "blue"); grid()
-plot(emp_00, col= "green"); lines(emp, col = "blue"); grid()
-plot(pconk_ds_00,ylim= c(210000, 250000), col= "green"); lines(pconk_ds, col = "blue"); grid()
-plot(g_00, col= "green"); lines(g, col = "blue"); grid()
+plot(yk_ds_00, ylim= c(430000, 540000), col= "green"); lines(yk_ds, col = "blue"); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue")); 
+grid() 
+
+## Ser okay ud 
+
+
+plot(emp_00, col= "green"); lines(emp, col = "blue"); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
+grid()
+
+## Passer ik helt 
+
+
+plot(pconk_ds_00,ylim= c(210000, 250000), col= "green"); lines(pconk_ds, col = "blue"); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
+grid()
+
+## Ser okay ud 
+
+plot(ik_00, col= "green"); lines(ik, col = "blue"); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
+grid()
+
+# Ser næsten ud til at være 1 til 1
+
+plot(yd_hk_ds_00, ylim= c(190000, 270000), col= "green"); lines(yd_hk_ds, col = "blue"); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
+grid()
+
+# Tror der er noget galt med den her!!!
+
+
+
+### Test
+plot(yd_hk_00); lines(yd_hk, col = "blue"); grid()
+plot(yd1_hk_00); lines(yd1_hk, col = "blue"); grid()
+plot(yd2a_hk_00); lines(yd2a_hk, col = "blue"); grid()
+plot(yd2b_hk_00); lines(yd2b_hk, col = "blue"); grid()
+plot(yd2b_h_00 ); lines(yd2b_h, col = "blue"); grid()
+plot(yh2b_00); lines(yh2b, col = "blue"); grid()
+plot(propinc_p_h_00); lines(propinc_p_h, col = "blue"); grid()
+plot(int_p_h_00); lines(int_p_h, col = "blue"); grid()
+
 
 
 ```
@@ -4422,7 +4524,7 @@ increase in public expenditure from 2010
 2% increase in goverment spending:
 
 ```{r}
-g_shock=g %>% window(start= c(2010,1))
+shock_g=g %>% window(start= c(2010,1))
 ```
 
 
@@ -4430,8 +4532,7 @@ g_shock=g %>% window(start= c(2010,1))
 # Define add-factor list (defining shock)
 constantAdjList <- list(
   
-  nben_h = TIMESERIES(komp_r_shock ,START=c(2014,1),  FREQ='Q')
-
+  g = TIMESERIES(shock_g*0.02 ,START=c(2010,1),  FREQ='Q')
 )
 
 ```
@@ -4441,7 +4542,7 @@ constantAdjList <- list(
 # Simulate the model (following shock)
 Shock_g <- SIMULATE(S_model
                     ,simType='STATIC'
-                    ,TSRANGE=c(2006,4,2019,4)
+                    ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
                     ,ConstantAdjustment=constantAdjList
@@ -4473,8 +4574,9 @@ iba_f_tr_01 = Shock_g$simulation$iba_f_tr
 yd1_hk_ds_01 = Shock_g$simulation$yd1_hk_ds
 rw_ds_01 = Shock_g$simulation$rw_ds
 xk_ds_01 = Shock_g$simulation$xk_ds
-pc_01 = Shock_g$simulation$pc
 g_01 = Shock_g$simulation$g
+y_01 = Shock_g$simulation$y
+
 
 
 ###Gengivelse af stød til model
@@ -4483,6 +4585,8 @@ yk_ds_01 = Shock_g$simulation$yk_ds
 emp_01 = Shock_g$simulation$emp
 wage_ds_01 = Shock_g$simulation$wage_ds
 unemp_01 = Shock_g$simulation$unemp
+pc_ds_01 = Shock_g$simulation$pc_ds
+yd_hk_ds_01 = Shock_g$simulation$yd_hk_ds
 
 
 ```
@@ -4507,30 +4611,105 @@ plot(yd1_hk_ds_01, col= "red"); lines(yd1_hk_ds_00, col = "blue"); grid()
 plot(eq_h_01, col= "red"); lines(eq_h_00, col = "blue"); grid()
 plot(rw_ds_01, col= "red"); lines(rw_ds_00, col = "blue"); grid()
 plot(emp_01, col= "red"); lines(emp_00, col = "blue"); grid()
+plot(y_01, col= "red"); lines(y_00, col = "blue"); grid()
 
 
 ### Gengivelse af stød til model 
 
-plot(yk_ds_01, col= "red"); lines(yk_ds_00, col = "blue"); grid()
-plot(unemp_01, col= "red"); lines(unemp_00, col = "blue"); grid()
-plot(wage_ds_01, col= "red"); lines(wage_ds_00, col = "blue"); grid()
-plot(pconk_ds_01, col= "red"); lines(pconk_ds_00, col = "blue"); grid()
+plot(yk_ds_01, col= "red"); lines(yk_ds_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+# Ser meget ens ud!
+
+
+plot(unemp_01, col= "red"); lines(unemp_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+# Selve stødet ser fint ud! Baseline ser lidt anderledes ud 
+
+plot(wage_ds_01, col= "red"); lines(wage_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+wage_ds_01 - wage_ds_00
+
+
+# Ser ud til at være en meget mindre effekt her 
+
+plot(pconk_ds_01, col= "red"); lines(pconk_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+# Ser også ud til at have mindre effekt her 
+
+plot(pc_ds_01, col= "red"); lines(pc_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+# Ser ud til at have mindre effekt her 
+
+
+plot(yd_hk_ds_01, col= "red"); lines(yd_hk_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+# også mindre effekt her 
+
 ```
 
 
-Det ser ud til yk_ds og unemp er fuldstendig ens 
 
-Men de to andre har stødet mindre effekt her end i working paper. 
+## Virk nu!!
+
 
 
 
 ```{r}
-dp_tot= sben_h_r*ratio_dag
-nben_h_un = round(dp_tot)
-nben_h_rest= nben_h - nben_h_un
-dp_person = nben_h_un/unemp
-w_h_r_trim = w_h_r - abm - d8_h
-wage_trim = w_h_r_trim/emp
-komp_r = dp_person/ wage_trim
+"COMMENT> Mangler stadig at få tilpasset til ik diff
+BEHAVIORAL> l_h_tr
+EQ> TSDELTA(l_h_tr) = p_646 *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_641*((TSDELTA(TSLAG(-l_h_tr,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)))*(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))) 
++ p_642*TSDELTA(iloan) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_643*(TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3))) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_644*((TSLAG(-l_h_tr,1)/TSLAG(yd_hk_ds,1))*TSLAG(pc,1)) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_645*(LOG(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2))) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_647*d_2007q34 *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ p_648*time*(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
++ alpha_1* ((l_h_tr*(yd_hk_ds*pc - TSLAG(yd_hk_ds,1)*TSLAG(pc,1)))/(yd_hk_ds*pc))
+COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648 alpha_1
+RESTRICT> alpha_1 = 1
+STORE>  coe(5)"
+```
+
+
+
+```{r}
+library(dynlm)
+
+
+
+
+
+summary(dynlm(TSDELTA(test) ~ 1+
+        TSDELTA(TSLAG(test,2))+
+         TSDELTA(iloan)+
+          TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3))+
+          TSLAG(test,1)+
+          log(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2))+
+          d_2007q34+
+          time))
+  
+
+summary(dynlm(TSDELTA(test) ~ 1))
+
+test=-l_h_tr/(yd_hk_ds*pc)
+
+
+
+
+
 ```
 
