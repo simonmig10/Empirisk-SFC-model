@@ -549,7 +549,6 @@ div_f_adj = d_20124*div_f2_adj + (1-d_20124)*(div_f1_adj)
 ```{r}
 div_f = d_20124 *(((stats::lag(eq_f_a_f,-1) + stats::lag(eq_nf_a_nf,-1)) - (stats::lag(eq_f_l_f,-1) + stats::lag(eq_h_f,-1)+ stats::lag(eq_row_a_f,-1) + stats::lag(eq_nf_a_f,-1) + stats::lag(eq_g_f,-1)))* stats::lag(divd,-1) + stats::lag(eq_f_a_row,-1)*stats::lag(diva,-1)) + (1-d_20124)*((stats::lag(Neq_f,-1)*stats::lag(divd,-1))) +  div_f_adj 
 
-div_f11 = d_20124 *(((TSLAG(eq_f_a_f,1) + TSLAG(eq_nf_a_nf,1)) - (TSLAG(eq_f_l_f,1) + TSLAG(eq_h_f ,1)+ TSLAG(eq_row_a_f,1) + TSLAG(eq_nf_a_f,1) + TSLAG(eq_g_f,1)))* TSLAG(divd,1) + TSLAG(eq_f_a_row,1)*TSLAG(diva,1)) + (1-d_20124)*((TSLAG(Neq_f,1)*TSLAG(divd,1))) +  div_f_adj
 
 div_f1 =  div_r_f - div_p_f
 ```
@@ -4248,7 +4247,7 @@ S_model=ESTIMATE(S_model
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
-                    ,simType='STATIC'
+                    ,simType='RESCHECK'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
@@ -4329,7 +4328,7 @@ pc_ds_00 = S_model$simulation$pc_ds
 yd_hk_ds_00 = S_model$simulation$yd_hk_ds ## kunne godt se ud som om noget er galt med den her.
 
 
-### TEsst
+### Test
 
 yd1_hk_ds_00 = S_model$simulation$yd1_hk_ds
 yd2a_hk_ds_00 = S_model$simulation$yd2a_hk_ds
@@ -4727,9 +4726,9 @@ plot(prod_ds_00); lines(prod_ds, col = "blue"); grid()
 plot(ur_ds_00); lines(UR_ds, col = "blue"); grid() #Fordi ur_ds er defineret 2 gange, men tror jeg bruger den rigtige, da estimater passer i rw_ds
 plot(eq_h_tr_00); lines(eq_h_tr, col = "blue"); grid()
 plot(eq_h_row_00); lines(eq_h_row, col = "blue"); grid()
-plot(eq_h_nf_tr_00); lines(eq_h_nf_tr, col = "blue"); grid()
-plot(eq_h_f_tr_00); lines(eq_h_f_tr, col = "blue"); grid()
-plot(eq_h_row_tr_00); lines(eq_h_row_tr, col = "blue"); grid()
+plot(eq_h_nf_tr_00); lines(eq_h_nf_tr, col = "blue"); grid() ## Tror det er noget med eq_h_row_rvx
+plot(eq_h_f_tr_00); lines(eq_h_f_tr, col = "blue"); grid() ## Samme som over
+plot(eq_h_row_tr_00); lines(eq_h_row_tr, col = "blue"); grid() ## Samme som overover
 plot(fnw_h_00); lines(fnw_h, col = "blue"); grid() # Ser ik så slemt ud relativt set 
 plot(eq_nf_l_nf_00); lines(eq_nf_l_nf, col = "blue"); grid()# Ser ik så slemt ud relativt set 
 plot(eq_nf_l_00); lines(eq_nf_l, col = "blue"); grid()# Ser ik så slemt ud relativt set 
