@@ -1292,9 +1292,9 @@ reprate_bd_h = (mean(delta_bd_h)*stats::lag(bd_h_k,-1))/i_bd_h_k_ds # replacemen
 Jeg bliver nødt til at ændre nogle af variablene for at lave genskabning
 
 ```{r}
-s_row1 = m - x + p_tax_row - p_sub_row + (w_row_r - w_row_p) +  (npropinc_row) + (tax_row) + nben_row + oth_row
-yh_f1 = b2_f_r + (npropinc_f)
-yh_h1 = w_h_r + b2_h_r + (npropinc_h )
+#s_row1 = m - x + p_tax_row - p_sub_row + (w_row_r - w_row_p) +  (npropinc_row) + (tax_row) + nben_row + oth_row
+#yh_f1 = b2_f_r + (npropinc_f)
+#yh_h1 = w_h_r + b2_h_r + (npropinc_h )
 ```
 
 ## Extra variables created to run the model:
@@ -1560,19 +1560,21 @@ STORE> coe(4)
 COMMENT> Financial side
 
 
+COMMENT> 
+IDENTITY> l_h_tr
+EQ> l_h_tr= l_h_tr_ratio * (-yd_hk_ds*pc)
+
 COMMENT> Mangler stadig at få tilpasset til ik diff
-BEHAVIORAL> l_h_tr
-EQ> TSDELTA(l_h_tr) = p_646 *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_641*((TSDELTA(TSLAG(-l_h_tr,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)))*(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))) 
-+ p_642*TSDELTA(iloan) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_643*(TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3))) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_644*((TSLAG(-l_h_tr,1)/TSLAG(yd_hk_ds,1))*TSLAG(pc,1)) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_645*(LOG(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2))) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_647*d_2007q34 *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_648*time*(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ alpha_1* ((l_h_tr*(yd_hk_ds*pc - TSLAG(yd_hk_ds,1)*TSLAG(pc,1)))/(yd_hk_ds*pc))
-COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648 alpha_1
-RESTRICT> alpha_1 = 1
+BEHAVIORAL> l_h_tr_ratio
+EQ> TSDELTA(l_h_tr_ratio) = p_646 
++ p_641*TSDELTA(TSLAG(l_h_tr_ratio,2))
++ p_642*TSDELTA(iloan) 
++ p_643*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3)) 
++ p_644* TSLAG(l_h_tr_ratio,1) 
++ p_645*LOG(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)) 
++ p_647*d_2007q34 
++ p_648*time
+COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648
 STORE>  coe(5)
 
 COMMENT> 
@@ -1591,19 +1593,19 @@ COMMENT>
 IDENTITY> l_h
 EQ> l_h= TSLAG(l_h,1) + l_h_tr + l_h_rvx
 
-COMMENT>  Skkal skrives om!!!
-BEHAVIORAL> eq_h
-EQ> TSDELTA(eq_h) =  p_770 * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)) 
-+ p_771 * (TSDELTA(TSLAG(ibd,1))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
-+ p_772 * ((TSDELTA(TSLAG(div_r_h,1)+TSLAG(eq_h_rvx,1))/TSLAG(eq_h,2))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
-+ p_773 * ((TSLAG(eq_h,1)- TSLAG(eq_h_rvx,1))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2))* (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
-+ p_774 * (TSLAG(ibd,1) * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
-+ p_775 * (((TSLAG(div_r_h,2)+TSLAG(eq_h_rvx,2))/TSLAG(eq_h,3)) * (TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1)))
-+ alpha_1* eq_h_rvx
-+ alpha_2* ((TSLAG(eq_h,1)*(TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1))- (TSLAG(eq_h,1)*(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2))) - (TSLAG(eq_h_rvx,1)*(TSLAG(eq_h,1)+TSLAG(sec_h,1)+TSLAG(iba_h,1))))/(TSLAG(eq_h,2)+TSLAG(sec_h,2)+TSLAG(iba_h,2)))
-COEFF> p_770 p_771 p_772 p_773 p_774 p_775 alpha_1 alpha_2
-RESTRICT> alpha_1 = 1
-alpha_2 = 1
+COMMENT> 
+IDENTITY> eq_h
+EQ> eq_h= eq_h_ratio*(TSLAG(eq_h,1) +TSLAG(sec_h,1)+  TSLAG(iba_h,1)) + eq_h_rvx
+
+COMMENT> 
+BEHAVIORAL> eq_h_ratio
+EQ> TSDELTA(eq_h_ratio) =  p_770  
++ p_771* TSDELTA(TSLAG(ibd,1))
++ p_772* TSDELTA(TSLAG(ratio_in_eq_h,1))
++ p_773* TSLAG(eq_h_ratio,1)
++ p_774* TSLAG(ibd,1) 
++ p_775* TSLAG(ratio_in_eq_h,2)
+COEFF> p_770 p_771 p_772 p_773 p_774 p_775
 STORE> coe(6)
 
 COMMENT> 
@@ -4232,7 +4234,12 @@ S_modelData=list(
   iba_row_rv  = TIMESERIES(c(iba_row_rv ),   
                            START=c(2005,2),FREQ=4),
   fnl_h  = TIMESERIES(c(fnl_h ),   
+                           START=c(2005,3),FREQ=4),
+  eq_h_ratio  = TIMESERIES(c(eq_h_ratio ),   
+                           START=c(2005,3),FREQ=4),
+  ratio_in_eq_h  = TIMESERIES(c(ratio_in_eq_h ),   
                            START=c(2005,3),FREQ=4)
+  
 )
 ```
 
@@ -4258,11 +4265,10 @@ S_model=ESTIMATE(S_model
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
-                    ,simType='RESCHECK'
+                    ,simType='STATIC'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
-                    
                    )
 ```
 
@@ -4521,7 +4527,7 @@ yd2a_hk_00 = S_model$simulation$yd2a_hk; yd2a_hk_00-yd2a_hk
 yd2b_hk_00 = S_model$simulation$yd2b_hk; yd2b_hk_00-yd2b_hk
 yd_h_00 = S_model$simulation$yd_h; yd_h_00-yd_h#lidt
 nsben_h_00 = S_model$simulation$nsben_h; nsben_h_00-nsben_h #lidt
-yd_h1_00 = S_model$simulation$yd_h1; yd_h1_00-yd_h1
+#yd_h1_00 = S_model$simulation$yd_h1; yd_h1_00-yd_h1
 nl_h_00 = S_model$simulation$nl_h; nl_h_00-nl_h
 pconk_ds_00 = S_model$simulation$pconk_ds; pconk_ds_00-pconk_ds#lidt
 pconk_00 = S_model$simulation$pconk; pconk_00-pconk #lidt
