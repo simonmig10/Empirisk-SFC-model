@@ -2676,6 +2676,14 @@ END"
 S_model=LOAD_MODEL(modelText = S_model.txt)
 ```
 
+## Equations brugt til behavioural equations
+
+```{r}
+l_h_tr_ratio= -l_h_tr/(yd_hk_ds*pc)
+eq_h_ratio= (eq_h-eq_h_rvx)/(TSLAG(eq_h,1) +TSLAG(sec_h,1)+ TSLAG(iba_h,1))
+ratio_in_eq_h= (div_r_h+eq_h_rvx)/TSLAG(eq_h)
+```
+
 
 
 ```{r}
@@ -4265,7 +4273,7 @@ S_model=ESTIMATE(S_model
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
-                    ,simType='STATIC'
+                    ,simType='RESCHECK'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
@@ -4527,7 +4535,7 @@ yd2a_hk_00 = S_model$simulation$yd2a_hk; yd2a_hk_00-yd2a_hk
 yd2b_hk_00 = S_model$simulation$yd2b_hk; yd2b_hk_00-yd2b_hk
 yd_h_00 = S_model$simulation$yd_h; yd_h_00-yd_h#lidt
 nsben_h_00 = S_model$simulation$nsben_h; nsben_h_00-nsben_h #lidt
-#yd_h1_00 = S_model$simulation$yd_h1; yd_h1_00-yd_h1
+yd_h1_00 = S_model$simulation$yd_h1; yd_h1_00-yd_h1
 nl_h_00 = S_model$simulation$nl_h; nl_h_00-nl_h
 pconk_ds_00 = S_model$simulation$pconk_ds; pconk_ds_00-pconk_ds#lidt
 pconk_00 = S_model$simulation$pconk; pconk_00-pconk #lidt
@@ -4757,8 +4765,8 @@ xk_00 = S_model$simulation$xk; xk_00-xk
 mk_00 = S_model$simulation$mk; mk_00-mk
 
 npropinc_h_00 = S_model$simulation$npropinc_h; npropinc_h_00-npropinc_h
-
-
+yd_hk_ds_00 = S_model$simulation$yd_hk_ds; yd_hk_ds_00-yd_hk_ds
+pc_00 = S_model$simulation$pc; pc_00-pc
 ```
 
 ```{r}

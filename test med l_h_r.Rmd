@@ -15,16 +15,18 @@ eq_h_ratio= (eq_h-eq_h_rvx)/(TSLAG(eq_h,1) +TSLAG(sec_h,1)+ TSLAG(iba_h,1))
 
 S_model.txt="MODEL
 
-COMMENT> 
-BEHAVIORAL> eq_h_ratio
-EQ> TSDELTA(eq_h_ratio) =  p_770  
-+ p_771* TSDELTA(TSLAG(ibd,1))
-+ p_772* TSDELTA(TSLAG(ratio_in_eq_h,1))
-+ p_773* TSLAG(eq_h_ratio,1)
-+ p_774* TSLAG(ibd,1) 
-+ p_775* TSLAG(ratio_in_eq_h,2)
-COEFF> p_770 p_771 p_772 p_773 p_774 p_775
-STORE> coe(6)
+COMMENT> Mangler stadig at få tilpasset til ik diff
+BEHAVIORAL> l_h_tr_ratio
+EQ> TSDELTA(l_h_tr_ratio) = p_646 
++ p_641*TSDELTA(TSLAG(l_h_tr_ratio,2))
++ p_642*TSDELTA(iloan) 
++ p_643*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3)) 
++ p_644* TSLAG(l_h_tr_ratio,1) 
++ p_645*LOG(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)) 
++ p_647*d_2007q34 
++ p_648*time
+COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648
+STORE>  coe(5)
 
 
 END"
@@ -40,14 +42,16 @@ S_model=LOAD_MODEL(modelText = S_model.txt)
 ```{r}
 library(dynlm)
 
-dynlm(TSDELTA(l_h_tr_ratio) ~ 1 
+time1= ts(1:length(dummy_2009q2), start = c(2006,2), frequency = 4)
+
+summary(dynlm(TSDELTA(l_h_tr_ratio) ~ 1 
 + TSDELTA(TSLAG(l_h_tr_ratio,2))
 + TSDELTA(iloan) 
 + TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3)) 
 + TSLAG(l_h_tr_ratio,1) 
 + log(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)) 
 + d_2007q34 
-+ time)
++ trend(l_h_tr)))
 
 
 
