@@ -1284,6 +1284,19 @@ reprate_bd_h = (mean(delta_bd_h)*stats::lag(bd_h_k,-1))/i_bd_h_k_ds # replacemen
 ```
 
 
+
+
+
+# Genskabning
+
+Jeg bliver nødt til at ændre nogle af variablene for at lave genskabning
+
+```{r}
+s_row1 = m - x + p_tax_row - p_sub_row + (w_row_r - w_row_p) +  (npropinc_row) + (tax_row) + nben_row + oth_row
+yh_f1 = b2_f_r + (npropinc_f)
+yh_h1 = w_h_r + b2_h_r + (npropinc_h )
+```
+
 ## Extra variables created to run the model:
 
 ```{r}
@@ -1344,14 +1357,8 @@ propinc_r_nf = int_r_nf + div_r_nf + ins_r_nf + res_r_nf
 ```
 
 
-# Genskabning
 
-Jeg bliver nødt til at ændre nogle af variablene for at lave genskabning
 
-```{r}
-s_row1 = m - x + p_tax_row - p_sub_row + (w_row_r - w_row_p) +  (npropinc_row) + (tax_row) + nben_row + oth_row
-yh_f1 = b2_f_r + (npropinc_f)
-```
 
 
 
@@ -3717,6 +3724,8 @@ S_modelData=list(
                      START=c(2005,2),FREQ=4),
   l_h_tr = TIMESERIES(c(l_h_tr),   
                       START=c(2005,2),FREQ=4),
+  l_h_tr_ratio = TIMESERIES(c(l_h_tr_ratio),   
+                      START=c(2005,2),FREQ=4),
   eq_h = TIMESERIES(c(eq_h),   
                     START=c(2005,2),FREQ=4),
   d8_h = TIMESERIES(c(d8_h),   
@@ -3744,8 +3753,6 @@ S_modelData=list(
                   START=c(2005,2),FREQ=4),
   res_p_h = TIMESERIES(c(res_p_h ),   
                              START=c(2005,2),FREQ=4),
-  b2_h_r = TIMESERIES(c(b2_h_r),   
-                   START=c(2005,2),FREQ=4),
   
   oth_h = TIMESERIES(c(oth_h),   
                      START=c(2005,2),FREQ=4),
@@ -4743,8 +4750,7 @@ ik_00 = S_model$simulation$ik; ik_00-ik
 xk_00 = S_model$simulation$xk; xk_00-xk
 mk_00 = S_model$simulation$mk; mk_00-mk
 
-
-
+npropinc_h_00 = S_model$simulation$npropinc_h; npropinc_h_00-npropinc_h
 
 
 ```
@@ -4844,7 +4850,7 @@ plot(int_p_h_00); lines(int_p_h, col = "blue"); grid()
 
 
 ## RESCHHECK
-plot(i_bd_nfc_k_00   ); lines(i_bd_nfc_k, col = "blue"); grid()
+plot(i_bd_nfc_k_00); lines(i_bd_nfc_k, col = "blue"); grid()
 plot(i_bd_h_k_00  ); lines(i_bd_h_k, col = "blue"); grid()
 plot(int_p_h_00); lines(int_p_h, col = "blue"); grid()
 plot(wage_ds_00); lines(wage_ds, col = "blue"); grid()
@@ -4854,6 +4860,7 @@ plot(prod_ds_00); lines(prod_ds, col = "blue"); grid()
 ### Problemer???
 
 plot(ur_ds_00); lines(UR_ds, col = "blue"); grid() #Fordi ur_ds er defineret 2 gange, men tror jeg bruger den rigtige, da estimater passer i rw_ds
+plot(yh_h_00); lines(yh_h1, col = "blue"); grid()
 plot(eq_h_tr_00); lines(eq_h_tr, col = "blue"); grid()
 plot(eq_h_row_00); lines(eq_h_row, col = "blue"); grid()
 plot(eq_h_nf_tr_00); lines(eq_h_nf_tr, col = "blue"); grid() ## Tror det er noget med eq_h_row_rvx
@@ -4865,7 +4872,7 @@ plot(eq_nf_l_00); lines(eq_nf_l, col = "blue"); grid()# Ser ik så slemt ud rela
 #plot(div_f_00); lines(div_f, col = "blue"); grid()
 plot(fnw_nf_00); lines(fnw_nf, col = "blue"); grid()# Ser ik så slemt ud relativt set
 plot(npropinc_f_00); lines(npropinc_f, col = "blue"); grid()
-plot(yh_f_00); lines(yh_f1, col = "blue"); grid() #Grundet den ikke passer på data
+plot(yh_f_00); lines(yh_f, col = "blue"); grid() #Grundet den ikke passer på data
 plot(yd_f_00); lines(yd_f, col = "blue"); grid() #grundet den ikke passer på data
 plot(eq_f_l_f_00); lines(eq_f_l_f, col = "blue"); grid()# Ser ik så slemt ud relativt set
 plot(eq_f_l_00); lines(eq_f_l, col = "blue"); grid()# Ser ik så slemt ud relativt set
@@ -4873,7 +4880,7 @@ plot(fnw_f_00); lines(fnw_f, col = "blue"); grid()#Grundet den ikke passer på d
 plot(yd_g_00); lines(yd_g, col = "blue"); grid() #Grundet den ikke passer på data
 plot(fnw_g_00); lines(fnw_g, col = "blue"); grid()# Ser ik så slemt ud relativt set
 plot(npropinc_row_00); lines(npropinc_row, col = "blue"); grid()# Ser ik så slemt ud relativt set
-plot(s_row_00, ylim= c(-60000,60000)); lines(s_row1, col = "blue"); grid() # Sat til at være 0 i data??? np_f også sat til 0?
+plot(s_row_00, ylim= c(-60000,60000)); lines(s_row, col = "blue"); grid() # Sat til at være 0 i data??? np_f også sat til 0?
 plot(nl_row_00, ylim= c(-60000,60000)); lines(nl_row, col = "blue"); grid() # Er regnet på 2 forskellige måder i model og uidenfor model (inkludere s_row så måske det der er galt?)
 plot(eq_row_l_00); lines(eq_row_l, col = "blue"); grid()# Ser ik så slemt ud relativt set
 plot(neq_row_00); lines(Neq_row, col = "blue"); grid()# Ser ik så slemt ud relativt set
