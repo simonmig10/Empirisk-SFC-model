@@ -20,12 +20,17 @@ AAMK <- read_excel("AAMK.xlsx")
 globaldemand1 <- read_excel("C:/Users/Simon ik mig/Desktop/9. Semester/Empirisk sfc i r/globaldemand1.xlsx")
 
 names(AAMK) <- tolower(names(AAMK))
+names(globaldemand1) <- tolower(names(globaldemand1))
 
 AAMK=lapply(AAMK, function(t) ts(t, start=c(2005, 2), end=c(2020, 1),frequency=4))
+globaldemand1=lapply(globaldemand1, function(t) ts(t, start=c(2005, 2), end=c(2020, 1),frequency=4))
+
 attach(AAMK)
+attach(globaldemand1)
 ```
 
 
+Define variables 
 
 ```{r}
 eq_nf_l_nf = res_eq_nf_l
@@ -349,28 +354,28 @@ l_row_rvx=diff(l_row)-l_row_tr[-1]
 ```
 
 ```{r}
-int_nf_adj = (int_r_nf - int_p_nf) - (stats::lag(idep,n=1)*stats::lag(iba_nf,1) + stats::lag(ibd,1)*stats::lag(sec_nf,1) + stats::lag(iloan,1)*stats::lag(l_nf,1))
+int_nf_adj = (int_r_nf - int_p_nf) - (stats::lag(idep,n=1)*stats::lag(iba_nf,-1) + stats::lag(ibd,-1)*stats::lag(sec_nf,-1) + stats::lag(iloan,-1)*stats::lag(l_nf,-1))
 
-int_h_adj = (int_r_h - int_p_h) - (stats::lag(idep,n=1)*stats::lag(iba_h,1) + stats::lag(ibd,1)*stats::lag(sec_h,1) + stats::lag(iloan,1)*stats::lag(l_h,1)) # this calculation calculates the discrepancy for interest payments as net flow.
+int_h_adj = (int_r_h - int_p_h) - (stats::lag(idep,n=1)*stats::lag(iba_h,-1) + stats::lag(ibd,-1)*stats::lag(sec_h,-1) + stats::lag(iloan,-1)*stats::lag(l_h,-1)) # this calculation calculates the discrepancy for interest payments as net flow.
 ```
 
 ```{r}
 #Below I (hamid) compute discrepancy between interest payments and reciepts separately to create a measure of propert income (paid and recieved) instead of just using net property income (npropinc) in the model
 
-int_r_h_adj = int_r_h  - (stats::lag(idep,1)*stats::lag(iba_h,1)  + stats::lag(ibd,1)*stats::lag(sec_h,1))
+int_r_h_adj = int_r_h  - (stats::lag(idep,-1)*stats::lag(iba_h,-1)  + stats::lag(ibd,-1)*stats::lag(sec_h,-1))
 
-int_p_h_adj = int_p_h  + stats::lag(iloan,1)*stats::lag(l_h,1)
+int_p_h_adj = int_p_h  + stats::lag(iloan,-1)*stats::lag(l_h,-1)
 ```
 
 
 ```{r}
 #For the rest of the sectors, we just calculate the discrepancies based on net asset holding
-int_g_adj = (int_r_g - int_p_g) - (stats::lag(idep,1)*stats::lag(iba_g,1) + stats::lag(iloan,1)*stats::lag(l_g,1) + stats::lag(ibd,1)*stats::lag(sec_g,1))
+int_g_adj = (int_r_g - int_p_g) - (stats::lag(idep,-1)*stats::lag(iba_g,-1) + stats::lag(iloan,-1)*stats::lag(l_g,-1) + stats::lag(ibd,-1)*stats::lag(sec_g,-1))
 
-int_row_adj = (int_r_row - int_p_row) - (stats::lag(idep,1)*stats::lag(iba_row,1) + stats::lag(iboa,1)*stats::lag(sec_row,1) + stats::lag(iloan,1)*stats::lag(l_row,1))
+int_row_adj = (int_r_row - int_p_row) - (stats::lag(idep,-1)*stats::lag(iba_row,-1) + stats::lag(iboa,-1)*stats::lag(sec_row,-1) + stats::lag(iloan,-1)*stats::lag(l_row,-1))
 
 
-int_f_adj = (int_r_f - int_p_f) - (stats::lag(idep,1)*stats::lag(iba_f,1) + stats::lag(iloan,1)*stats::lag(l_f,1) + stats::lag(ibd,1)*stats::lag(sec_f_d,1) + stats::lag(iboa,1)*stats::lag(sec_f_a,1))
+int_f_adj = (int_r_f - int_p_f) - (stats::lag(idep,-1)*stats::lag(iba_f,-1) + stats::lag(iloan,-1)*stats::lag(l_f,-1) + stats::lag(ibd,-1)*stats::lag(sec_f_d,-1) + stats::lag(iboa,-1)*stats::lag(sec_f_a,-1))
 ```
 
 ```{r}
@@ -443,75 +448,75 @@ gamma_2 = eq_h_f / eq_h
 ```{r}
 library(stats)
 
-div_nf2_adj = (div_r_nf  - div_p_nf) - ((stats::lag(eq_nf_a_nf,1) + stats::lag(eq_nf_a_f,1) - stats::lag(eq_nf_l_nf,1) + stats::lag(eq_h_nf,1)+ stats::lag(eq_row_a_nf,1) + stats::lag(eq_f_a_nf,1) + stats::lag(eq_g_nf,1)))* stats::lag(divd,1) + stats::lag(eq_nf_a_row,1)*stats::lag(diva,1)
+div_nf2_adj = (div_r_nf  - div_p_nf) - ((stats::lag(eq_nf_a_nf,-1) + stats::lag(eq_nf_a_f,-1) - stats::lag(eq_nf_l_nf,-1) + stats::lag(eq_h_nf,-1)+ stats::lag(eq_row_a_nf,-1) + stats::lag(eq_f_a_nf,-1) + stats::lag(eq_g_nf,-1)))* stats::lag(divd,-1) + stats::lag(eq_nf_a_row,-1)*stats::lag(diva,-1)
 ```
 
 ```{r}
-div_nf1_adj =  (div_r_nf  - div_p_nf) - (stats::lag(Neq_nf,1)*stats::lag(divd,1))
+div_nf1_adj =  (div_r_nf  - div_p_nf) - (stats::lag(Neq_nf,-1)*stats::lag(divd,-1))
 ```
 
 ```{r}
 div_nf_adj = d_20124*(div_nf2_adj) + (1-d_20124)*(div_nf1_adj)
 ```
 ```{r}
-div_nf =d_20124*(((stats::lag(eq_nf_a_nf,1) + stats::lag(eq_nf_a_f,1) - stats::lag(eq_nf_l_nf,1) + stats::lag(eq_h_nf,1) + stats::lag(eq_row_a_nf,1) + stats::lag(eq_f_a_nf,1) + stats::lag(eq_g_nf,1)))* stats::lag(divd,1) + stats::lag(eq_nf_a_row,1)*stats::lag(diva,1)) + (1-d_20124)*(stats::lag(Neq_nf,1)*stats::lag(divd,1)) + div_nf_adj
+div_nf =d_20124*(((stats::lag(eq_nf_a_nf,-1) + stats::lag(eq_nf_a_f,-1) - stats::lag(eq_nf_l_nf,-1) + stats::lag(eq_h_nf,-1) + stats::lag(eq_row_a_nf,-1) + stats::lag(eq_f_a_nf,-1) + stats::lag(eq_g_nf,-1)))* stats::lag(divd,-1) + stats::lag(eq_nf_a_row,-1)*stats::lag(diva,-1)) + (1-d_20124)*(stats::lag(Neq_nf,-1)*stats::lag(divd,-1)) + div_nf_adj
 
 div_nf1 =  div_r_nf - div_p_nf
 ```
 
 ```{r}
-div_f2_adj = (div_r_f  - div_p_f) - ((stats::lag(eq_f_a_nf,1) + stats::lag(eq_f_a_f,1) - (stats::lag(eq_f_l_f,1) + stats::lag(eq_h_f,1)+ stats::lag(eq_row_a_f,1) + stats::lag(eq_row_a_f,1) + stats::lag(eq_g_f,1)))* stats::lag(divd,1) + stats::lag(eq_f_a_row,1)*stats::lag(diva,1))
+div_f2_adj = (div_r_f  - div_p_f) - ((stats::lag(eq_f_a_nf,-1) + stats::lag(eq_f_a_f,-1) - (stats::lag(eq_f_l_f,-1) + stats::lag(eq_h_f,-1)+ stats::lag(eq_row_a_f,-1) + stats::lag(eq_row_a_f,-1) + stats::lag(eq_g_f,-1)))* stats::lag(divd,-1) + stats::lag(eq_f_a_row,-1)*stats::lag(diva,-1))
 ```
 
 ```{r}
-div_f1_adj =  (div_r_f  - div_p_f) - (stats::lag(Neq_f,1)*stats::lag(divd,1))
+div_f1_adj =  (div_r_f  - div_p_f) - (stats::lag(Neq_f,-1)*stats::lag(divd,-1))
 div_f_adj = d_20124*div_f2_adj + (1-d_20124)*(div_f1_adj)
 
 ```
 
 ```{r}
-div_f = d_20124 *(((stats::lag(eq_f_a_f,1) + stats::lag(eq_nf_a_nf,1)) - (stats::lag(eq_f_l_f,1) + stats::lag(eq_h_f,1)+ stats::lag(eq_row_a_f,1) + stats::lag(eq_nf_a_f,1) + stats::lag(eq_g_f,1)))* stats::lag(divd,1) + stats::lag(eq_f_a_row,1)*stats::lag(diva,1)) + (1-d_20124)*((stats::lag(Neq_f,1)*stats::lag(divd,1))) +  div_f_adj 
+div_f = d_20124 *(((stats::lag(eq_f_a_f,-1) + stats::lag(eq_nf_a_nf,-1)) - (stats::lag(eq_f_l_f,-1) + stats::lag(eq_h_f,-1)+ stats::lag(eq_row_a_f,-1) + stats::lag(eq_nf_a_f,-1) + stats::lag(eq_g_f,-1)))* stats::lag(divd,-1) + stats::lag(eq_f_a_row,-1)*stats::lag(diva,-1)) + (1-d_20124)*((stats::lag(Neq_f,-1)*stats::lag(divd,-1))) +  div_f_adj 
 
 div_f1 =  div_r_f - div_p_f
 ```
 
 
 ```{r}
-div_h2_adj = div_r_h - ((stats::lag(eq_h_nf,1) + stats::lag(eq_h_f,1))*stats::lag(divd,1) + stats::lag(eq_h_row,1)*stats::lag(diva,1))
+div_h2_adj = div_r_h - ((stats::lag(eq_h_nf,-1) + stats::lag(eq_h_f,-1))*stats::lag(divd,-1) + stats::lag(eq_h_row,-1)*stats::lag(diva,-1))
 
-div_h1_adj =  div_r_h - (stats::lag(eq_h,1)*stats::lag(divd,1))
+div_h1_adj =  div_r_h - (stats::lag(eq_h,-1)*stats::lag(divd,-1))
 
 div_h_adj  = d_20124*div_h2_adj + (1-d_20124)*(div_h1_adj)
 ```
 
 ```{r}
-div_h = d_20124*((stats::lag(eq_h_nf,1) + stats::lag(eq_h_f,1))*stats::lag(divd,1) + stats::lag(eq_h_row,1)*stats::lag(diva,1)) + (1-d_20124)*(stats::lag(eq_h,1)*stats::lag(divd,1)) +  div_h_adj
+div_h = d_20124*((stats::lag(eq_h_nf,-1) + stats::lag(eq_h_f,-1))*stats::lag(divd,-1) + stats::lag(eq_h_row,-1)*stats::lag(diva,-1)) + (1-d_20124)*(stats::lag(eq_h,-1)*stats::lag(divd,-1)) +  div_h_adj
 
 div_h1 = div_r_h - div_p_h
 ```
 
 ```{r}
-div_g2_adj = div_r_g - ((stats::lag(eq_g_nf,1) + stats::lag(eq_g_f,1))*stats::lag(divd,1) + stats::lag(eq_g_row,1)*stats::lag(diva,1))
+div_g2_adj = div_r_g - ((stats::lag(eq_g_nf,-1) + stats::lag(eq_g_f,-1))*stats::lag(divd,-1) + stats::lag(eq_g_row,-1)*stats::lag(diva,-1))
 
-div_g1_adj =  div_r_g - (stats::lag(eq_g,1)*stats::lag(divd,1))
+div_g1_adj =  div_r_g - (stats::lag(eq_g,-1)*stats::lag(divd,-1))
 
 div_g_adj = d_20124*div_g2_adj + (1-d_20124)*(div_g1_adj)
 
-div_g = d_20124 * ( (stats::lag(eq_g_nf,1) + stats::lag(eq_g_f,1))*stats::lag(divd,1) + stats::lag(eq_g_row,1)*stats::lag(diva,1) ) + (1-d_20124) * ((stats::lag(eq_g,1)*stats::lag(divd,1))) + div_g_adj
+div_g = d_20124 * ( (stats::lag(eq_g_nf,-1) + stats::lag(eq_g_f,-1))*stats::lag(divd,-1) + stats::lag(eq_g_row,-1)*stats::lag(diva,-1) ) + (1-d_20124) * ((stats::lag(eq_g,-1)*stats::lag(divd,-1))) + div_g_adj
 
 div_g1 =  div_r_g - div_p_g
 ```
 
 ```{r}
-div_row2_adj = (div_r_row - div_p_row) - ((stats::lag(eq_row_a_nf,1) + stats::lag(eq_row_a_f,1))*stats::lag(divd,1) - ((stats::lag(eq_nf_a_row,1)+stats::lag(eq_f_a_row,1)+stats::lag(eq_g_row,1)+stats::lag(eq_h_row,1))*stats::lag(diva,1)))
+div_row2_adj = (div_r_row - div_p_row) - ((stats::lag(eq_row_a_nf,-1) + stats::lag(eq_row_a_f,-1))*stats::lag(divd,-1) - ((stats::lag(eq_nf_a_row,-1)+stats::lag(eq_f_a_row,-1)+stats::lag(eq_g_row,-1)+stats::lag(eq_h_row,-1))*stats::lag(diva,-1)))
 
-div_row1_adj = (div_r_row - div_p_row) - (stats::lag(Neq_row,1)*stats::lag(divd,1))
+div_row1_adj = (div_r_row - div_p_row) - (stats::lag(Neq_row,-1)*stats::lag(divd,-1))
 
 div_row_adj = d_20124*div_row2_adj + (1-d_20124)*(div_row1_adj)
 ```
 
 ```{r}
-div_row = d_20124 * (  (stats::lag(eq_row_a_nf,1) + stats::lag(eq_row_a_f,1))*stats::lag(divd,1) - ((stats::lag(eq_nf_a_row,1)+stats::lag(eq_f_a_row,1)+stats::lag(eq_g_row,1)+stats::lag(eq_h_row,1))*stats::lag(diva,1))) + (1-d_20124) * ((stats::lag(Neq_row,1)*stats::lag(divd,1))) + div_row_adj
+div_row = d_20124 * (  (stats::lag(eq_row_a_nf,-1) + stats::lag(eq_row_a_f,-1))*stats::lag(divd,-1) - ((stats::lag(eq_nf_a_row,-1)+stats::lag(eq_f_a_row,-1)+stats::lag(eq_g_row,-1)+stats::lag(eq_h_row,-1))*stats::lag(diva,-1))) + (1-d_20124) * ((stats::lag(Neq_row,-1)*stats::lag(divd,-1))) + div_row_adj
 ```
 
 ```{r}
@@ -530,11 +535,11 @@ check_div_adj2 = div_h2_adj  + div_f2_adj  +div_nf2_adj  +div_g2_adj  +div_row2_
 ```
 
 ```{r}
-ins_nf_adj = (ins_r_nf - ins_p_nf) - (stats::lag(ins_nf,1)*stats::lag(insu,1))
-ins_f_adj = (ins_r_f - ins_p_f) - (stats::lag(ins_f,1)*stats::lag(insu,1))
-ins_g_adj = (ins_r_g - ins_p_g) - (stats::lag(ins_g,1)*stats::lag(insu,1))
-ins_h_adj = (ins_r_h - ins_p_h) - (stats::lag(ins_h,1)*stats::lag(insu,1))
-ins_row_adj = (ins_r_row - ins_p_row) - (stats::lag(ins_row,1)*stats::lag(insu,1))
+ins_nf_adj = (ins_r_nf - ins_p_nf) - (stats::lag(ins_nf,-1)*stats::lag(insu,-1))
+ins_f_adj = (ins_r_f - ins_p_f) - (stats::lag(ins_f,-1)*stats::lag(insu,-1))
+ins_g_adj = (ins_r_g - ins_p_g) - (stats::lag(ins_g,-1)*stats::lag(insu,-1))
+ins_h_adj = (ins_r_h - ins_p_h) - (stats::lag(ins_h,-1)*stats::lag(insu,-1))
+ins_row_adj = (ins_r_row - ins_p_row) - (stats::lag(ins_row,-1)*stats::lag(insu,-1))
 ```
 
 ```{r}
@@ -571,11 +576,11 @@ nl_g_adj = fnl_g - nl_g
 
 
 ```{r}
-int_row = (stats::lag(idep,1)*stats::lag(iba_row,1) + stats::lag(iboa,1)*stats::lag(sec_row,1) + stats::lag(iloan,1)*stats::lag(l_row,1))
+int_row = (stats::lag(idep,-1)*stats::lag(iba_row,-1) + stats::lag(iboa,-1)*stats::lag(sec_row,-1) + stats::lag(iloan,-1)*stats::lag(l_row,-1))
 
-div_row = d_20124*(  (stats::lag(eq_row_a_nf,1) + stats::lag(eq_row_a_f,1))*stats::lag(divd,1) - ((stats::lag(eq_nf_a_row,1)+stats::lag(eq_f_a_row,1)+stats::lag(eq_g_row,1)+stats::lag(eq_h_row,1))*stats::lag(diva,1))) + (1-d_20124) * ((stats::lag(Neq_row,1)*stats::lag(divd,1))) + div_row_adj
+div_row = d_20124*(  (stats::lag(eq_row_a_nf,-1) + stats::lag(eq_row_a_f,-1))*stats::lag(divd,-1) - ((stats::lag(eq_nf_a_row,-1)+stats::lag(eq_f_a_row,-1)+stats::lag(eq_g_row,-1)+stats::lag(eq_h_row,-1))*stats::lag(diva,-1))) + (1-d_20124) * ((stats::lag(Neq_row,-1)*stats::lag(divd,-1))) + div_row_adj
 
-insu_row = stats::lag(ins_row,1)*stats::lag(insu,1) 
+insu_row = stats::lag(ins_row,-1)*stats::lag(insu,-1) 
 
 npropinc_row = int_row + int_row_adj + div_row + insu_row + ins_row_adj + (res_r_row) - (res_p_row)
 
@@ -630,7 +635,7 @@ Variables for the estimation of the investment equation
 
 ```{r}
 u=yk/(bd_nfc_k+equip_nfc_k) #Rate of capacity utilization
-prate=s_nf/(stats::lag(bd_nfc,1)+stats::lag(equip_nfc,1)) # Profit rate
+prate=s_nf/(stats::lag(bd_nfc,-1)+stats::lag(equip_nfc,-1)) # Profit rate
 ```
 
 
@@ -698,35 +703,12 @@ tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 ```
 
 
-```{r}
-rw_ds = wage_ds/pc_ds #real wage rate based on deseasonalized variables
-reprate_bd_h = (mean(delta_bd_h)*stats::lag(bd_h_k,1))/i_bd_h_k_ds # replacement rate 
-```
 
-
-
-## Extra variables created to run the model:
 
 ```{r}
-yh2a = propinc_r_h + b2_h_r
-yh2b = - propinc_p_h
-aa_check = TSLAG(eq_h_f,1)*TSLAG(divd,1)
-insu_h = TSLAG(ins_h,1)*TSLAG(insu,1) + ins_h_adj
-npropinc_h = propinc_r_h - propinc_p_h
-yd_h1 = yh_h + tax_h + nben_h
-yd_hk_ds = yd1_hk_ds + yd2a_hk_ds + yd2b_hk
-sec_h_tr_g=sec_h_tr
-l_h= TSLAG(l_h,1) + l_h_tr + l_h_rvx
-eq_h_test = eq_h - (eq_h_nf + eq_h_f + eq_h_row)
-lev_h = l_h/yd_h
-fa_h = iba_h + sec_h + eq_h + ins_h
-sk= pconk + ik + gk + xk
-s = pcon + g + i + x
-w_nf = w_h_r +  (w_row_r - w_row_p)
-int_nf = (TSLAG(idep,1)*TSLAG(iba_nf,1) + TSLAG(ibd,1)*TSLAG(sec_nf,1) + TSLAG(iloan,1)*TSLAG(l_nf,1)) 
-insu_nf =  TSLAG(ins_nf,1)*TSLAG(insu,1)
-npropinc_nf = int_nf + int_nf_adj + div_nf + insu_nf + ins_nf_adj + (res_r_nf ) - (res_p_nf)
+
 ```
+
 
 
 
@@ -734,14 +716,6 @@ npropinc_nf = int_nf + int_nf_adj + div_nf + insu_nf + ins_nf_adj + (res_r_nf ) 
 
 
 ## DEASONALISING THE VARRIABLES
-
-
-```{r}
-# I create g_bar to be able to shock the variable
-
-g_bar=rep(0,length(y))
-g_bar= ts(g_bar, start = c(2005,2), frequency = 4)
-```
 
 
 # The model 
@@ -762,21 +736,6 @@ library(knitr)
 pcon_reg = lm(pcon~ sd1+ sd2 + sd3)
 pcon_ds= pcon_reg$residuals + mean(pcon)
 pcon_ds=ts(pcon_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_0 =pcon_reg$coefficients[1]
-alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_1=pcon_reg$coefficients[2]
-alpha_1=ts(alpha_1,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_2=pcon_reg$coefficients[3]
-alpha_2=ts(alpha_2,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_3=pcon_reg$coefficients[4]
-alpha_3=ts(alpha_3,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-mean_pcon= mean(pcon)
-mean_pcon=ts(mean_pcon,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 ## I_BD_H_K
 reg_1 = lm(i_bd_h_k~ sd1+ sd2 + sd3)
@@ -902,6 +861,21 @@ pconk_ds= reg_8$residuals + mean(pconk)
 
 pconk_ds=ts(pconk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
+alpha_0 =reg_8$coefficients[1]
+alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_1=reg_8$coefficients[2]
+alpha_1=ts(alpha_1,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_2=reg_8$coefficients[3]
+alpha_2=ts(alpha_2,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+alpha_3=reg_8$coefficients[4]
+alpha_3=ts(alpha_3,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+mean_pconk= mean(pconk)
+mean_pconk=ts(mean_pcon,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
 ## B2_HK_ds 
 
 reg_9 = lm(b2_hk~ sd1+ sd2 + sd3)
@@ -914,7 +888,7 @@ b2_hk_ds=ts(b2_hk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 reg_10 = lm(yd1_hk~ sd1+ sd2 + sd3)
 
-yd1_hk_ds= reg_7$residuals + mean(yd1_hk)
+yd1_hk_ds= reg_10$residuals + mean(yd1_hk)
 
 yd1_hk_ds=ts(yd1_hk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
@@ -1057,7 +1031,7 @@ prodk_ds=ts(prodk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 ##This one is shorter but not sure it also is in the Eviews code
 
-reg_22 = lm(prate~ sd1+ sd2 + sd3)
+reg_22 = lm(prate~ sd1[-1]+ sd2[-1] + sd3[-1])
 
 prate_ds= reg_22$residuals + mean(prate)
 
@@ -1132,6 +1106,36 @@ y_ds=ts(y_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 ```
 
+```{r}
+## Disse skal komme efter deseason
+
+rw_ds = wage_ds/pc_ds #real wage rate based on deseasonalized variables
+reprate_bd_h = (mean(delta_bd_h)*stats::lag(bd_h_k,-1))/i_bd_h_k_ds # replacement rate 
+```
+
+
+## Extra variables created to run the model:
+
+```{r}
+yh2a = propinc_r_h + b2_h_r
+yh2b = - propinc_p_h
+aa_check = TSLAG(eq_h_f,1)*TSLAG(divd,1)
+insu_h = TSLAG(ins_h,1)*TSLAG(insu,1) + ins_h_adj
+npropinc_h = propinc_r_h - propinc_p_h
+yd_h1 = yh_h + tax_h + nben_h
+yd_hk_ds = yd1_hk_ds + yd2a_hk_ds + yd2b_hk
+sec_h_tr_g=sec_h_tr
+l_h= TSLAG(l_h,1) + l_h_tr + l_h_rvx
+eq_h_test = eq_h - (eq_h_nf + eq_h_f + eq_h_row)
+lev_h = l_h/yd_h
+fa_h = iba_h + sec_h + eq_h + ins_h
+sk= pconk + ik + gk + xk
+s = pcon + g + i + x
+w_nf = w_h_r +  (w_row_r - w_row_p)
+int_nf = (TSLAG(idep,1)*TSLAG(iba_nf,1) + TSLAG(ibd,1)*TSLAG(sec_nf,1) + TSLAG(iloan,1)*TSLAG(l_nf,1)) 
+insu_nf =  TSLAG(ins_nf,1)*TSLAG(insu,1)
+npropinc_nf = int_nf + int_nf_adj + div_nf + insu_nf + ins_nf_adj + (res_r_nf ) - (res_p_nf)
+```
 
 
 ```{r}
@@ -1216,11 +1220,6 @@ EQ> TSDELTALOG(nben_h) = P_671 + P_672*TSDELTALOG(zaland_jesper) + P_673*TSDELTA
 COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677
 STORE> coe(4)"
 
-"COMMENT> 
-BEHAVIORAL> pconk_ds
-EQ> TSDELTALOG(pconk_ds) = C_1 + C_2*TSLAG(LOG(pcon_ds),1) + C_3*TSLAG(LOG(yd1_hk_ds),1) + C_4*TSLAG(LOG(yd2a_hk_ds),1) + C_5*TSLAG(LOG(fnw_hk),2) + C_6*TSDELTALOG(yd1_hk_ds) + C_7*TSDELTALOG(yd1_hk_ds,2) + C_8*TSDELTALOG(yd2a_hk_ds) + C_9*TSDELTALOG(-yd2b_hk) + C_10*D_2008Q4 + C_11*D_2018Q2 + C_12*D_2020Q1
-COEFF> C_1 C_2 C_3 C_4 C_5 C_6 C_7 C_8 C_9 C_10 C_11 C_12
-STORE> coe(1)"
 
 
 ```
@@ -1240,17 +1239,27 @@ STORE> coe(2)"
 ```
 
 
+
+
 ```{r}
+log(TSLAG(-l_h,1)/TSLAG(bd_h,2))
+```
 
 
+
+
+```{r}
 
 Deseason.txt="MODEL
 
-
 COMMENT> 
-IDENTITY> yh2a
-EQ> yh2a = propinc_r_h + b2_h_r
-
+BEHAVIORAL> i_bd_h_k_ds
+EQ> LOG(i_bd_h_k_ds) = P_620 + P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi,2)) + P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi,1)) + P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + P_631*D_2006Q4 + P_632*D_2014Q4 + alpha_1*LOG(TSLAG(bd_h_k,1)) + alpha_2* TSLAG(LOG(i_bd_h_k_ds),1) + alpha_3* TSLAG(-LOG(bd_h_k),2)
+COEFF> P_620 P_621 P_622 P_623 P_624 P_625 P_626 P_627 P_628 P_629 P_630 P_631 P_632 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
+STORE> coe(2)
 
 END"
 ```
@@ -1500,6 +1509,8 @@ S_modelData=list(
   D_2020Q1 = TIMESERIES(c(d_2020q1),   
                        START=c(2005,2),FREQ=4),
    pconk_ds = TIMESERIES(c(pconk_ds),   
+                       START=c(2005,2),FREQ=4),
+  gdp_tp = TIMESERIES(c(gdp_tp),   
                        START=c(2005,2),FREQ=4)
   
 )
@@ -1509,17 +1520,24 @@ S_modelData=list(
 Deseason=LOAD_MODEL_DATA(Deseason,S_modelData)
 ```
 
+```{r}
+library(dynlm)
+
+```
 
 
 
 ```{r}
 #Estimate model coefficients
 S_model=ESTIMATE(Deseason
-                 ,TSRANGE=c(2005,2,2020,1)
+                 ,TSRANGE=c(2006,3,2020,1)
                  ,forceTSRANGE = TRUE
 )
 ```
 
+```{r}
+TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2))
+```
 
 ```{r}
 S_model <- SIMULATE(Deseason

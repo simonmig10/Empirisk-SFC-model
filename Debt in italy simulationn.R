@@ -1836,3 +1836,4 @@ abline(h=5,col="gray60")
 abline(v=2020,col="gray60")
 lines(100*rb_1,col=1,lty=1,lwd=2)
 legend("bottomleft",c("Max rate","Actual"),  bty = "n", cex=1, lty=c(2,1), lwd=c(2,2), col = c("red1",1), box.lty=0)
+

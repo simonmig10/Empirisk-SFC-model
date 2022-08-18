@@ -892,6 +892,16 @@ S_modelData=list(
   y_ds = TIMESERIES(c(y_ds),   
                     START=c(2005,2),FREQ=4),
   
+  SD1 = TIMESERIES(c(sd1),   
+                       START=c(2005,2),FREQ=4),
+  
+  SD2 = TIMESERIES(c(sd2),   
+                     START=c(2005,2),FREQ=4),
+  
+  SD3 = TIMESERIES(c(sd3),   
+                    START=c(2005,2),FREQ=4),
+  
+  
   ## globaldemand1
   
   oecd = TIMESERIES(c(oecd),   
@@ -963,10 +973,6 @@ S_modelData=list(
   divd = TIMESERIES(c(divd),   
                     START=c(2005,2),FREQ=4),
   
-  
-  
-  
-  
   ins_h_adj = TIMESERIES(c(ins_h_adj),   
                     START=c(2005,2),FREQ=4),
   res_r_h = TIMESERIES(c(res_r_h),   
@@ -1013,8 +1019,6 @@ S_modelData=list(
                     START=c(2005,2),FREQ=4),
   eq_h_row_rvx = TIMESERIES(c(eq_h_row_rvx),   
                     START=c(2005,2),FREQ=4),
-  
-  
   
   ins_h_rvx = TIMESERIES(c(ins_h_rvx),   
                          START=c(2005,2),FREQ=4),
@@ -1074,12 +1078,6 @@ S_modelData=list(
   ins_f_adj = TIMESERIES(c(ins_f_adj),   
                   START=c(2005,2),FREQ=4),
   
-  
-  
-  
-  
-  
-  
   oth_nf = TIMESERIES(c(oth_nf),   
                          START=c(2005,2),FREQ=4),
   tax_rate_nf = TIMESERIES(c(tax_rate_nf),   
@@ -1138,7 +1136,282 @@ S_modelData=list(
   delta_bd_nfc = TIMESERIES(c(delta_bd_nfc),   
                          START=c(2005,2),FREQ=4),
   delta_equip_nfc = TIMESERIES(c(delta_equip_nfc),   
-                          START=c(2005,2),FREQ=4)
+                          START=c(2005,2),FREQ=4),
   
+  
+  
+  
+  
+  iboa = TIMESERIES(c(iboa),   
+                          START=c(2005,2),FREQ=4),
+  div_f_adj = TIMESERIES(c(div_f_adj),   
+                         START=c(2005,2),FREQ=4),
+  div_r_f = TIMESERIES(c(div_r_f),   
+                    START=c(2005,2),FREQ=4),
+  ins_r_f = TIMESERIES(c(ins_r_f),   
+                          START=c(2005,2),FREQ=4),
+  res_r_f = TIMESERIES(c(res_r_f),   
+                         START=c(2005,2),FREQ=4),
+  
+  int_p_f = TIMESERIES(c(int_p_f),   
+                      START=c(2005,2),FREQ=4),
+  div_p_f = TIMESERIES(c(div_p_f),   
+                           START=c(2005,2),FREQ=4),
+  ins_p_f = TIMESERIES(c(ins_p_f ),   
+                     START=c(2005,2),FREQ=4),
+  res_p_f = TIMESERIES(c(res_p_f),   
+                      START=c(2005,2),FREQ=4),
+  
+  int_f_adj = TIMESERIES(c(int_f_adj),   
+                          START=c(2005,2),FREQ=4),
+  
+  tax_f = TIMESERIES(c(tax_f),   
+                         START=c(2005,2),FREQ=4),
+  
+  oth_f = TIMESERIES(c(oth_f),   
+                       START=c(2005,2),FREQ=4),
+  ctr_f = TIMESERIES(c(ctr_f),   
+                         START=c(2005,3),FREQ=4),
+  
+  iba_f_rvx = TIMESERIES(c(iba_f_rvx),   
+                         START=c(2005,2),FREQ=4),
+  iba_g_tr = TIMESERIES(c(iba_g_tr),   
+                         START=c(2005,2),FREQ=4),
+  eq_f_a_rvx = TIMESERIES(c(eq_f_a_rvx),   
+                          START=c(2005,2),FREQ=4),
+  eq_f_a_tr = TIMESERIES(c(eq_f_a_tr),   
+                       START=c(2005,2),FREQ=4),
+  eq_f_a_nf_tr = TIMESERIES(c(eq_f_a_nf_tr),   
+                        START=c(2005,2),FREQ=4),
+  eq_f_a_nf_rv = TIMESERIES(c(eq_f_a_nf_rv),   
+                          START=c(2005,2),FREQ=4),
+  eq_f_a_f_tr = TIMESERIES(c(eq_f_a_f_tr),   
+                           START=c(2005,2),FREQ=4),
+  eq_f_a_f_rv = TIMESERIES(c(eq_f_a_f_rv),   
+                             START=c(2005,2),FREQ=4),
+  
+  
+  eq_f_a_row_tr = TIMESERIES(c(eq_f_a_row_tr),   
+                             START=c(2005,2),FREQ=4),
+  eq_f_a_row_rv = TIMESERIES(c(eq_f_a_row_rv),   
+                            START=c(2005,2),FREQ=4),
+  eq_f_l_tr = TIMESERIES(c(eq_f_l_tr),   
+                            START=c(2005,2),FREQ=4),
+  eq_f_l_rvx = TIMESERIES(c(eq_f_l_rvx),   
+                              START=c(2005,2),FREQ=4),
+  neq_f_rvx = TIMESERIES(c(neq_f_rvx),   
+                              START=c(2005,2),FREQ=4),
+  
+  sec_f_d_rvx = TIMESERIES(c(sec_f_d_rvx),   
+                          START=c(2005,2),FREQ=4),
+  nl_f_adj = TIMESERIES(c(nl_f_adj),   
+                           START=c(2005,2),FREQ=4),
+  sec_f_a_rvx = TIMESERIES(c(sec_f_a_rvx),   
+                            START=c(2005,2),FREQ=4),
+  sec_row_tr = TIMESERIES(c(sec_row_tr),   
+                          START=c(2005,2),FREQ=4),
+  l_f_rvx = TIMESERIES(c(l_f_rvx),   
+                            START=c(2005,2),FREQ=4),
+  ins_f_rvx = TIMESERIES(c(ins_f_rvx),   
+                               START=c(2005,2),FREQ=4),
+  delta_bd_fc = TIMESERIES(c(delta_bd_fc),   
+                       START=c(2005,2),FREQ=4),
+  delta_equip_fc = TIMESERIES(c(delta_equip_fc),   
+                         START=c(2005,2),FREQ=4),
+  
+  
+  
+  
+  
+  
+  
+  
+  div_g_adj = TIMESERIES(c(div_g_adj),   
+                         START=c(2005,2),FREQ=4),
+  
+  int_r_g = TIMESERIES(c(int_r_g),   
+                     START=c(2005,2),FREQ=4),
+  
+  div_r_g = TIMESERIES(c(div_r_g),   
+                     START=c(2005,2),FREQ=4),
+  res_r_g = TIMESERIES(c(res_r_g),   
+                     START=c(2005,3),FREQ=4),
+  
+  int_p_g = TIMESERIES(c(int_p_g),   
+                         START=c(2005,2),FREQ=4),
+  res_p_g = TIMESERIES(c(res_p_g),   
+                        START=c(2005,2),FREQ=4),
+  int_g_adj = TIMESERIES(c(int_g_adj),   
+                          START=c(2005,2),FREQ=4),
+  ins_g_adj = TIMESERIES(c(ins_g_adj),   
+                         START=c(2005,2),FREQ=4),
+  oth_g = TIMESERIES(c(oth_g),   
+                            START=c(2005,2),FREQ=4),
+  tax_row = TIMESERIES(c(tax_row),   
+                            START=c(2005,2),FREQ=4),
+  ctr_g = TIMESERIES(c(ctr_g),   
+                           START=c(2005,2),FREQ=4),
+  iba_g_rvx = TIMESERIES(c(iba_g_rvx),   
+                           START=c(2005,2),FREQ=4),
+  
+  
+  eq_g_tr = TIMESERIES(c(eq_g_tr),   
+                             START=c(2005,2),FREQ=4),
+  eq_g_rvx = TIMESERIES(c(eq_g_rvx),   
+                             START=c(2005,2),FREQ=4),
+  eq_g_nf_tr = TIMESERIES(c(eq_g_nf_tr),   
+                         START=c(2005,2),FREQ=4),
+  eq_g_f_tr = TIMESERIES(c(eq_g_f_tr),   
+                          START=c(2005,2),FREQ=4),
+  eq_g_f_rv = TIMESERIES(c(eq_g_f_rv),   
+                         START=c(2005,2),FREQ=4),
+  
+  eq_g_row_tr = TIMESERIES(c(eq_g_row_tr),   
+                           START=c(2005,2),FREQ=4),
+  eq_g_row_rv = TIMESERIES(c(eq_g_row_rv),   
+                        START=c(2005,2),FREQ=4),
+  sec_g_rvx = TIMESERIES(c(sec_g_rvx),   
+                           START=c(2005,2),FREQ=4),
+  nl_g_adj = TIMESERIES(c(nl_g_adj),   
+                          START=c(2005,2),FREQ=4),
+  l_g_tr = TIMESERIES(c(l_g_tr),   
+                       START=c(2005,2),FREQ=4),
+  eq_g_tr = TIMESERIES(c(eq_g_tr),   
+                         START=c(2005,2),FREQ=4),
+  ins_g_tr = TIMESERIES(c(ins_g_tr),   
+                           START=c(2005,2),FREQ=4),
+  
+  
+  l_g_rvx = TIMESERIES(c(l_g_rvx),   
+                           START=c(2005,2),FREQ=4),
+  ins_g_rvx = TIMESERIES(c(ins_g_rvx),   
+                        START=c(2005,2),FREQ=4),
+  delta_bd_g = TIMESERIES(c(delta_bd_g),   
+                      START=c(2005,2),FREQ=4),
+  i_equip_g_k = TIMESERIES(c(i_equip_g_k),   
+                       START=c(2005,2),FREQ=4),
+  delta_equip_g = TIMESERIES(c(delta_equip_g),   
+                        START=c(2005,2),FREQ=4),
+  delta_bd_g = TIMESERIES(c(delta_bd_g),   
+                      START=c(2005,2),FREQ=4),
+  
+  
+  
+  
+  
+  
+  
+  
+  div_row_adj = TIMESERIES(c(div_row_adj),   
+                         START=c(2005,2),FREQ=4),
+  
+  int_r_row = TIMESERIES(c(int_r_row),   
+                       START=c(2005,2),FREQ=4),
+  
+  div_r_row = TIMESERIES(c(div_r_row),   
+                       START=c(2005,2),FREQ=4),
+  ins_r_row = TIMESERIES(c(ins_r_row),   
+                       START=c(2005,3),FREQ=4),
+  
+  res_r_row = TIMESERIES(c(res_r_row),   
+                       START=c(2005,2),FREQ=4),
+  int_p_row = TIMESERIES(c(int_p_row),   
+                       START=c(2005,2),FREQ=4),
+  div_p_row = TIMESERIES(c(div_p_row),   
+                         START=c(2005,2),FREQ=4),
+  ins_p_row = TIMESERIES(c(ins_p_row),   
+                         START=c(2005,2),FREQ=4),
+  res_p_row = TIMESERIES(c(res_p_row),   
+                     START=c(2005,2),FREQ=4),
+  int_row_adj = TIMESERIES(c(int_row_adj),   
+                       START=c(2005,2),FREQ=4),
+  ins_row_adj = TIMESERIES(c(ins_row_adj),   
+                     START=c(2005,2),FREQ=4),
+  oth_row = TIMESERIES(c(oth_row),   
+                         START=c(2005,2),FREQ=4),
+  
+  
+  ctr_row = TIMESERIES(c(ctr_row),   
+                       START=c(2005,2),FREQ=4),
+  np_row = TIMESERIES(c(np_row),   
+                        START=c(2005,2),FREQ=4),
+  scon_row_r = TIMESERIES(c(scon_row_r),   
+                          START=c(2005,2),FREQ=4),
+  scon_row_p = TIMESERIES(c(scon_row_p),   
+                         START=c(2005,2),FREQ=4),
+  sben_row_r = TIMESERIES(c(sben_row_r),   
+                         START=c(2005,2),FREQ=4),
+  
+  sben_row_p = TIMESERIES(c(sben_row_p),   
+                           START=c(2005,2),FREQ=4),
+  fnl_row = TIMESERIES(c(fnl_row),   
+                           START=c(2005,2),FREQ=4),
+  iba_row_rvx = TIMESERIES(c(iba_row_rvx),   
+                         START=c(2005,2),FREQ=4),
+  nl_row_adj = TIMESERIES(c(nl_row_adj),   
+                        START=c(2005,2),FREQ=4),
+  l_row_tr = TIMESERIES(c(l_row_tr),   
+                      START=c(2005,2),FREQ=4),
+  ins_row_tr = TIMESERIES(c(ins_row_tr),   
+                       START=c(2005,2),FREQ=4),
+  sec_row_rvx = TIMESERIES(c(sec_row_rvx),   
+                        START=c(2005,2),FREQ=4),
+  
+  
+  l_row_tr = TIMESERIES(c(l_row_tr),   
+                       START=c(2005,2),FREQ=4),
+  l_row_rvx = TIMESERIES(c(l_row_rvx),   
+                         START=c(2005,2),FREQ=4),
+  eq_row_a_tr = TIMESERIES(c(eq_row_a_tr),   
+                          START=c(2005,2),FREQ=4),
+  eq_row_a_rvx = TIMESERIES(c(eq_row_a_rvx),   
+                           START=c(2005,2),FREQ=4),
+  eq_row_a_nf_rv = TIMESERIES(c(eq_row_a_nf_rv),   
+                             START=c(2005,2),FREQ=4),
+  eq_row_a_nf_tr = TIMESERIES(c(eq_row_a_nf_tr),   
+                          START=c(2005,2),FREQ=4),
+  
+  
+  
+  eq_row_a_f_tr = TIMESERIES(c(eq_row_a_f_tr),   
+                          START=c(2005,2),FREQ=4),
+  eq_row_a_f_rv = TIMESERIES(c(eq_row_a_f_rv),   
+                       START=c(2005,2),FREQ=4),
+  eq_row_l_tr = TIMESERIES(c(eq_row_l_tr),   
+                           START=c(2005,2),FREQ=4),
+  eq_row_l_rvx = TIMESERIES(c(eq_row_l_rvx),   
+                          START=c(2005,2),FREQ=4),
+  neq_row_rvx = TIMESERIES(c(neq_row_rvx),   
+                        START=c(2005,2),FREQ=4),
+  ins_row_tr = TIMESERIES(c(ins_row_tr),   
+                          START=c(2005,2),FREQ=4),
+  ins_row_rvx = TIMESERIES(c(ins_row_rvx),   
+                           START=c(2005,2),FREQ=4),
+  
+  
+  empadj = TIMESERIES(c(empadj),   
+                        START=c(2005,2),FREQ=4),
+  part = TIMESERIES(c(part),   
+                         START=c(2005,2),FREQ=4),
+  pop = TIMESERIES(c(pop),   
+                           START=c(2005,2),FREQ=4),
+  urs = TIMESERIES(c(urs),   
+                            START=c(2005,2),FREQ=4),
+  wage_2010q3 = TIMESERIES(c(wage_2010q3),   
+                              START=c(2005,2),FREQ=4)
   
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -541,8 +541,14 @@ div_f_adj = d_20124*div_f2_adj + (1-d_20124)*(div_f1_adj)
 
 ```
 
+
+
+
+
+
 ```{r}
 div_f = d_20124 *(((stats::lag(eq_f_a_f,-1) + stats::lag(eq_nf_a_nf,-1)) - (stats::lag(eq_f_l_f,-1) + stats::lag(eq_h_f,-1)+ stats::lag(eq_row_a_f,-1) + stats::lag(eq_nf_a_f,-1) + stats::lag(eq_g_f,-1)))* stats::lag(divd,-1) + stats::lag(eq_f_a_row,-1)*stats::lag(diva,-1)) + (1-d_20124)*((stats::lag(Neq_f,-1)*stats::lag(divd,-1))) +  div_f_adj 
+
 
 div_f1 =  div_r_f - div_p_f
 ```
@@ -652,6 +658,8 @@ insu_row = stats::lag(ins_row,-1)*stats::lag(insu,-1)
 npropinc_row = int_row + int_row_adj + div_row + insu_row + ins_row_adj + (res_r_row) - (res_p_row)
 
 nl_row = m - x + p_tax_row - p_sub_row + (w_row_r - w_row_p) +  (npropinc_row) + (tax_row) + scon_row_r - scon_row_p + sben_row_r - sben_row_p + oth_row + ctr_row - np_row 
+
+#nl_row1 = s_row + ctr_row - np_row
 
 fnl_row = iba_row_tr + Neq_row_tr  + sec_row_tr + l_row_tr + ins_row_tr
 
@@ -770,18 +778,18 @@ tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 ```{r}
 # kompensations-raten
 
-dp_tot= sben_h_r*ratio_dag
-nben_h_un = round(dp_tot)
-nben_h_rest= nben_h - nben_h_un
-dp_person = nben_h_un/unemp
-w_h_r_trim = w_h_r - abm - d8_h
-wage_trim = w_h_r_trim/emp
-komp_r = dp_person/ wage_trim
+#dp_tot= sben_h_r*ratio_dag
+#nben_h_un = round(dp_tot)
+#nben_h_rest= nben_h - nben_h_un
+#dp_person = nben_h_un/unemp
+#w_h_r_trim = w_h_r - abm - d8_h
+#wage_trim = w_h_r_trim/emp
+#komp_r = dp_person/ wage_trim
 
-wage_trim_1= wage_trim %>% window(start= c(2014,1), end= c(2015,3))
-unemp_1= unemp %>% window(start= c(2014,1), end= c(2015,3))
+#wage_trim_1= wage_trim %>% window(start= c(2014,1), end= c(2015,3))
+#unemp_1= unemp %>% window(start= c(2014,1), end= c(2015,3))
 
-komp_r_shock= 0.15*wage_trim_1*unemp_1
+#komp_r_shock= 0.15*wage_trim_1*unemp_1
 
 
 
@@ -808,27 +816,6 @@ library(knitr)
 
 ## DEseasonalyse
 ```{r}
-
-## pcon
-
-pcon_reg = lm(pcon~ sd1+ sd2 + sd3)
-pcon_ds= pcon_reg$residuals + mean(pcon)
-pcon_ds=ts(pcon_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_0 =pcon_reg$coefficients[1]
-alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_1=pcon_reg$coefficients[2]
-alpha_1=ts(alpha_1,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_2=pcon_reg$coefficients[3]
-alpha_2=ts(alpha_2,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-alpha_3=pcon_reg$coefficients[4]
-alpha_3=ts(alpha_3,start = c(2005,2), end = c(2020,1), frequency = 4 )
-
-mean_pcon= mean(pcon)
-mean_pcon=ts(mean_pcon,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 ## I_BD_H_K
 reg_1 = lm(i_bd_h_k~ sd1+ sd2 + sd3)
@@ -948,20 +935,20 @@ pconk_ds= reg_8$residuals + mean(pconk)
 
 pconk_ds=ts(pconk_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
-alpha_0 =reg_8$coefficients[1]
-alpha_0=ts(alpha_0,start = c(2005,2), end = c(2020,1), frequency = 4 )
+alpha_00 =reg_8$coefficients[1]
+alpha_00=ts(alpha_00,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
-alpha_1=reg_8$coefficients[2]
-alpha_1=ts(alpha_1,start = c(2005,2), end = c(2020,1), frequency = 4 )
+alpha_01=reg_8$coefficients[2]
+alpha_01=ts(alpha_01,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
-alpha_2=reg_8$coefficients[3]
-alpha_2=ts(alpha_2,start = c(2005,2), end = c(2020,1), frequency = 4 )
+alpha_02=reg_8$coefficients[3]
+alpha_02=ts(alpha_02,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
-alpha_3=reg_8$coefficients[4]
-alpha_3=ts(alpha_3,start = c(2005,2), end = c(2020,1), frequency = 4 )
+alpha_03=reg_8$coefficients[4]
+alpha_03=ts(alpha_03,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 mean_pconk= mean(pconk)
-mean_pconk=ts(mean_pcon,start = c(2005,2), end = c(2020,1), frequency = 4 )
+mean_pconk=ts(mean_pconk,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 ## B2_HK_ds 
 
@@ -1286,11 +1273,6 @@ y_ds= reg_29$residuals + mean(y)
 y_ds=ts(y_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 
-##nben_h
-
-reg_30 = lm(log(nben_h)~ sd1 +sd2 + sd3)
-summary(reg_30)
-
 
 ```
 
@@ -1359,9 +1341,6 @@ yd_hk_ds = yd1_hk_ds +yd2a_hk_ds + yd2b_hk
 propinc_p_nf = int_p_nf + div_p_nf + ins_p_nf + res_p_nf
 propinc_r_nf = int_r_nf + div_r_nf + ins_r_nf + res_r_nf
 
-propinc_r_nf- propinc_p_nf
-
-npropinc_nf
 ```
 
 
@@ -1510,7 +1489,7 @@ STORE> coe(1)
 
 COMMENT> 
 IDENTITY> pconk
-EQ> pconk = pconk_ds + alpha_0 + alpha_1*SD1 + alpha_2*SD2 + alpha_3*SD3 - mean_pconk
+EQ> pconk = pconk_ds + alpha_00 + alpha_01*SD1 + alpha_02*SD2 + alpha_03*SD3 - mean_pconk
 
 COMMENT> nominal private consumption
 IDENTITY> pcon
@@ -2044,7 +2023,7 @@ EQ> int_f = (TSLAG(idep,1)*TSLAG(iba_f,1) + TSLAG(iloan,1)*TSLAG(l_f,1) + TSLAG(
 
 COMMENT> 
 IDENTITY> div_f
-EQ> div_f = d_20124 *(((TSLAG(eq_f_a_f,1) + TSLAG(eq_f_a_nf,1)) - (TSLAG(eq_f_l_f,1) + TSLAG(eq_h_f ,1)+ TSLAG(eq_row_a_f,1) + TSLAG(eq_nf_a_f,1) + TSLAG(eq_g_f,1)))* TSLAG(divd,1) + TSLAG(eq_f_a_row,1)*TSLAG(diva,1)) + (1-d_20124)*((TSLAG(neq_f,1)*TSLAG(divd,1))) +  div_f_adj 
+EQ> div_f = d_20124 *(((TSLAG(eq_f_a_f,1) + TSLAG(eq_nf_a_nf,1)) - (TSLAG(eq_f_l_f,1) + TSLAG(eq_h_f ,1)+ TSLAG(eq_row_a_f,1) + TSLAG(eq_nf_a_f,1) + TSLAG(eq_g_f,1)))* TSLAG(divd,1) + TSLAG(eq_f_a_row,1)*TSLAG(diva,1)) + (1-d_20124)*((TSLAG(neq_f,1)*TSLAG(divd,1))) +  div_f_adj 
 
 COMMENT> 
 IDENTITY> insu_f
@@ -2064,7 +2043,7 @@ EQ> npropinc_f = int_f + int_f_adj +  div_f + insu_f + ins_f_adj + (res_r_f) - (
 
 COMMENT> 
 IDENTITY> yh_f
-EQ> yh_f = b2_f_r + (npropinc_f )
+EQ> yh_f = b2_f_r + (npropinc_f)
 
 COMMENT> 
 IDENTITY> yd_f
@@ -2534,7 +2513,7 @@ COMMENT>
 IDENTITY> mkp
 EQ> mkp = pc_ds / (wage_ds/prodk_ds + pm_ds)
 
-COMMENT> Behavoural???
+COMMENT> 
 BEHAVIORAL> emp
 EQ> emp = p_250 * (yk/prodk) 
 COEFF> p_250 
@@ -2554,7 +2533,7 @@ COMMENT>
 IDENTITY> wage
 EQ> wage = wage_ds  + (alpha_50 + alpha_51*SD1 + alpha_52*SD2 + alpha_53*SD3) - mean_wage
 
-COMMENT>  Jeg laver nok bare en tidsserie fra 2010q3
+COMMENT>  
 IDENTITY> wageindex
 EQ> wageindex = wage/wage_2010q3
 
@@ -2764,9 +2743,6 @@ S_modelData=list(
   
   nl_h = TIMESERIES(c(nl_h),   
                     START=c(2005,2),FREQ=4),
-  
-  pcon_ds = TIMESERIES(c(pcon_ds),   
-                       START=c(2005,2),FREQ=4),
   
   pconk = TIMESERIES(c(pconk),   
                      START=c(2005,2),FREQ=4),
@@ -3296,8 +3272,6 @@ S_modelData=list(
                        START=c(2005,2),FREQ=4),
   pm_ds = TIMESERIES(c(pm_ds),   
                      START=c(2005,2),FREQ=4),
-  prod_ds = TIMESERIES(c(prod_ds),   
-                       START=c(2005,2),FREQ=4),
   mk_ds = TIMESERIES(c(pc_ds),   
                      START=c(2005,2),FREQ=4),
   
@@ -3317,35 +3291,29 @@ S_modelData=list(
   mkp = TIMESERIES(c(mkp),   
                    START=c(2005,2),FREQ=4),
   
-  wage_ds = TIMESERIES(c(wage_ds),   
-                       START=c(2005,2),FREQ=4),
-  
   prod = TIMESERIES(c(prod),   
                     START=c(2005,2),FREQ=4),
-  
-  prod_ds = TIMESERIES(c(prod_ds),   
-                       START=c(2005,2),FREQ=4),
   acc_rate = TIMESERIES(c(acc_rate),   
                         START=c(2005,2),FREQ=4),
   
-   nben_h_rest = TIMESERIES(c(nben_h_rest),   
-                       START=c(2005,2),FREQ=4),
-  nben_h_un = TIMESERIES(c(nben_h_un),   
-                        START=c(2005,2),FREQ=4),
-  komp_r = TIMESERIES(c(komp_r),   
-                        START=c(2005,2),FREQ=4),
+  # nben_h_rest = TIMESERIES(c(nben_h_rest),   
+   #                    START=c(2005,2),FREQ=4),
+  #nben_h_un = TIMESERIES(c(nben_h_un),   
+  #                      START=c(2005,2),FREQ=4),
+  #komp_r = TIMESERIES(c(komp_r),   
+   #                     START=c(2005,2),FREQ=4),
   shock = TIMESERIES(c(shock),   
                         START=c(2005,2),FREQ=4),
   g_shock = TIMESERIES(c(g_shock),   
                         START=c(2005,2),FREQ=4),
-  wage_trim = TIMESERIES(c(wage_trim),   
-                        START=c(2005,2),FREQ=4),
-   dp_person = TIMESERIES(c(dp_person),   
-                        START=c(2005,2),FREQ=4),
-  abm = TIMESERIES(c(abm),   
-                        START=c(2005,2),FREQ=4),
-  w_h_r_trim = TIMESERIES(c(w_h_r_trim),   
-                        START=c(2005,2),FREQ=4),
+  #wage_trim = TIMESERIES(c(wage_trim),   
+                        #START=c(2005,2),FREQ=4),
+   #dp_person = TIMESERIES(c(dp_person),   
+                        #START=c(2005,2),FREQ=4),
+  #abm = TIMESERIES(c(abm),   
+                        #START=c(2005,2),FREQ=4),
+  #w_h_r_trim = TIMESERIES(c(w_h_r_trim),   
+                        #START=c(2005,2),FREQ=4),
   
   
   ## Dummies
@@ -3428,17 +3396,15 @@ S_modelData=list(
   
   ## Deseason variables
   
-  alpha_0 = TIMESERIES(c(alpha_0),   
+  alpha_00 = TIMESERIES(c(alpha_00),   
                        START=c(2005,2),FREQ=4),
   
-  alpha_1 = TIMESERIES(c(alpha_1),   
+  alpha_01 = TIMESERIES(c(alpha_01),   
                        START=c(2005,2),FREQ=4),
-  alpha_2 = TIMESERIES(c(alpha_2),   
+  alpha_02 = TIMESERIES(c(alpha_02),   
                        START=c(2005,2),FREQ=4),
-  alpha_3 = TIMESERIES(c(alpha_3),   
+  alpha_03 = TIMESERIES(c(alpha_03),   
                        START=c(2005,2),FREQ=4),
-  mean_pcon = TIMESERIES(c(mean_pcon),   
-                         START=c(2005,2),FREQ=4),
   alpha_10 = TIMESERIES(c(alpha_10),   
                         START=c(2005,2),FREQ=4),
   alpha_11 = TIMESERIES(c(alpha_11),   
@@ -3623,8 +3589,6 @@ S_modelData=list(
   mean_pconk = TIMESERIES(c(mean_pconk),   
                        START=c(2005,2),FREQ=4),
   
-  pcon_ds = TIMESERIES(c(pcon_ds),   
-                       START=c(2005,2),FREQ=4),
   yd_hk_ds = TIMESERIES(c(yd_hk_ds),   
                         START=c(2005,2),FREQ=4),
   i_equip_h_k_ds = TIMESERIES(c(i_equip_h_k_ds),   
@@ -3649,9 +3613,6 @@ S_modelData=list(
   
   w_h_rk_ds = TIMESERIES(c(w_h_rk_ds),   
                          START=c(2005,2),FREQ=4),
-  
-  wage_ds = TIMESERIES(c(wage_ds),   
-                       START=c(2005,2),FREQ=4),
   
   pc_ds = TIMESERIES(c(pc_ds),   
                      START=c(2005,2),FREQ=4),
@@ -4270,7 +4231,6 @@ S_modelData=list(
 ```{r}
 S_model=LOAD_MODEL_DATA(S_model,S_modelData)
 
-
 ```
 
 
@@ -4287,7 +4247,7 @@ S_model=ESTIMATE(S_model
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
-                    ,simType='STATIC'
+                    ,simType='RESCHECK'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
@@ -4298,7 +4258,7 @@ S_model <- SIMULATE(S_model
 
 ### compare with real data
 
-```{r}
+```{r, echo=FALSE}
 part_00 = S_model$simulation$part
 lf_00 = S_model$simulation$lf
 pconk_ds_00 = S_model$simulation$pconk_ds
@@ -4368,7 +4328,7 @@ pc_ds_00 = S_model$simulation$pc_ds
 yd_hk_ds_00 = S_model$simulation$yd_hk_ds ## kunne godt se ud som om noget er galt med den her.
 
 
-### TEsst
+### Test
 
 yd1_hk_ds_00 = S_model$simulation$yd1_hk_ds
 yd2a_hk_ds_00 = S_model$simulation$yd2a_hk_ds
@@ -4389,6 +4349,8 @@ iloan_00 = S_model$simulation$iloan
 int_p_h_adj_00 = S_model$simulation$int_p_h_adj
 
 
+options(scipen = 999)
+
 ## RESCHECK
 yk_00 = S_model$simulation$yk
 prodk_00 = S_model$simulation$prodk
@@ -4399,12 +4361,254 @@ m_00 = S_model$simulation$m
 i_h_00 = S_model$simulation$i_h
 w_nf_00 = S_model$simulation$w_nf
 s_nf_00 = S_model$simulation$s_nf
-
-
-
-
-
-
+pconk_00 = S_model$simulation$pconk
+ik_00 = S_model$simulation$ik
+gk_00 = S_model$simulation$gk
+xk_00 = S_model$simulation$xk
+mk_00 = S_model$simulation$mk
+g_00 = S_model$simulation$g
+ur_00 = S_model$simulation$ur
+ur_ds_00 = S_model$simulation$ur_ds
+prod_ds_00 = S_model$simulation$prod_ds
+int_r_h_00 = S_model$simulation$int_r_h; int_r_h_00-int_r_h
+int_p_h_00 = S_model$simulation$int_p_h; int_p_h_00-int_p_h
+div_h_00 = S_model$simulation$div_h; div_h_00-div_h
+aa_check_00 = S_model$simulation$aa_check; aa_check_00-aa_check
+insu_h_00 = S_model$simulation$insu_h; insu_h_00-insu_h
+propinc_r_h_00 = S_model$simulation$propinc_r_h; propinc_r_h_00-propinc_r_h #lidt
+propinc_p_h_00 = S_model$simulation$propinc_p_h; propinc_p_h_00-propinc_p_h #lidt
+yh_h_00 = S_model$simulation$yh_h; yh_h_00-yh_h# lidt
+yh2a_00 = S_model$simulation$yh2a; yh2a_00-yh2a
+yh1_00 = S_model$simulation$yh1; yh1_00-yh1
+w_h_r_00 = S_model$simulation$w_h_r; w_h_r_00-w_h_r#lidt
+yd2a_h_00 = S_model$simulation$yd2a_h; yd2a_h_00-yd2a_h
+yd2b_h_00 = S_model$simulation$yd2b_h; yd2b_h_00-yd2b_h 
+yd1_h_00 = S_model$simulation$yd1_h; yd1_h_00-yd1_h
+tax_h_00 = S_model$simulation$tax_h; tax_h_00-tax_h
+yd1_hk_00 = S_model$simulation$yd1_hk; yd1_hk_00-yd1_hk
+yd2a_hk_00 = S_model$simulation$yd2a_hk; yd2a_hk_00-yd2a_hk
+yd2b_hk_00 = S_model$simulation$yd2b_hk; yd2b_hk_00-yd2b_hk
+yd_h_00 = S_model$simulation$yd_h; yd_h_00-yd_h#lidt
+nsben_h_00 = S_model$simulation$nsben_h; nsben_h_00-nsben_h #lidt
+yd_h1_00 = S_model$simulation$yd_h1; yd_h1_00-yd_h1
+nl_h_00 = S_model$simulation$nl_h; nl_h_00-nl_h
+pconk_ds_00 = S_model$simulation$pconk_ds; pconk_ds_00-pconk_ds#lidt
+pconk_00 = S_model$simulation$pconk; pconk_00-pconk #lidt
+pcon_00 = S_model$simulation$pcon; pcon_00-pcon#lidt
+i_bd_h_k_00 = S_model$simulation$i_bd_h_k; i_bd_h_k_00-i_bd_h_k#lidt
+i_equip_h_k_00 = S_model$simulation$i_equip_h_k; i_equip_h_k_00-i_equip_h_k#lidt
+iba_h_00 = S_model$simulation$iba_h; iba_h_00-iba_h
+sec_h_00 = S_model$simulation$sec_h; sec_h_00-sec_h
+sec_h_tr_g_00 = S_model$simulation$sec_h_tr_g; sec_h_tr_g_00-sec_h_tr_g
+l_h_00 = S_model$simulation$l_h; l_h_00-l_h
+eq_h_tr_00 = S_model$simulation$eq_h_tr; eq_h_tr_00-eq_h_tr #meget
+iba_h_tr_00 = S_model$simulation$iba_h_tr; iba_h_tr_00-iba_h_tr
+eq_h_nf_00 = S_model$simulation$eq_h_nf; eq_h_nf_00-eq_h_nf
+eq_h_f_00 = S_model$simulation$eq_h_f; eq_h_f_00-eq_h_f
+eq_h_row_00 = S_model$simulation$eq_h_row; eq_h_row_00-eq_h_row # meget
+eq_h_nf_tr_00 = S_model$simulation$eq_h_nf_tr; eq_h_nf_tr_00-eq_h_nf_tr # meget
+eq_h_f_tr_00 = S_model$simulation$eq_h_f_tr; eq_h_f_tr_00-eq_h_f_tr # meget
+eq_h_row_tr_00 = S_model$simulation$eq_h_row_tr; eq_h_row_tr_00-eq_h_row_tr # meget
+eq_h_test_00 = S_model$simulation$eq_h_test; eq_h_test_00-eq_h_test
+ins_h_00 = S_model$simulation$ins_h; ins_h_00-ins_h
+ins_h_tr_00 = S_model$simulation$ins_h_tr; ins_h_tr_00-ins_h_tr
+lev_h_00 = S_model$simulation$lev_h; lev_h_00-lev_h
+fa_h_00 = S_model$simulation$fa_h; fa_h_00-fa_h
+fnw_h_00 = S_model$simulation$fnw_h; fnw_h_00-fnw_h #MEGET
+fnw_hk_00 = S_model$simulation$fnw_hk; fnw_hk_00-fnw_hk
+i_bd_h_00 = S_model$simulation$i_bd_h; i_bd_h_00-i_bd_h
+i_equip_h_00 = S_model$simulation$i_equip_h; i_equip_h_00-i_equip_h
+bd_h_k_00 = S_model$simulation$bd_h_k; bd_h_k_00-bd_h_k
+equip_h_k_00 = S_model$simulation$equip_h_k; equip_h_k_00-equip_h_k
+bd_h_00 = S_model$simulation$bd_h; bd_h_00-bd_h # lidt
+equip_h_00 = S_model$simulation$equip_h; equip_h_00-equip_h
+rer_00 = S_model$simulation$rer; rer_00-rer 
+py_00 = S_model$simulation$py; py_00-py # lidt
+s_00 = S_model$simulation$s; s_00-s
+w_nf_00 = S_model$simulation$w_nf; w_nf_00-w_nf
+yf_00 = S_model$simulation$yf; yf_00-yf # lidt
+ws_00 = S_model$simulation$ws; ws_00-ws
+ps_00 = S_model$simulation$ps; ps_00-ps 
+u_00 = S_model$simulation$u; u_00-u
+prate_00 = S_model$simulation$prate; prate_00-prate 
+prate_ds_00 = S_model$simulation$prate_ds; prate_ds_00-prate_ds 
+ps_ds_00 = S_model$simulation$ps_ds; ps_ds_00-ps_ds
+tobinq_00 = S_model$simulation$tobinq; tobinq_00-tobinq
+i_bd_nfc_k_00 = S_model$simulation$i_bd_nfc_k; i_bd_nfc_k_00-i_bd_nfc_k # lidt
+i_equip_nfc_k_00 = S_model$simulation$i_equip_nfc_k; i_equip_nfc_k_00-i_equip_nfc_k # lidt
+i_h_00 = S_model$simulation$i_h; i_h_00-i_h 
+i_nf_00 = S_model$simulation$i_nf; i_nf_00-i_nf
+i_f_00 = S_model$simulation$i_f; i_f_00-i_f 
+i_g_00 = S_model$simulation$i_g; i_g_00-i_g 
+int_nf_00 = S_model$simulation$int_nf; int_nf_00-int_nf
+div_nf_00 = S_model$simulation$div_nf; div_nf_00-div_nf
+insu_nf_00 = S_model$simulation$insu_nf; insu_nf_00-insu_nf
+npropinc_nf_00 = S_model$simulation$npropinc_nf; npropinc_nf_00-npropinc_nf # lidt
+yh_nf_00 = S_model$simulation$yh_nf; yh_nf_00-yh_nf #lidt
+tax_nf_00 = S_model$simulation$tax_nf; tax_nf_00-tax_nf
+nl_nf_00 = S_model$simulation$nl_nf; nl_nf_00-nl_nf 
+iba_nf_00 = S_model$simulation$iba_nf; iba_nf_00-iba_nf 
+iba_nf_tr_00 = S_model$simulation$iba_nf_tr; iba_nf_tr_00-iba_nf_tr
+sec_nf_00 = S_model$simulation$sec_nf; sec_nf_00-sec_nf
+l_nf_00 = S_model$simulation$l_nf; l_nf_00-l_nf
+eq_nf_a_00 = S_model$simulation$eq_nf_a; eq_nf_a_00-eq_nf_a # lidt
+eq_nf_a_nf_00 = S_model$simulation$eq_nf_a_nf; eq_nf_a_nf_00-eq_nf_a_nf 
+eq_nf_l_nf_00 = S_model$simulation$eq_nf_l_nf; eq_nf_l_nf_00-eq_nf_l_nf # meget
+eq_nf_ax_00 = S_model$simulation$eq_nf_ax; eq_nf_ax_00-eq_nf_ax 
+eq_nf_a_f_00 = S_model$simulation$eq_nf_a_f; eq_nf_a_f_00-eq_nf_a_f 
+eq_nf_a_row_00 = S_model$simulation$eq_nf_a_row; eq_nf_a_row_00-eq_nf_a_row
+eq_nf_l_00 = S_model$simulation$eq_nf_l; eq_nf_l_00-eq_nf_l # meget
+eq_nf_lx_00 = S_model$simulation$eq_nf_lx; eq_nf_lx_00-eq_nf_lx
+neq_nf_00 = S_model$simulation$neq_nf; neq_nf_00-Neq_nf # lidt
+neq_nf_tr_00 = S_model$simulation$neq_nf_tr; neq_nf_tr_00-Neq_nf_tr 
+eq_nf_a_test_00 = S_model$simulation$eq_nf_a_test; eq_nf_a_test_00-eq_nf_a_test
+eq_nf_l_test_00 = S_model$simulation$eq_nf_l_test; eq_nf_l_test_00-eq_nf_l_test 
+ins_nf_00 = S_model$simulation$ins_nf; ins_nf_00-ins_nf 
+fnw_nf_00 = S_model$simulation$fnw_nf; fnw_nf_00-fnw_nf #meget
+fnw_nfk_00 = S_model$simulation$fnw_nfk; fnw_nfk_00-fnw_nfk 
+i_bd_nfc_00 = S_model$simulation$i_bd_nfc; i_bd_nfc_00-i_bd_nfc
+i_equip_nfc_00 = S_model$simulation$i_equip_nfc; i_equip_nfc_00-i_equip_nfc 
+bd_nfc_k_00 = S_model$simulation$bd_nfc_k; bd_nfc_k_00-bd_nfc_k 
+equip_nfc_k_00 = S_model$simulation$equip_nfc_k; equip_nfc_k_00-equip_nfc_k 
+bd_nfc_00 = S_model$simulation$bd_nfc; bd_nfc_00-bd_nfc #lidt
+equip_nfc_00 = S_model$simulation$equip_nfc; equip_nfc_00-equip_nfc 
+int_f_00 = S_model$simulation$int_f; int_f_00-int_f
+div_f_00 = S_model$simulation$div_f; div_f_00-div_f # meget
+insu_f_00 = S_model$simulation$insu_f; insu_f_00-insu_f
+propinc_r_f_00 = S_model$simulation$propinc_r_f; propinc_r_f_00-propinc_r_f # lidt
+propinc_p_f_00 = S_model$simulation$propinc_p_f; propinc_p_f_00-propinc_p_f #lidt
+npropinc_f_00 = S_model$simulation$npropinc_f; npropinc_f_00-npropinc_f # meget
+yh_f_00 = S_model$simulation$yh_f; yh_f_00-yh_f # meget
+yd_f_00 = S_model$simulation$yd_f; yd_f_00-yd_f #meget
+d8_f_00 = S_model$simulation$d8_f; d8_f_00-d8_f
+nben_f_00 = S_model$simulation$nben_f; nben_f_00-nben_f 
+s_f_00 = S_model$simulation$s_f; s_f_00-s_f
+nl_f_00 = S_model$simulation$nl_f; nl_f_00-nl_f 
+iba_f_00 = S_model$simulation$iba_f; iba_f_00-iba_f 
+eq_f_a_00 = S_model$simulation$eq_f_a; eq_f_a_00-eq_f_a 
+eq_f_a_nf_00 = S_model$simulation$eq_f_a_nf; eq_f_a_nf_00-eq_f_a_nf 
+eq_f_a_f_00 = S_model$simulation$eq_f_a_f; eq_f_a_f_00-eq_f_a_f 
+eq_f_l_f_00 = S_model$simulation$eq_f_l_f; eq_f_l_f_00-eq_f_l_f # meget
+eq_f_a_row_00 = S_model$simulation$eq_f_a_row; eq_f_a_row_00-eq_f_a_row 
+eq_f_ax_00 = S_model$simulation$eq_f_ax; eq_f_ax_00-eq_f_ax
+eq_f_l_00 = S_model$simulation$eq_f_l; eq_f_l_00-eq_f_l #meget
+eq_f_lx_00 = S_model$simulation$eq_f_lx; eq_f_lx_00-eq_f_lx 
+neq_f_00 = S_model$simulation$neq_f; neq_f_00-Neq_f 
+neq_f_tr_00 = S_model$simulation$neq_f_tr; neq_f_tr_00-Neq_f_tr 
+eq_f_l_test_00 = S_model$simulation$eq_f_l_test; eq_f_l_test_00-eq_f_l_test 
+sec_f_d_00 = S_model$simulation$sec_f_d; sec_f_d_00-sec_f_d 
+sec_f_d_tr_00 = S_model$simulation$sec_f_d_tr; sec_f_d_tr_00-sec_f_d_tr 
+sec_f_d_tr_nf_00 = S_model$simulation$sec_f_d_tr_nf; sec_f_d_tr_nf_00-sec_f_d_tr_nf
+sec_f_d_tr_g_00 = S_model$simulation$sec_f_d_tr_g; sec_f_d_tr_g_00-sec_f_d_tr_g 
+sec_f_a_00 = S_model$simulation$sec_f_a; sec_f_a_00-sec_f_a 
+sec_f_a_tr_00 = S_model$simulation$sec_f_a_tr; sec_f_a_tr_00-sec_f_a_tr 
+l_f_00 = S_model$simulation$l_f; l_f_00-l_f 
+l_f_tr_00 = S_model$simulation$l_f_tr; l_f_tr_00-l_f_tr 
+ins_f_00 = S_model$simulation$ins_f; ins_f_00-ins_f 
+ins_f_tr_00 = S_model$simulation$ins_f_tr; ins_f_tr_00-ins_f_tr 
+fnw_f_00 = S_model$simulation$fnw_f; fnw_f_00-fnw_f # meget
+fnw_fk_00 = S_model$simulation$fnw_fk; fnw_fk_00-fnw_fk 
+i_bd_fc_00 = S_model$simulation$i_bd_fc; i_bd_fc_00-i_bd_fc 
+i_equip_fc_00 = S_model$simulation$i_equip_fc; i_equip_fc_00-i_equip_fc 
+bd_fc_k_00 = S_model$simulation$bd_fc_k; bd_fc_k_00-bd_fc_k 
+equip_fc_k_00 = S_model$simulation$equip_fc_k; equip_fc_k_00-equip_fc_k 
+bd_fc_00 = S_model$simulation$bd_fc; bd_fc_00-bd_fc #lidt
+equip_fc_00 = S_model$simulation$equip_fc; equip_fc_00-equip_fc #lidt
+int_g_00 = S_model$simulation$int_g; int_g_00-int_g 
+div_g_00 = S_model$simulation$div_g; div_g_00-div_g 
+insu_g_00 = S_model$simulation$insu_g; insu_g_00-insu_g 
+propinc_r_g_00 = S_model$simulation$propinc_r_g; propinc_r_g_00-propinc_r_g 
+propinc_p_g_00 = S_model$simulation$propinc_p_g; propinc_p_g_00-propinc_p_g 
+npropinc_g_00 = S_model$simulation$npropinc_g; npropinc_g_00-npropinc_g 
+yh_g_00 = S_model$simulation$yh_g; yh_g_00-yh_g 
+yd_g_00 = S_model$simulation$yd_g; yd_g_00-yd_g #medium 
+nben_g_00 = S_model$simulation$nben_g; nben_g_00-nben_g 
+tax_g_00 = S_model$simulation$tax_g; tax_g_00-tax_g 
+s_g_00 = S_model$simulation$s_g; s_g_00-s_g 
+nl_g_00 = S_model$simulation$nl_g; nl_g_00-nl_g 
+iba_g_00 = S_model$simulation$iba_g; iba_g_00-iba_g 
+eq_g_00 = S_model$simulation$eq_g; eq_g_00-eq_g 
+eq_g_nf_00 = S_model$simulation$eq_g_nf; eq_g_nf_00-eq_g_nf
+eq_g_f_00 = S_model$simulation$eq_g_f; eq_g_f_00-eq_g_f 
+eq_g_row_00 = S_model$simulation$eq_g_row; eq_g_row_00-eq_g_row 
+eq_g_ax_00 = S_model$simulation$eq_g_ax; eq_g_ax_00-eq_g_ax 
+eq_g_test_00 = S_model$simulation$eq_g_test; eq_g_test_00-eq_g_test 
+sec_g_00 = S_model$simulation$sec_g; sec_g_00-sec_g 
+sec_g_tr_00 = S_model$simulation$sec_g_tr; sec_g_tr_00-sec_g_tr 
+l_g_00 = S_model$simulation$l_g; l_g_00-l_g 
+ins_g_00 = S_model$simulation$ins_g; ins_g_00-ins_g 
+fnw_g_00 = S_model$simulation$fnw_g; fnw_g_00-fnw_g #medium 
+fnw_gk_00 = S_model$simulation$fnw_gk; fnw_gk_00-fnw_gk 
+i_bd_g_00 = S_model$simulation$i_bd_g; i_bd_g_00-i_bd_g 
+i_equip_g_00 = S_model$simulation$i_equip_g; i_equip_g_00-i_equip_g 
+bd_g_k_00 = S_model$simulation$bd_g_k; bd_g_k_00-bd_g_k 
+equip_g_k_00 = S_model$simulation$equip_g_k; equip_g_k_00-equip_g_k 
+bd_g_00 = S_model$simulation$bd_g; bd_g_00-bd_g 
+equip_g_00 = S_model$simulation$equip_g; equip_g_00-equip_g 
+int_row_00 = S_model$simulation$int_row; int_row_00-int_row 
+div_row_00 = S_model$simulation$div_row; div_row_00-div_row 
+insu_row_00 = S_model$simulation$insu_row; insu_row_00-insu_row 
+propinc_r_row_00 = S_model$simulation$propinc_r_row; propinc_r_row_00-propinc_r_row 
+propinc_p_row_00 = S_model$simulation$propinc_p_row; propinc_p_row_00-propinc_p_row 
+npropinc_row_00 = S_model$simulation$npropinc_row; npropinc_row_00-npropinc_row # medium
+s_row_00 = S_model$simulation$s_row; s_row_00-s_row #meget
+nl_row_00 = S_model$simulation$nl_row; nl_row_00-nl_row #meget
+nben_row_00 = S_model$simulation$nben_row; nben_row_00-nben_row 
+nx_00 = S_model$simulation$nx; nx_00-nx 
+cab_00 = S_model$simulation$cab; cab_00-cab 
+bop_00 = S_model$simulation$bop; bop_00-bop 
+fab_00 = S_model$simulation$fab; fab_00-fab 
+iba_row_00 = S_model$simulation$iba_row; iba_row_00-iba_row 
+iba_row_tr_00 = S_model$simulation$iba_row_tr; iba_row_tr_00-iba_row_tr 
+sec_row_00 = S_model$simulation$sec_row; sec_row_00-sec_row 
+l_row_00 = S_model$simulation$l_row; l_row_00-l_row 
+eq_row_a_00 = S_model$simulation$eq_row_a; eq_row_a_00-eq_row_a 
+eq_row_a_nf_00 = S_model$simulation$eq_row_a_nf; eq_row_a_nf_00-eq_row_a_nf 
+eq_row_a_f_00 = S_model$simulation$eq_row_a_f; eq_row_a_f_00-eq_row_a_f 
+eq_row_ax_00 = S_model$simulation$eq_row_ax; eq_row_ax_00-eq_row_ax 
+eq_row_a_test_00 = S_model$simulation$eq_row_a_test; eq_row_a_test_00-eq_row_a_test 
+eq_row_l_00 = S_model$simulation$eq_row_l; eq_row_l_00-eq_row_l #meget
+eq_row_lx_00 = S_model$simulation$eq_row_lx; eq_row_lx_00-eq_row_lx 
+eq_row_l_test_00 = S_model$simulation$eq_row_l_test; eq_row_l_test_00-eq_row_l_test 
+neq_row_00 = S_model$simulation$neq_row; neq_row_00-Neq_row #meget
+neq_row_tr_00 = S_model$simulation$neq_row_tr; neq_row_tr_00-Neq_row_tr 
+ins_row_00 = S_model$simulation$ins_row; ins_row_00-ins_row 
+fnw_row_00 = S_model$simulation$fnw_row; fnw_row_00-fnw_row #medium
+fnw_rowk_00 = S_model$simulation$fnw_rowk; fnw_rowk_00-fnw_rowk 
+unadj_00 = S_model$simulation$unadj; unadj_00-unadj #medium
+unemp_00 = S_model$simulation$unemp; unemp_00-unemp 
+ur_00 = S_model$simulation$ur; ur_00-UR 
+ur_ds_00 = S_model$simulation$ur_ds; ur_ds_00-ur_ds #medium
+uradj_00 = S_model$simulation$uradj; uradj_00-uradj 
+lf_00 = S_model$simulation$lf; lf_00-LF 
+pc_00 = S_model$simulation$pc; pc_00-pc 
+mkp_00 = S_model$simulation$mkp; mkp_00-mkp 
+emp_00 = S_model$simulation$emp; emp_00-emp #lidt
+urterm_00 = S_model$simulation$urterm; urterm_00-urterm 
+wage_00 = S_model$simulation$wage; wage_00-wage 
+wageindex_00 = S_model$simulation$wageindex; wageindex_00-wageindex 
+wage_ds_00 = S_model$simulation$wage_ds; wage_ds_00-wage_ds 
+prod_00 = S_model$simulation$prod; prod_00-prod 
+prod_ds_00 = S_model$simulation$prod_ds; prod_ds_00-prod_ds 
+acc_rate_00 = S_model$simulation$acc_rate; acc_rate_00-acc_rate 
+nl_check_00 = S_model$simulation$nl_check; nl_check_00-nl_check 
+fnl_check_00 = S_model$simulation$fnl_check; fnl_check_00-fnl_check 
+check_np_00 = S_model$simulation$check_np; check_np_00-check_np 
+check_ctr_00 = S_model$simulation$check_ctr; check_ctr_00-check_ctr 
+check_invest_00 = S_model$simulation$check_invest; check_invest_00-check_invest 
+check_iba_00 = S_model$simulation$check_iba; check_iba_00-check_iba 
+check_tax_00 = S_model$simulation$check_tax_00; pc_00-check_tax #lidt
+check_iba_rv_00 = S_model$simulation$check_iba_rv; check_iba_rv_00-check_iba_rv 
+check_iba_tr_00 = S_model$simulation$check_iba_tr; check_iba_tr_00-check_iba_tr #meget
+check_eq_00 = S_model$simulation$check_eq; check_eq_00-check_eq 
+check_eq_tr_00 = S_model$simulation$check_eq_tr; check_eq_tr_00-check_eq_tr 
+check_div_00 = S_model$simulation$check_div; check_div_00-check_div #meget
+check_l_00 = S_model$simulation$check_l; check_l_00-check_l 
+check_l_tr_00 = S_model$simulation$check_l_tr; check_l_tr_00-check_l_tr
+check_ins_00 = S_model$simulation$check_ins; check_ins_00-check_ins 
+check_ins_tr_00 = S_model$simulation$check_ins_tr; check_ins_tr_00-check_ins_tr #meget
+check_sec_00 = S_model$simulation$check_sec; check_sec_00-check_sec 
+g_00 = S_model$simulation$g; g_00-g
 
 
 
@@ -4437,7 +4641,6 @@ plot(nl_nf_00); lines(nl_nf, col = "blue"); grid()
 plot(neq_nf_tr_00); lines(Neq_nf_tr, col = "blue"); grid()
 plot(rw_ds_00); lines(rw_ds, col = "blue"); grid()
 plot(i_nf_00); lines(i_nf, col = "blue"); grid()
-#plot(np_nf_00); lines(np_nf, col = "blue"); grid()
 plot(s_nf_00); lines(s_nf, col = "blue"); grid()
 plot(yh_nf_00); lines(yh_nf, col = "blue"); grid()
 plot(y_00); lines(y, col = "blue"); grid()
@@ -4458,14 +4661,13 @@ plot(eq_nf_a_row_00); lines(eq_nf_a_row, col = "blue"); grid()
 plot(neq_nf_00); lines(Neq_nf, col = "blue"); grid()
 plot(check_div_00); lines(check_div, col = "blue"); grid()
 plot(rw_ds_00); lines(rw_ds, col = "blue"); grid()
-plot(pi_00); lines(pi, col = "blue"); grid()
 plot(l_h_00); lines(l_h, col = "blue"); grid()
-
+plot(wage_ds_00); lines(wage_ds, col = "blue"); grid()
 
 
 ### Gengivelse
 plot(yk_ds_00, ylim= c(430000, 540000), col= "green"); lines(yk_ds, col = "blue"); 
-legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue")); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid() 
 
 ## Ser okay ud 
@@ -4509,7 +4711,42 @@ plot(propinc_p_h_00); lines(propinc_p_h, col = "blue"); grid()
 plot(int_p_h_00); lines(int_p_h, col = "blue"); grid()
 
 
+## RESCHHECK
+plot(pg_00); lines(pg, col = "blue"); grid()
+plot(i_bd_nfc_k_00   ); lines(i_bd_nfc_k, col = "blue"); grid()
+plot(i_adj_nfc_k_00   ); lines(i_adj_nfc_k_00, col = "blue"); grid()
+plot(i_bd_h_k_00  ); lines(i_bd_h_k, col = "blue"); grid()
+plot(int_p_h_00); lines(int_p_h, col = "blue"); grid()
+plot(wage_ds_00); lines(wage_ds, col = "blue"); grid()
+plot(ur_00); lines(UR, col = "blue"); grid()
+plot(prod_ds_00); lines(prod_ds, col = "blue"); grid()
 
+### Problemer?
+
+plot(ur_ds_00); lines(UR_ds, col = "blue"); grid() #Fordi ur_ds er defineret 2 gange, men tror jeg bruger den rigtige, da estimater passer i rw_ds
+plot(eq_h_tr_00); lines(eq_h_tr, col = "blue"); grid()
+plot(eq_h_row_00); lines(eq_h_row, col = "blue"); grid()
+plot(eq_h_nf_tr_00); lines(eq_h_nf_tr, col = "blue"); grid() ## Tror det er noget med eq_h_row_rvx
+plot(eq_h_f_tr_00); lines(eq_h_f_tr, col = "blue"); grid() ## Samme som over
+plot(eq_h_row_tr_00); lines(eq_h_row_tr, col = "blue"); grid() ## Samme som overover
+plot(fnw_h_00); lines(fnw_h, col = "blue"); grid() # Ser ik så slemt ud relativt set 
+plot(eq_nf_l_nf_00); lines(eq_nf_l_nf, col = "blue"); grid()# Ser ik så slemt ud relativt set 
+plot(eq_nf_l_00); lines(eq_nf_l, col = "blue"); grid()# Ser ik så slemt ud relativt set 
+#plot(div_f_00); lines(div_f, col = "blue"); grid()
+plot(fnw_nf_00); lines(fnw_nf, col = "blue"); grid()# Ser ik så slemt ud relativt set
+plot(npropinc_f_00); lines(npropinc_f, col = "blue"); grid()
+plot(yh_f_00); lines(yh_f, col = "blue"); grid() #Grundet den ikke passer på data
+plot(yd_f_00); lines(yd_f, col = "blue"); grid() #grundet den ikke passer på data
+plot(eq_f_l_f_00); lines(eq_f_l_f, col = "blue"); grid()# Ser ik så slemt ud relativt set
+plot(eq_f_l_00); lines(eq_f_l, col = "blue"); grid()# Ser ik så slemt ud relativt set
+plot(fnw_f_00); lines(fnw_f, col = "blue"); grid()#Grundet den ikke passer på data
+plot(yd_g_00); lines(yd_g, col = "blue"); grid() #Grundet den ikke passer på data
+plot(fnw_g_00); lines(fnw_g, col = "blue"); grid()# Ser ik så slemt ud relativt set
+plot(npropinc_row_00); lines(npropinc_row, col = "blue"); grid()# Ser ik så slemt ud relativt set
+plot(s_row_00, ylim= c(-60000,60000)); lines(s_row, col = "blue"); grid() # Sat til at være 0 i data??? np_f også sat til 0?
+plot(nl_row_00, ylim= c(-60000,60000)); lines(nl_row, col = "blue"); grid() # Er regnet på 2 forskellige måder i model og uidenfor model (inkludere s_row så måske det der er galt?)
+plot(eq_row_l_00); lines(eq_row_l, col = "blue"); grid()# Ser ik så slemt ud relativt set
+plot(neq_row_00); lines(Neq_row, col = "blue"); grid()# Ser ik så slemt ud relativt set
 ```
 
 
@@ -4521,7 +4758,7 @@ increase in public expenditure from 2010
 
 ## Scenario 1
 
-2% increase in goverment spending:
+2% increase in government spending:
 
 ```{r}
 shock_g=g %>% window(start= c(2010,1))
@@ -4666,50 +4903,11 @@ grid()
 
 
 
-
 ```{r}
-"COMMENT> Mangler stadig at få tilpasset til ik diff
-BEHAVIORAL> l_h_tr
-EQ> TSDELTA(l_h_tr) = p_646 *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_641*((TSDELTA(TSLAG(-l_h_tr,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)))*(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))) 
-+ p_642*TSDELTA(iloan) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_643*(TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3))) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_644*((TSLAG(-l_h_tr,1)/TSLAG(yd_hk_ds,1))*TSLAG(pc,1)) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_645*(LOG(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2))) *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_647*d_2007q34 *(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ p_648*time*(TSLAG(-yd_hk_ds,1)*TSLAG(pc,1))
-+ alpha_1* ((l_h_tr*(yd_hk_ds*pc - TSLAG(yd_hk_ds,1)*TSLAG(pc,1)))/(yd_hk_ds*pc))
-COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648 alpha_1
-RESTRICT> alpha_1 = 1
-STORE>  coe(5)"
-```
-
-
-
-```{r}
-library(dynlm)
-
-
-
-
-
-summary(dynlm(TSDELTA(test) ~ 1+
-        TSDELTA(TSLAG(test,2))+
-         TSDELTA(iloan)+
-          TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3))+
-          TSLAG(test,1)+
-          log(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2))+
-          d_2007q34+
-          time))
-  
-
-summary(dynlm(TSDELTA(test) ~ 1))
-
-test=-l_h_tr/(yd_hk_ds*pc)
-
-
 
 
 
 ```
+
+
 

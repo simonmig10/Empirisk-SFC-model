@@ -398,9 +398,9 @@ l_row_rvx=diff(l_row)-l_row_tr[-1]
 ```
 
 ```{r}
-int_nf_adj = (int_r_nf - int_p_nf) - (stats::lag(idep,n=1)*stats::lag(iba_nf,-1) + stats::lag(ibd,-1)*stats::lag(sec_nf,-1) + stats::lag(iloan,-1)*stats::lag(l_nf,-1))
+int_nf_adj = (int_r_nf - int_p_nf) - (stats::lag(idep,-1)*stats::lag(iba_nf,-1) + stats::lag(ibd,-1)*stats::lag(sec_nf,-1) + stats::lag(iloan,-1)*stats::lag(l_nf,-1))
 
-int_h_adj = (int_r_h - int_p_h) - (stats::lag(idep,n=1)*stats::lag(iba_h,-1) + stats::lag(ibd,-1)*stats::lag(sec_h,-1) + stats::lag(iloan,-1)*stats::lag(l_h,-1)) # this calculation calculates the discrepancy for interest payments as net flow.
+int_h_adj = (int_r_h - int_p_h) - (stats::lag(idep,-1)*stats::lag(iba_h,-1) + stats::lag(ibd,-1)*stats::lag(sec_h,-1) + stats::lag(iloan,-1)*stats::lag(l_h,-1)) # this calculation calculates the discrepancy for interest payments as net flow.
 ```
 
 ```{r}
@@ -779,16 +779,16 @@ komp_r = dp_person/ wage_trim
 
 ## forskel i løn og maks dagpenge 
 
-diff_wageindex=as.data.frame(diff(wageindex_ds))
+#diff_wageindex=as.data.frame(diff(wageindex_ds))
 
-maks_dagpenge_index_ds = diff_wageindex %>%
-  mutate(dagpenge_index= ifelse(x >= 0.02 & x <= 0.023 , 0.02, ifelse(x >0.02, x - 0.003, x)))
+#maks_dagpenge_index_ds = diff_wageindex %>%
+  #mutate(dagpenge_index= ifelse(x >= 0.02 & x <= 0.023 , 0.02, ifelse(x >0.02, x - 0.003, x)))
 
-sum(maks_dagpenge_index_ds$x)
-sum(maks_dagpenge_index_ds$dagpenge_index)
+#sum(maks_dagpenge_index_ds$x)
+#sum(maks_dagpenge_index_ds$dagpenge_index)
 
-manglende_stigning= ylim= diff_wageindex %>%
-  mutate(dagpenge_index= ifelse(x >= 0.02 & x <= 0.023 , 0.02, ifelse(x >0.02, x - 0.003, x)))
+#manglende_stigning= ylim= diff_wageindex %>%
+  #mutate(dagpenge_index= ifelse(x >= 0.02 & x <= 0.023 , 0.02, ifelse(x >0.02, x - 0.003, x)))
 
 ```
 
