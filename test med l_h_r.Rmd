@@ -1,0 +1,59 @@
+---
+title: "Untitled"
+output: html_document
+date: "2022-08-18"
+---
+
+```{r}
+l_h_tr_ratio= -l_h_tr/(yd_hk_ds*pc)
+```
+
+
+
+```{r}
+
+S_model.txt="MODEL
+
+COMMENT> 
+IDENTITY> l_h_tr
+EQ> l_h_tr= l_h_tr_ratio * (-yd_hk_ds*pc)
+
+COMMENT> Mangler stadig at få tilpasset til ik diff
+BEHAVIORAL> l_h_tr_ratio
+EQ> TSDELTA(l_h_tr_ratio) = p_646 
++ p_641*TSDELTA(TSLAG(l_h_tr_ratio,2))
++ p_642*TSDELTA(iloan) 
++ p_643*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3)) 
++ p_644* TSLAG(l_h_tr_ratio,1) 
++ p_645*LOG(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)) 
++ p_647*d_2007q34 
++ p_648*time
+COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648
+STORE>  coe(5)
+
+
+END"
+```
+
+
+
+```{r}
+S_model=LOAD_MODEL(modelText = S_model.txt)
+```
+
+
+```{r}
+library(dynlm)
+
+dynlm(TSDELTA(l_h_tr_ratio) ~ 1 
++ TSDELTA(TSLAG(l_h_tr_ratio,2))
++ TSDELTA(iloan) 
++ TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3)) 
++ TSLAG(l_h_tr_ratio,1) 
++ log(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)) 
++ d_2007q34 
++ time)
+
+
+```
+
