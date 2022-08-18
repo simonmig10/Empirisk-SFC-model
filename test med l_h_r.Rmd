@@ -31,7 +31,6 @@ EQ> TSDELTA(l_h_tr_ratio) = p_646
 COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648
 STORE>  coe(5)
 
-
 END"
 ```
 
