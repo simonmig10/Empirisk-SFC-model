@@ -205,7 +205,7 @@ shock= ts(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 #### TEST
 
-g_shock= g
+
 
 ```
 
@@ -445,6 +445,10 @@ Below we create series for equities viz-a-viz counterparties. The data is only a
 alpha_nf_rv = eq_h_nf_rv[31:60]/(eq_h_nf_rv[31:60] + eq_h_f_rv[31:60] + eq_h_row_rv[31:60]) ## mean of alpha is 0.57 (excluding the spike in the start of the sample somwhere 2013q3 (not sure about the exact point))
 alpha_f_rv = eq_h_f_rv[31:60]/(eq_h_nf_rv[31:60] + eq_h_f_rv[31:60] + eq_h_row_rv[31:60]) #  mean of alpha is 0.37 (excluding the spike in the start of the sample somwhere 2013q3 (not sure about the exact point))
 alpha_row_rv = eq_h_row_rv[31:60]/(eq_h_nf_rv[31:60] + eq_h_f_rv[31:60] + eq_h_row_rv[31:60]) # mean of alpha is 0.06 (excluding the spike in the start of the sample somwhere 2013q3 (not sure about the exact point))
+
+mean(alpha_nf_rv[c(1:2,4:30)])
+mean(alpha_f_rv[c(1:2,4:30)])
+mean(alpha_row_rv[c(1:2,4:30)])
 ```
 
 
@@ -723,7 +727,7 @@ Labour market
  prod = y/Nf
  LF = unemp + emp
  lfadj = unempadj + empadj
- UR = unemp/LF
+ ur = unemp/LF
  ur_ds = unempadj/lfadj
 # yk = y/(py/100)
  prodk = yk/Nf
@@ -732,7 +736,7 @@ Labour market
  ps = 1 - ws
 # w = w_h_r + (W_row_r - W_row_p)
  fdis = yf/y
- urterm = UR - urs
+ urterm = ur - urs
  wageindex = wage/wage[22] #element from 2010Q3
  priv = pconk + ik + xk
  part = LF*1000/pop
@@ -1071,11 +1075,11 @@ pm_ds=ts(pm_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 ### ur 
 
 
-reg_16 = lm(UR~ sd1+ sd2 + sd3)
+reg_16 = lm(ur~ sd1+ sd2 + sd3)
 
-UR_ds= reg_16$residuals + mean(UR)
+ur_ds= reg_16$residuals + mean(ur)
 
-UR_ds=ts(UR_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+ur_ds=ts(ur_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
 alpha_140 =reg_16$coefficients[1]
 alpha_140=ts(alpha_140,start = c(2005,2), end = c(2020,1), frequency = 4 )
@@ -1089,7 +1093,7 @@ alpha_142=ts(alpha_142,start = c(2005,2), end = c(2020,1), frequency = 4 )
 alpha_143=reg_16$coefficients[4]
 alpha_143=ts(alpha_143,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
-mean_ur= mean(UR)
+mean_ur= mean(ur)
 mean_ur=ts(mean_ur,start = c(2005,2), end = c(2020,1), frequency = 4)
 
 
@@ -1353,6 +1357,11 @@ yh1 = w_h_r +  nsben_h + oth_h
 yd_hk_ds = yd1_hk_ds +yd2a_hk_ds + yd2b_hk
 propinc_p_nf = int_p_nf + div_p_nf + ins_p_nf + res_p_nf
 propinc_r_nf = int_r_nf + div_r_nf + ins_r_nf + res_r_nf
+
+
+
+g_shock= g
+prodk_ds_shock = prodk_ds
 
 ```
 
@@ -2538,7 +2547,7 @@ EQ> urterm = ur - urs
 
 COMMENT> 
 BEHAVIORAL> rw_ds
-EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,4)) + p_522*TSDELTA(LOG(prodk_ds)) + p_523*LOG(TSLAG(rw_ds,1)) + p_524*TSLAG(ur_ds,2) + p_525*LOG(TSLAG(prodk_ds,2)) + p_526*d_2009q4 + p_527*d_2011q1
+EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,4)) + p_522*TSDELTALOG(prodk_ds) + p_523*LOG(TSLAG(rw_ds,1)) + p_524*TSLAG(ur_ds,2) + p_525*LOG(TSLAG(prodk_ds,2)) + p_526*d_2009q4 + p_527*d_2011q1
 COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 
 STORE> coe(13)
 
@@ -2667,6 +2676,11 @@ IDENTITY> g
 EQ> g = g_shock
 
 
+COMMENT> Prod stød
+IDENTITY> prodk_ds
+EQ> prodk_ds = prodk_ds_shock
+
+
 END"
 ```
 
@@ -2684,6 +2698,10 @@ eq_h_ratio= (eq_h-eq_h_rvx)/(TSLAG(eq_h,1) +TSLAG(sec_h,1)+ TSLAG(iba_h,1))
 ratio_in_eq_h= (div_r_h+eq_h_rvx)/TSLAG(eq_h)
 ```
 
+```{r}
+ur_ds_shock= ur_ds
+yd1_hk_ds_shock= yd1_hk_ds
+```
 
 
 ```{r}
@@ -3276,7 +3294,7 @@ S_modelData=list(
   
   unemp = TIMESERIES(c(unemp),   
                      START=c(2005,2),FREQ=4),
-  ur = TIMESERIES(c(UR),   
+  ur = TIMESERIES(c(ur),   
                   START=c(2005,2),FREQ=4),
   uradj = TIMESERIES(c(uradj),   
                      START=c(2005,2),FREQ=4),
@@ -3293,7 +3311,7 @@ S_modelData=list(
                        START=c(2005,2),FREQ=4),
   pm_ds = TIMESERIES(c(pm_ds),   
                      START=c(2005,2),FREQ=4),
-  mk_ds = TIMESERIES(c(pc_ds),   
+  mk_ds = TIMESERIES(c(mk_ds),   
                      START=c(2005,2),FREQ=4),
   
   emp = TIMESERIES(c(emp),   
@@ -3327,6 +3345,15 @@ S_modelData=list(
                         START=c(2005,2),FREQ=4),
   g_shock = TIMESERIES(c(g_shock),   
                         START=c(2005,2),FREQ=4),
+  prodk_ds_shock  = TIMESERIES(c(prodk_ds_shock),   
+                        START=c(2005,2),FREQ=4),
+   ur_ds_shock  = TIMESERIES(c(ur_ds_shock),   
+                        START=c(2005,2),FREQ=4),
+  yd1_hk_ds_shock  = TIMESERIES(c(yd1_hk_ds_shock),   
+                        START=c(2005,2),FREQ=4),
+  unemp_shock  = TIMESERIES(c(unemp_shock),   
+                        START=c(2005,2),FREQ=4),
+  
   #wage_trim = TIMESERIES(c(wage_trim),   
                         #START=c(2005,2),FREQ=4),
    #dp_person = TIMESERIES(c(dp_person),   
@@ -3639,8 +3666,7 @@ S_modelData=list(
                      START=c(2005,2),FREQ=4),
   pm_ds = TIMESERIES(c(pm_ds),   
                      START=c(2005,2),FREQ=4),
-  
-  ur_ds = TIMESERIES(c(UR_ds),   
+  ur_ds = TIMESERIES(c(ur_ds),   
                      START=c(2005,2),FREQ=4),
   yk_ds = TIMESERIES(c(yk_ds),   
                      START=c(2005,2),FREQ=4),
@@ -4247,7 +4273,6 @@ S_modelData=list(
                            START=c(2005,3),FREQ=4),
   ratio_in_eq_h  = TIMESERIES(c(ratio_in_eq_h ),   
                            START=c(2005,3),FREQ=4)
-  
 )
 ```
 
@@ -4261,6 +4286,7 @@ S_model=LOAD_MODEL_DATA(S_model,S_modelData)
 
 
 ```{r}
+
 #Estimate model coefficients
 S_model=ESTIMATE(S_model
                  ,TSRANGE=c(2006,3,2020,1)
@@ -4269,11 +4295,10 @@ S_model=ESTIMATE(S_model
 ```
 
 
-
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
-                    ,simType='RESCHECK'
+                    ,simType='DYNAMIC'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
@@ -4283,124 +4308,7 @@ S_model <- SIMULATE(S_model
 
 ### compare with real data
 
-Tjek exogene variable:
 
-```{r}
-S_model$vexog
-
-
-S_model$modelData$p_bd-p_bd
-S_model$modelData$pi_1-pi_1
-S_model$modelData$dummy_4-DUMMY_4
-S_model$modelData$zaland_jesper-zaland_jesper
-S_model$modelData$d_2007q34-d_2007q34
-S_model$modelData$iloan-iloan
-S_model$modelData$time-time
-S_model$modelData$div_r_h-div_r_h
-S_model$modelData$eq_h_rvx-eq_h_rvx
-S_model$modelData$ibd-ibd
-S_model$modelData$d_2014q3-d_2014q3
-S_model$modelData$old_age_ratio-old_age_ratio
-S_model$modelData$d_2008q2-d_2008q2
-S_model$modelData$pm_ds-pm_ds
-S_model$modelData$prodk-prodk
-S_model$modelData$prodk_ds-prodk_ds
-S_model$modelData$idep-idep
-S_model$modelData$int_r_h_adj-int_r_h_adj
-S_model$modelData$int_p_h_adj-int_p_h_adj
-S_model$modelData$d_20124-d_20124
-S_model$modelData$div_h_adj-div_h_adj
-S_model$modelData$diva-diva
-S_model$modelData$divd-divd
-S_model$modelData$ins_h_adj-ins_h_adj
-S_model$modelData$insu-insu
-S_model$modelData$res_r_h-res_r_h
-S_model$modelData$res_p_h-res_p_h
-S_model$modelData$b2_h_r-b2_h_r
-S_model$modelData$oth_h-oth_h
-S_model$modelData$tax_rate2-tax_rate2
-S_model$modelData$tax_h_adj-tax_h_adj
-S_model$modelData$tax_rate1-tax_rate1
-S_model$modelData$alpha_100-alpha_100
-S_model$modelData$alpha_101-alpha_101
-S_model$modelData$alpha_102-alpha_102
-S_model$modelData$alpha_103-alpha_103
-S_model$modelData$mean_yd1_hk-mean_yd1_hk
-S_model$modelData$SD1-sd1
-S_model$modelData$SD2-sd2
-S_model$modelData$SD3-sd3
-S_model$modelData$alpha_110-alpha_110
-S_model$modelData$alpha_111-alpha_111
-S_model$modelData$alpha_112-alpha_112
-S_model$modelData$alpha_113-alpha_113
-S_model$modelData$mean_yd2a_hk-mean_yd2a_hk
-S_model$modelData$ctr_h-ctr_h
-S_model$modelData$np_h-np_h
-S_model$modelData$alpha_00-alpha_00
-S_model$modelData$alpha_01-alpha_01
-S_model$modelData$alpha_02-alpha_02
-S_model$modelData$alpha_03-alpha_03
-S_model$modelData$mean_pconk-mean_pconk
-S_model$modelData$alpha_10-alpha_10
-S_model$modelData$alpha_11-alpha_11
-S_model$modelData$alpha_12-alpha_12
-S_model$modelData$alpha_13-alpha_13
-S_model$modelData$mean_i_bd_h_k-mean_i_bd_h_k
-S_model$modelData$alpha_20-alpha_20
-S_model$modelData$alpha_21-alpha_21
-S_model$modelData$alpha_22-alpha_22
-S_model$modelData$alpha_23-alpha_23
-S_model$modelData$mean_i_equip_h_k-mean_i_equip_h_k
-S_model$modelData$iba_h_rvx-iba_h_rvx
-S_model$modelData$sec_h_rvx-sec_h_rvx
-S_model$modelData$sec_h_tr-sec_h_tr
-S_model$modelData$l_h_rvx-l_h_rvx
-S_model$modelData$nl_h_adj-nl_h_adj
-S_model$modelData$alpha_nf-alpha_nf
-S_model$modelData$alpha_f-alpha_f
-S_model$modelData$alpha_row-alpha_row
-S_model$modelData$eq_h_nf_rvx-eq_h_nf_rvx
-S_model$modelData$eq_h_f_rvx-eq_h_f_rvx
-S_model$modelData$eq_h_row_rvx-eq_h_row_rvx
-S_model$modelData$ins_h_rvx-ins_h_rvx
-S_model$modelData$ins_h_tr_excl_d8-ins_h_tr_excl_d8
-S_model$modelData$p_equip-p_equip
-S_model$modelData$delta_bd_h-delta_bd_h
-S_model$modelData$delta_equip_h-delta_equip_h
-S_model$modelData$alpha_90-alpha_90
-S_model$modelData$alpha_91-alpha_91
-S_model$modelData$alpha_92-alpha_92
-S_model$modelData$alpha_93-alpha_93
-S_model$modelData$mean_yk-mean_yk
-S_model$modelData$pg-pg
-S_model$modelData$px-px
-S_model$modelData$pf-pf
-S_model$modelData$xr-xr
-S_model$modelData$alpha_80-alpha_80
-S_model$modelData$alpha_81-alpha_81
-S_model$modelData$alpha_82-alpha_82
-S_model$modelData$alpha_83-alpha_83
-S_model$modelData$mean_xk-mean_xk
-S_model$modelData$pm-pm
-S_model$modelData$alpha_70-alpha_70
-S_model$modelData$alpha_71-alpha_71
-S_model$modelData$alpha_72-alpha_72
-S_model$modelData$alpha_73-alpha_73
-S_model$modelData$mean_mk-mean_mk
-S_model$modelData$w_row_p-w_row_p
-S_model$modelData$w_row_r-w_row_r
-S_model$modelData$b2_f_r-b2_f_r
-S_model$modelData$b2_g_r-b2_g_r
-S_model$modelData$p_sub-p_sub
-S_model$modelData$p_sub_row-p_sub_row
-S_model$modelData$p_tax-p_tax
-S_model$modelData$p_tax_row-p_tax_row
-S_model$modelData$zz-zz
-S_model$modelData$alpha_120-alpha_120
-
-
-## kan fortsætte 
-```
 
 
 ```{r, echo=FALSE}
@@ -4433,7 +4341,6 @@ l_nf_tr_00 = S_model$simulation$l_nf_tr
 sec_nf_tr_00 = S_model$simulation$sec_nf_tr
 ins_nf_tr_00 = S_model$simulation$ins_nf_tr
 neq_nf_00 = S_model$simulation$neq_nf
-rw_ds_00 = S_model$simulation$rw_ds
 i_nf_00 = S_model$simulation$i_nf
 np_nf_00 = S_model$simulation$np_nf
 s_nf_00 = S_model$simulation$s_nf
@@ -4460,7 +4367,7 @@ xk_ds_00 = S_model$simulation$xk_ds
 g_00 = S_model$simulation$g
 rw_ds_00 = S_model$simulation$rw_ds
 b2_00 = S_model$simulation$b2
-
+test = S_model$simulation$test
 
 
 ### Gengivelse
@@ -4722,7 +4629,7 @@ fnw_row_00 = S_model$simulation$fnw_row; fnw_row_00-fnw_row #medium
 fnw_rowk_00 = S_model$simulation$fnw_rowk; fnw_rowk_00-fnw_rowk 
 unadj_00 = S_model$simulation$unadj; unadj_00-unadj #medium
 unemp_00 = S_model$simulation$unemp; unemp_00-unemp 
-ur_00 = S_model$simulation$ur; ur_00-UR 
+ur_00 = S_model$simulation$ur; ur_00-ur 
 ur_ds_00 = S_model$simulation$ur_ds; ur_ds_00-ur_ds #medium
 uradj_00 = S_model$simulation$uradj; uradj_00-uradj 
 lf_00 = S_model$simulation$lf; lf_00-LF 
@@ -4767,7 +4674,10 @@ mk_00 = S_model$simulation$mk; mk_00-mk
 npropinc_h_00 = S_model$simulation$npropinc_h; npropinc_h_00-npropinc_h
 yd_hk_ds_00 = S_model$simulation$yd_hk_ds; yd_hk_ds_00-yd_hk_ds
 pc_00 = S_model$simulation$pc; pc_00-pc
+prodk_ds_00 = S_model$simulation$prodk_ds; prodk_ds_00-prodk_ds
 ```
+
+
 
 ```{r}
 
@@ -4784,7 +4694,7 @@ plot(s_h_00); lines(s_h, col = "blue"); grid()
 plot(eq_h_00); lines(eq_h, col = "blue"); grid()
 plot(iba_h_00); lines(iba_h, col = "blue"); grid()
 plot(yd1_hk_ds_00); lines(yd1_hk_ds, col = "blue"); grid()
-plot(ur_00, ylim=c(-0.5,1)); lines(UR, col = "blue"); grid()
+plot(ur_00, ylim=c(-0.5,1)); lines(ur, col = "blue"); grid()
 plot(ur_ds_00, ylim= c(-0.5,1)); lines(UR_ds, col = "blue"); grid()
 plot(iba_f_tr_00); lines(iba_f_tr, col = "blue"); grid()
 plot(iba_h_tr_00); lines(iba_h_tr, col = "blue"); grid()
@@ -4868,13 +4778,13 @@ plot(i_bd_nfc_k_00); lines(i_bd_nfc_k, col = "blue"); grid()
 plot(i_bd_h_k_00  ); lines(i_bd_h_k, col = "blue"); grid()
 plot(int_p_h_00); lines(int_p_h, col = "blue"); grid()
 plot(wage_ds_00); lines(wage_ds, col = "blue"); grid()
-plot(ur_00); lines(UR, col = "blue"); grid()
+plot(ur_00); lines(ur, col = "blue"); grid()
 plot(prod_ds_00); lines(prod_ds, col = "blue"); grid()
 
-### Problemer???
+### Problemer?
 
 plot(ur_ds_00); lines(UR_ds, col = "blue"); grid() #Fordi ur_ds er defineret 2 gange, men tror jeg bruger den rigtige, da estimater passer i rw_ds
-plot(yh_h_00); lines(yh_h1, col = "blue"); grid()
+plot(yh_h_00); lines(yh_h, col = "blue"); grid()
 plot(eq_h_tr_00); lines(eq_h_tr, col = "blue"); grid()
 plot(eq_h_row_00); lines(eq_h_row, col = "blue"); grid()
 plot(eq_h_nf_tr_00); lines(eq_h_nf_tr, col = "blue"); grid() ## Tror det er noget med eq_h_row_rvx
@@ -4913,14 +4823,23 @@ increase in public expenditure from 2010
 
 ```{r}
 shock_g=g %>% window(start= c(2010,1))
+shock_prodk_ds=prodk_ds%>% window(start= c(2010,1))
+shock_ur_ds=ur_ds%>% window(start= c(2010,1))
+shock_ur=ur%>% window(start= c(2010,1))
+shock_yd1_hk_ds=yd1_hk_ds%>% window(start= c(2010,1))
+
+shock_unemp=unemp%>% window(start= c(2010,1))
 ```
+
+
 
 
 ```{r}
 # Define add-factor list (defining shock)
 constantAdjList <- list(
   
-  g = TIMESERIES(shock_g*0.02 ,START=c(2010,1),  FREQ='Q')
+ g = TIMESERIES(shock_g*0.02 ,START=c(2010,1),  FREQ='Q')
+
 )
 
 ```
@@ -4929,14 +4848,17 @@ constantAdjList <- list(
 ```{r}
 # Simulate the model (following shock)
 Shock_g <- SIMULATE(S_model
-                    ,simType='STATIC'
+                    ,simType='DYNAMIC'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
                     ,ConstantAdjustment=constantAdjList
                     )
 
+
+
 ```
+
 
 
 ```{r}
@@ -4945,7 +4867,7 @@ lf_01 = Shock_g$simulation$lf
 pconk_ds_01 = Shock_g$simulation$pconk_ds
 yk_ds_01 = Shock_g$simulation$yk_ds 
 nben_h_rest_01 = Shock_g$simulation$nben_h_rest
-nben_h_un_01 = Shock_g$simulation$nben_h_un
+nben_h_01 = Shock_g$simulation$nben_h
 komp_r_01 = Shock_g$simulation$komp_r
 emp_01 = Shock_g$simulation$emp
 nben_h_01 = Shock_g$simulation$nben_h
@@ -4964,7 +4886,9 @@ rw_ds_01 = Shock_g$simulation$rw_ds
 xk_ds_01 = Shock_g$simulation$xk_ds
 g_01 = Shock_g$simulation$g
 y_01 = Shock_g$simulation$y
-
+urterm_01 = Shock_g$simulation$urterm
+unemp_01 = Shock_g$simulation$unemp
+prodk_ds_01 = Shock_g$simulation$prodk_ds
 
 
 ###Gengivelse af stød til model
@@ -4975,9 +4899,14 @@ wage_ds_01 = Shock_g$simulation$wage_ds
 ur_ds_01 = Shock_g$simulation$ur_ds
 pc_ds_01 = Shock_g$simulation$pc_ds
 yd_hk_ds_01 = Shock_g$simulation$yd_hk_ds
-
+gk_01 = Shock_g$simulation$gk
+yh_01 = Shock_g$simulation$yh
+yh_01 = Shock_g$simulation$yh
 
 ```
+
+
+
 
 ```{r}
 
@@ -4997,7 +4926,10 @@ plot(eq_h_01, col= "red"); lines(eq_h_00, col = "blue"); grid()
 plot(rw_ds_01, col= "red"); lines(rw_ds_00, col = "blue"); grid()
 plot(emp_01, col= "red"); lines(emp_00, col = "blue"); grid()
 plot(y_01, col= "red"); lines(y_00, col = "blue"); grid()
-
+plot(yd1_hk_ds_01, col= "red"); lines(yd1_hk_ds_00, col = "blue"); grid()
+plot(urterm_01, col= "red"); lines(urterm_00, col = "blue"); grid()
+plot(unemp_01, col= "red"); lines(unemp_00, col = "blue"); grid()
+plot(prodk_ds_01, col= "red"); lines(prodk_ds_00, col = "blue"); grid()
 
 ### Gengivelse af stød til model 
 
@@ -5042,6 +4974,7 @@ legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col
 grid()
 
 # også mindre effekt her 
+
 
 ```
 
