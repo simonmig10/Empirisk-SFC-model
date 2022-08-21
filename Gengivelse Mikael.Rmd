@@ -2692,10 +2692,6 @@ eq_h_ratio= (eq_h-eq_h_rvx)/(TSLAG(eq_h,1) +TSLAG(sec_h,1)+ TSLAG(iba_h,1))
 ratio_in_eq_h= (div_r_h+eq_h_rvx)/TSLAG(eq_h)
 ```
 
-```{r}
-ur_ds_shock= ur_ds
-yd1_hk_ds_shock= yd1_hk_ds
-```
 
 
 ```{r}
@@ -3328,28 +3324,10 @@ S_modelData=list(
                     START=c(2005,2),FREQ=4),
   acc_rate = TIMESERIES(c(acc_rate),   
                         START=c(2005,2),FREQ=4),
-  
-  # nben_h_rest = TIMESERIES(c(nben_h_rest),   
-   #                    START=c(2005,2),FREQ=4),
-  #nben_h_un = TIMESERIES(c(nben_h_un),   
-  #                      START=c(2005,2),FREQ=4),
-  #komp_r = TIMESERIES(c(komp_r),   
-   #                     START=c(2005,2),FREQ=4),
   shock = TIMESERIES(c(shock),   
                         START=c(2005,2),FREQ=4),
   g_shock = TIMESERIES(c(g_shock),   
                         START=c(2005,2),FREQ=4),
-  
-  #wage_trim = TIMESERIES(c(wage_trim),   
-                        #START=c(2005,2),FREQ=4),
-   #dp_person = TIMESERIES(c(dp_person),   
-                        #START=c(2005,2),FREQ=4),
-  #abm = TIMESERIES(c(abm),   
-                        #START=c(2005,2),FREQ=4),
-  #w_h_r_trim = TIMESERIES(c(w_h_r_trim),   
-                        #START=c(2005,2),FREQ=4),
-  
-  
   ## Dummies
   
   d_2006q1 = TIMESERIES(c(d_2006q1),   
@@ -4267,7 +4245,6 @@ S_modelData=list(
 
 ```{r}
 S_model=LOAD_MODEL_DATA(S_model,S_modelData)
-
 ```
 
 
@@ -4295,371 +4272,18 @@ S_model <- SIMULATE(S_model
 ### compare with real data
 
 
-
-
 ```{r, echo=FALSE}
-part_00 = S_model$simulation$part
-lf_00 = S_model$simulation$lf
-pconk_ds_00 = S_model$simulation$pconk_ds
-yd_h1_00 = S_model$simulation$yd_h1 
-nben_h_rest_00 = S_model$simulation$nben_h_rest
-nben_h_un_00 = S_model$simulation$nben_h_un
-komp_r_00 = S_model$simulation$komp_r
-nben_h_00 = S_model$simulation$nben_h
-wageindex_00 = S_model$simulation$wageindex
-yh1_00 = S_model$simulation$yh1
-yd1_h_00 = S_model$simulation$yd1_h
-yd_hk_00 = S_model$simulation$yd_hk
-yd_h_00 = S_model$simulation$yd_h
-l_h_tr_00 = S_model$simulation$l_h_tr
-s_h_00 = S_model$simulation$s_h
-eq_h_00 = S_model$simulation$eq_h
-iba_h_00 = S_model$simulation$iba_h
-yd1_hk_ds_00 = S_model$simulation$yd1_hk_ds
-ur_00 = S_model$simulation$ur
-ur_ds_00 = S_model$simulation$ur_ds
-iba_f_tr_00 = S_model$simulation$iba_f_tr
-iba_h_tr_00 = S_model$simulation$iba_h_tr
-iba_nf_tr_00 = S_model$simulation$iba_nf_tr
-nl_nf_00 = S_model$simulation$nl_nf
-neq_nf_tr_00 = S_model$simulation$neq_nf_tr
-l_nf_tr_00 = S_model$simulation$l_nf_tr
-sec_nf_tr_00 = S_model$simulation$sec_nf_tr
-ins_nf_tr_00 = S_model$simulation$ins_nf_tr
-neq_nf_00 = S_model$simulation$neq_nf
-i_nf_00 = S_model$simulation$i_nf
-np_nf_00 = S_model$simulation$np_nf
-s_nf_00 = S_model$simulation$s_nf
-yh_nf_00 = S_model$simulation$yh_nf
-y_00 = S_model$simulation$y
-b2_nf_r_00 = S_model$simulation$b2_nf_r
-p_tax_00 = S_model$simulation$p_tax
-b2_00 = S_model$simulation$b2
-w_nf_00 = S_model$simulation$w_nf
-npropinc_nf_00 = S_model$simulation$npropinc_nf
-int_nf_00 = S_model$simulation$int_nf
-div_nf_00 = S_model$simulation$div_nf
-eq_nf_a_f_00 = S_model$simulation$eq_nf_a_f
-eq_nf_l_nf_00 = S_model$simulation$eq_nf_l_nf
-eq_nf_a_nf_00 = S_model$simulation$eq_nf_a_nf
-eq_h_nf_00 = S_model$simulation$eq_h_nf
-eq_row_a_nf_00 = S_model$simulation$eq_row_a_nf
-eq_f_a_nf_00 = S_model$simulation$eq_f_a_nf
-eq_g_nf_00 = S_model$simulation$eq_g_nf
-eq_nf_a_row_00 = S_model$simulation$eq_nf_a_row
-neq_nf_00 = S_model$simulation$neq_nf
-check_div_00 = S_model$simulation$check_div
-xk_ds_00 = S_model$simulation$xk_ds
-g_00 = S_model$simulation$g
-rw_ds_00 = S_model$simulation$rw_ds
-b2_00 = S_model$simulation$b2
-test = S_model$simulation$test
-
-
 ### Gengivelse
 yk_ds_00 = S_model$simulation$yk_ds
 emp_00 = S_model$simulation$emp
 wage_ds_00 = S_model$simulation$wage_ds
-unemp_00 = S_model$simulation$unemp
 ik_00 = S_model$simulation$ik
 pc_ds_00 = S_model$simulation$pc_ds
-yd_hk_ds_00 = S_model$simulation$yd_hk_ds ## kunne godt se ud som om noget er galt med den her.
-
-
-### Test
-
-yd1_hk_ds_00 = S_model$simulation$yd1_hk_ds
-yd2a_hk_ds_00 = S_model$simulation$yd2a_hk_ds
-yd2b_hk_00 = S_model$simulation$yd2b_hk
-yd1_hk_00 = S_model$simulation$yd1_hk
-yd2a_hk_00 = S_model$simulation$yd2a_hk
-yd1_h_00 = S_model$simulation$yd1_h
-yh1_00 = S_model$simulation$yh1
-sec_g_tr_00 = S_model$simulation$sec_g_tr
-sec_f_d_tr_g_00 = S_model$simulation$sec_f_d_tr_g
-sec_h_tr_g_00 = S_model$simulation$sec_h_tr_g
-l_h_00 = S_model$simulation$l_h
-yd2b_h_00 = S_model$simulation$yd2b_h
-yh2b_00 = S_model$simulation$yh2b
-propinc_p_h_00 = S_model$simulation$propinc_p_h
-int_p_h_00 = S_model$simulation$int_p_h
-iloan_00 = S_model$simulation$iloan
-int_p_h_adj_00 = S_model$simulation$int_p_h_adj
-
-
-options(scipen = 999)
-
-## RESCHECK
-yk_00 = S_model$simulation$yk
-prodk_00 = S_model$simulation$prodk
-pcon_00 = S_model$simulation$pcon
-i_00 = S_model$simulation$i
-x_00 = S_model$simulation$x
-m_00 = S_model$simulation$m
-i_h_00 = S_model$simulation$i_h
-w_nf_00 = S_model$simulation$w_nf
-s_nf_00 = S_model$simulation$s_nf
-pconk_00 = S_model$simulation$pconk
-ik_00 = S_model$simulation$ik
-gk_00 = S_model$simulation$gk
-xk_00 = S_model$simulation$xk
-mk_00 = S_model$simulation$mk
-g_00 = S_model$simulation$g
-ur_00 = S_model$simulation$ur
+yd_hk_ds_00 = S_model$simulation$yd_hk_ds 
+pconk_ds_00 = S_model$simulation$pconk_ds 
 ur_ds_00 = S_model$simulation$ur_ds
-prod_ds_00 = S_model$simulation$prod_ds
-int_r_h_00 = S_model$simulation$int_r_h; int_r_h_00-int_r_h
-int_p_h_00 = S_model$simulation$int_p_h; int_p_h_00-int_p_h
-div_h_00 = S_model$simulation$div_h; div_h_00-div_h
-aa_check_00 = S_model$simulation$aa_check; aa_check_00-aa_check
-insu_h_00 = S_model$simulation$insu_h; insu_h_00-insu_h
-propinc_r_h_00 = S_model$simulation$propinc_r_h; propinc_r_h_00-propinc_r_h #lidt
-propinc_p_h_00 = S_model$simulation$propinc_p_h; propinc_p_h_00-propinc_p_h #lidt
-yh_h_00 = S_model$simulation$yh_h; yh_h_00-yh_h# lidt
-yh2a_00 = S_model$simulation$yh2a; yh2a_00-yh2a
-yh1_00 = S_model$simulation$yh1; yh1_00-yh1
-w_h_r_00 = S_model$simulation$w_h_r; w_h_r_00-w_h_r#lidt
-yd2a_h_00 = S_model$simulation$yd2a_h; yd2a_h_00-yd2a_h
-yd2b_h_00 = S_model$simulation$yd2b_h; yd2b_h_00-yd2b_h 
-yd1_h_00 = S_model$simulation$yd1_h; yd1_h_00-yd1_h
-tax_h_00 = S_model$simulation$tax_h; tax_h_00-tax_h
-yd1_hk_00 = S_model$simulation$yd1_hk; yd1_hk_00-yd1_hk
-yd2a_hk_00 = S_model$simulation$yd2a_hk; yd2a_hk_00-yd2a_hk
-yd2b_hk_00 = S_model$simulation$yd2b_hk; yd2b_hk_00-yd2b_hk
-yd_h_00 = S_model$simulation$yd_h; yd_h_00-yd_h#lidt
-nsben_h_00 = S_model$simulation$nsben_h; nsben_h_00-nsben_h #lidt
-yd_h1_00 = S_model$simulation$yd_h1; yd_h1_00-yd_h1
-nl_h_00 = S_model$simulation$nl_h; nl_h_00-nl_h
-pconk_ds_00 = S_model$simulation$pconk_ds; pconk_ds_00-pconk_ds#lidt
-pconk_00 = S_model$simulation$pconk; pconk_00-pconk #lidt
-pcon_00 = S_model$simulation$pcon; pcon_00-pcon#lidt
-i_bd_h_k_00 = S_model$simulation$i_bd_h_k; i_bd_h_k_00-i_bd_h_k#lidt
-i_equip_h_k_00 = S_model$simulation$i_equip_h_k; i_equip_h_k_00-i_equip_h_k#lidt
-iba_h_00 = S_model$simulation$iba_h; iba_h_00-iba_h
-sec_h_00 = S_model$simulation$sec_h; sec_h_00-sec_h
-sec_h_tr_g_00 = S_model$simulation$sec_h_tr_g; sec_h_tr_g_00-sec_h_tr_g
-l_h_00 = S_model$simulation$l_h; l_h_00-l_h
-eq_h_tr_00 = S_model$simulation$eq_h_tr; eq_h_tr_00-eq_h_tr #meget
-iba_h_tr_00 = S_model$simulation$iba_h_tr; iba_h_tr_00-iba_h_tr
-eq_h_nf_00 = S_model$simulation$eq_h_nf; eq_h_nf_00-eq_h_nf
-eq_h_f_00 = S_model$simulation$eq_h_f; eq_h_f_00-eq_h_f
-eq_h_row_00 = S_model$simulation$eq_h_row; eq_h_row_00-eq_h_row # meget
-eq_h_nf_tr_00 = S_model$simulation$eq_h_nf_tr; eq_h_nf_tr_00-eq_h_nf_tr # meget
-eq_h_f_tr_00 = S_model$simulation$eq_h_f_tr; eq_h_f_tr_00-eq_h_f_tr # meget
-eq_h_row_tr_00 = S_model$simulation$eq_h_row_tr; eq_h_row_tr_00-eq_h_row_tr # meget
-eq_h_test_00 = S_model$simulation$eq_h_test; eq_h_test_00-eq_h_test
-ins_h_00 = S_model$simulation$ins_h; ins_h_00-ins_h
-ins_h_tr_00 = S_model$simulation$ins_h_tr; ins_h_tr_00-ins_h_tr
-lev_h_00 = S_model$simulation$lev_h; lev_h_00-lev_h
-fa_h_00 = S_model$simulation$fa_h; fa_h_00-fa_h
-fnw_h_00 = S_model$simulation$fnw_h; fnw_h_00-fnw_h #MEGET
-fnw_hk_00 = S_model$simulation$fnw_hk; fnw_hk_00-fnw_hk
-i_bd_h_00 = S_model$simulation$i_bd_h; i_bd_h_00-i_bd_h
-i_equip_h_00 = S_model$simulation$i_equip_h; i_equip_h_00-i_equip_h
-bd_h_k_00 = S_model$simulation$bd_h_k; bd_h_k_00-bd_h_k
-equip_h_k_00 = S_model$simulation$equip_h_k; equip_h_k_00-equip_h_k
-bd_h_00 = S_model$simulation$bd_h; bd_h_00-bd_h # lidt
-equip_h_00 = S_model$simulation$equip_h; equip_h_00-equip_h
-rer_00 = S_model$simulation$rer; rer_00-rer 
-py_00 = S_model$simulation$py; py_00-py # lidt
-s_00 = S_model$simulation$s; s_00-s
-w_nf_00 = S_model$simulation$w_nf; w_nf_00-w_nf
-yf_00 = S_model$simulation$yf; yf_00-yf # lidt
-ws_00 = S_model$simulation$ws; ws_00-ws
-ps_00 = S_model$simulation$ps; ps_00-ps 
-u_00 = S_model$simulation$u; u_00-u
-prate_00 = S_model$simulation$prate; prate_00-prate 
-prate_ds_00 = S_model$simulation$prate_ds; prate_ds_00-prate_ds 
-ps_ds_00 = S_model$simulation$ps_ds; ps_ds_00-ps_ds
-tobinq_00 = S_model$simulation$tobinq; tobinq_00-tobinq
-i_bd_nfc_k_00 = S_model$simulation$i_bd_nfc_k; i_bd_nfc_k_00-i_bd_nfc_k # lidt
-i_equip_nfc_k_00 = S_model$simulation$i_equip_nfc_k; i_equip_nfc_k_00-i_equip_nfc_k # lidt
-i_h_00 = S_model$simulation$i_h; i_h_00-i_h 
-i_nf_00 = S_model$simulation$i_nf; i_nf_00-i_nf
-i_f_00 = S_model$simulation$i_f; i_f_00-i_f 
-i_g_00 = S_model$simulation$i_g; i_g_00-i_g 
-int_nf_00 = S_model$simulation$int_nf; int_nf_00-int_nf
-div_nf_00 = S_model$simulation$div_nf; div_nf_00-div_nf
-insu_nf_00 = S_model$simulation$insu_nf; insu_nf_00-insu_nf
-npropinc_nf_00 = S_model$simulation$npropinc_nf; npropinc_nf_00-npropinc_nf # lidt
-yh_nf_00 = S_model$simulation$yh_nf; yh_nf_00-yh_nf #lidt
-tax_nf_00 = S_model$simulation$tax_nf; tax_nf_00-tax_nf
-nl_nf_00 = S_model$simulation$nl_nf; nl_nf_00-nl_nf 
-iba_nf_00 = S_model$simulation$iba_nf; iba_nf_00-iba_nf 
-iba_nf_tr_00 = S_model$simulation$iba_nf_tr; iba_nf_tr_00-iba_nf_tr
-sec_nf_00 = S_model$simulation$sec_nf; sec_nf_00-sec_nf
-l_nf_00 = S_model$simulation$l_nf; l_nf_00-l_nf
-eq_nf_a_00 = S_model$simulation$eq_nf_a; eq_nf_a_00-eq_nf_a # lidt
-eq_nf_a_nf_00 = S_model$simulation$eq_nf_a_nf; eq_nf_a_nf_00-eq_nf_a_nf 
-eq_nf_l_nf_00 = S_model$simulation$eq_nf_l_nf; eq_nf_l_nf_00-eq_nf_l_nf # meget
-eq_nf_ax_00 = S_model$simulation$eq_nf_ax; eq_nf_ax_00-eq_nf_ax 
-eq_nf_a_f_00 = S_model$simulation$eq_nf_a_f; eq_nf_a_f_00-eq_nf_a_f 
-eq_nf_a_row_00 = S_model$simulation$eq_nf_a_row; eq_nf_a_row_00-eq_nf_a_row
-eq_nf_l_00 = S_model$simulation$eq_nf_l; eq_nf_l_00-eq_nf_l # meget
-eq_nf_lx_00 = S_model$simulation$eq_nf_lx; eq_nf_lx_00-eq_nf_lx
-neq_nf_00 = S_model$simulation$neq_nf; neq_nf_00-Neq_nf # lidt
-neq_nf_tr_00 = S_model$simulation$neq_nf_tr; neq_nf_tr_00-Neq_nf_tr 
-eq_nf_a_test_00 = S_model$simulation$eq_nf_a_test; eq_nf_a_test_00-eq_nf_a_test
-eq_nf_l_test_00 = S_model$simulation$eq_nf_l_test; eq_nf_l_test_00-eq_nf_l_test 
-ins_nf_00 = S_model$simulation$ins_nf; ins_nf_00-ins_nf 
-fnw_nf_00 = S_model$simulation$fnw_nf; fnw_nf_00-fnw_nf #meget
-fnw_nfk_00 = S_model$simulation$fnw_nfk; fnw_nfk_00-fnw_nfk 
-i_bd_nfc_00 = S_model$simulation$i_bd_nfc; i_bd_nfc_00-i_bd_nfc
-i_equip_nfc_00 = S_model$simulation$i_equip_nfc; i_equip_nfc_00-i_equip_nfc 
-bd_nfc_k_00 = S_model$simulation$bd_nfc_k; bd_nfc_k_00-bd_nfc_k 
-equip_nfc_k_00 = S_model$simulation$equip_nfc_k; equip_nfc_k_00-equip_nfc_k 
-bd_nfc_00 = S_model$simulation$bd_nfc; bd_nfc_00-bd_nfc #lidt
-equip_nfc_00 = S_model$simulation$equip_nfc; equip_nfc_00-equip_nfc 
-int_f_00 = S_model$simulation$int_f; int_f_00-int_f
-div_f_00 = S_model$simulation$div_f; div_f_00-div_f # meget
-insu_f_00 = S_model$simulation$insu_f; insu_f_00-insu_f
-propinc_r_f_00 = S_model$simulation$propinc_r_f; propinc_r_f_00-propinc_r_f # lidt
-propinc_p_f_00 = S_model$simulation$propinc_p_f; propinc_p_f_00-propinc_p_f #lidt
-npropinc_f_00 = S_model$simulation$npropinc_f; npropinc_f_00-npropinc_f # meget
-yh_f_00 = S_model$simulation$yh_f; yh_f_00-yh_f # meget
-yd_f_00 = S_model$simulation$yd_f; yd_f_00-yd_f #meget
-d8_f_00 = S_model$simulation$d8_f; d8_f_00-d8_f
-nben_f_00 = S_model$simulation$nben_f; nben_f_00-nben_f 
-s_f_00 = S_model$simulation$s_f; s_f_00-s_f
-nl_f_00 = S_model$simulation$nl_f; nl_f_00-nl_f 
-iba_f_00 = S_model$simulation$iba_f; iba_f_00-iba_f 
-eq_f_a_00 = S_model$simulation$eq_f_a; eq_f_a_00-eq_f_a 
-eq_f_a_nf_00 = S_model$simulation$eq_f_a_nf; eq_f_a_nf_00-eq_f_a_nf 
-eq_f_a_f_00 = S_model$simulation$eq_f_a_f; eq_f_a_f_00-eq_f_a_f 
-eq_f_l_f_00 = S_model$simulation$eq_f_l_f; eq_f_l_f_00-eq_f_l_f # meget
-eq_f_a_row_00 = S_model$simulation$eq_f_a_row; eq_f_a_row_00-eq_f_a_row 
-eq_f_ax_00 = S_model$simulation$eq_f_ax; eq_f_ax_00-eq_f_ax
-eq_f_l_00 = S_model$simulation$eq_f_l; eq_f_l_00-eq_f_l #meget
-eq_f_lx_00 = S_model$simulation$eq_f_lx; eq_f_lx_00-eq_f_lx 
-neq_f_00 = S_model$simulation$neq_f; neq_f_00-Neq_f 
-neq_f_tr_00 = S_model$simulation$neq_f_tr; neq_f_tr_00-Neq_f_tr 
-eq_f_l_test_00 = S_model$simulation$eq_f_l_test; eq_f_l_test_00-eq_f_l_test 
-sec_f_d_00 = S_model$simulation$sec_f_d; sec_f_d_00-sec_f_d 
-sec_f_d_tr_00 = S_model$simulation$sec_f_d_tr; sec_f_d_tr_00-sec_f_d_tr 
-sec_f_d_tr_nf_00 = S_model$simulation$sec_f_d_tr_nf; sec_f_d_tr_nf_00-sec_f_d_tr_nf
-sec_f_d_tr_g_00 = S_model$simulation$sec_f_d_tr_g; sec_f_d_tr_g_00-sec_f_d_tr_g 
-sec_f_a_00 = S_model$simulation$sec_f_a; sec_f_a_00-sec_f_a 
-sec_f_a_tr_00 = S_model$simulation$sec_f_a_tr; sec_f_a_tr_00-sec_f_a_tr 
-l_f_00 = S_model$simulation$l_f; l_f_00-l_f 
-l_f_tr_00 = S_model$simulation$l_f_tr; l_f_tr_00-l_f_tr 
-ins_f_00 = S_model$simulation$ins_f; ins_f_00-ins_f 
-ins_f_tr_00 = S_model$simulation$ins_f_tr; ins_f_tr_00-ins_f_tr 
-fnw_f_00 = S_model$simulation$fnw_f; fnw_f_00-fnw_f # meget
-fnw_fk_00 = S_model$simulation$fnw_fk; fnw_fk_00-fnw_fk 
-i_bd_fc_00 = S_model$simulation$i_bd_fc; i_bd_fc_00-i_bd_fc 
-i_equip_fc_00 = S_model$simulation$i_equip_fc; i_equip_fc_00-i_equip_fc 
-bd_fc_k_00 = S_model$simulation$bd_fc_k; bd_fc_k_00-bd_fc_k 
-equip_fc_k_00 = S_model$simulation$equip_fc_k; equip_fc_k_00-equip_fc_k 
-bd_fc_00 = S_model$simulation$bd_fc; bd_fc_00-bd_fc #lidt
-equip_fc_00 = S_model$simulation$equip_fc; equip_fc_00-equip_fc #lidt
-int_g_00 = S_model$simulation$int_g; int_g_00-int_g 
-div_g_00 = S_model$simulation$div_g; div_g_00-div_g 
-insu_g_00 = S_model$simulation$insu_g; insu_g_00-insu_g 
-propinc_r_g_00 = S_model$simulation$propinc_r_g; propinc_r_g_00-propinc_r_g 
-propinc_p_g_00 = S_model$simulation$propinc_p_g; propinc_p_g_00-propinc_p_g 
-npropinc_g_00 = S_model$simulation$npropinc_g; npropinc_g_00-npropinc_g 
-yh_g_00 = S_model$simulation$yh_g; yh_g_00-yh_g 
-yd_g_00 = S_model$simulation$yd_g; yd_g_00-yd_g #medium 
-nben_g_00 = S_model$simulation$nben_g; nben_g_00-nben_g 
-tax_g_00 = S_model$simulation$tax_g; tax_g_00-tax_g 
-s_g_00 = S_model$simulation$s_g; s_g_00-s_g 
-nl_g_00 = S_model$simulation$nl_g; nl_g_00-nl_g 
-iba_g_00 = S_model$simulation$iba_g; iba_g_00-iba_g 
-eq_g_00 = S_model$simulation$eq_g; eq_g_00-eq_g 
-eq_g_nf_00 = S_model$simulation$eq_g_nf; eq_g_nf_00-eq_g_nf
-eq_g_f_00 = S_model$simulation$eq_g_f; eq_g_f_00-eq_g_f 
-eq_g_row_00 = S_model$simulation$eq_g_row; eq_g_row_00-eq_g_row 
-eq_g_ax_00 = S_model$simulation$eq_g_ax; eq_g_ax_00-eq_g_ax 
-eq_g_test_00 = S_model$simulation$eq_g_test; eq_g_test_00-eq_g_test 
-sec_g_00 = S_model$simulation$sec_g; sec_g_00-sec_g 
-sec_g_tr_00 = S_model$simulation$sec_g_tr; sec_g_tr_00-sec_g_tr 
-l_g_00 = S_model$simulation$l_g; l_g_00-l_g 
-ins_g_00 = S_model$simulation$ins_g; ins_g_00-ins_g 
-fnw_g_00 = S_model$simulation$fnw_g; fnw_g_00-fnw_g #medium 
-fnw_gk_00 = S_model$simulation$fnw_gk; fnw_gk_00-fnw_gk 
-i_bd_g_00 = S_model$simulation$i_bd_g; i_bd_g_00-i_bd_g 
-i_equip_g_00 = S_model$simulation$i_equip_g; i_equip_g_00-i_equip_g 
-bd_g_k_00 = S_model$simulation$bd_g_k; bd_g_k_00-bd_g_k 
-equip_g_k_00 = S_model$simulation$equip_g_k; equip_g_k_00-equip_g_k 
-bd_g_00 = S_model$simulation$bd_g; bd_g_00-bd_g 
-equip_g_00 = S_model$simulation$equip_g; equip_g_00-equip_g 
-int_row_00 = S_model$simulation$int_row; int_row_00-int_row 
-div_row_00 = S_model$simulation$div_row; div_row_00-div_row 
-insu_row_00 = S_model$simulation$insu_row; insu_row_00-insu_row 
-propinc_r_row_00 = S_model$simulation$propinc_r_row; propinc_r_row_00-propinc_r_row 
-propinc_p_row_00 = S_model$simulation$propinc_p_row; propinc_p_row_00-propinc_p_row 
-npropinc_row_00 = S_model$simulation$npropinc_row; npropinc_row_00-npropinc_row # medium
-s_row_00 = S_model$simulation$s_row; s_row_00-s_row #meget
-nl_row_00 = S_model$simulation$nl_row; nl_row_00-nl_row #meget
-nben_row_00 = S_model$simulation$nben_row; nben_row_00-nben_row 
-nx_00 = S_model$simulation$nx; nx_00-nx 
-cab_00 = S_model$simulation$cab; cab_00-cab 
-bop_00 = S_model$simulation$bop; bop_00-bop 
-fab_00 = S_model$simulation$fab; fab_00-fab 
-iba_row_00 = S_model$simulation$iba_row; iba_row_00-iba_row 
-iba_row_tr_00 = S_model$simulation$iba_row_tr; iba_row_tr_00-iba_row_tr 
-sec_row_00 = S_model$simulation$sec_row; sec_row_00-sec_row 
-l_row_00 = S_model$simulation$l_row; l_row_00-l_row 
-eq_row_a_00 = S_model$simulation$eq_row_a; eq_row_a_00-eq_row_a 
-eq_row_a_nf_00 = S_model$simulation$eq_row_a_nf; eq_row_a_nf_00-eq_row_a_nf 
-eq_row_a_f_00 = S_model$simulation$eq_row_a_f; eq_row_a_f_00-eq_row_a_f 
-eq_row_ax_00 = S_model$simulation$eq_row_ax; eq_row_ax_00-eq_row_ax 
-eq_row_a_test_00 = S_model$simulation$eq_row_a_test; eq_row_a_test_00-eq_row_a_test 
-eq_row_l_00 = S_model$simulation$eq_row_l; eq_row_l_00-eq_row_l #meget
-eq_row_lx_00 = S_model$simulation$eq_row_lx; eq_row_lx_00-eq_row_lx 
-eq_row_l_test_00 = S_model$simulation$eq_row_l_test; eq_row_l_test_00-eq_row_l_test 
-neq_row_00 = S_model$simulation$neq_row; neq_row_00-Neq_row #meget
-neq_row_tr_00 = S_model$simulation$neq_row_tr; neq_row_tr_00-Neq_row_tr 
-ins_row_00 = S_model$simulation$ins_row; ins_row_00-ins_row 
-fnw_row_00 = S_model$simulation$fnw_row; fnw_row_00-fnw_row #medium
-fnw_rowk_00 = S_model$simulation$fnw_rowk; fnw_rowk_00-fnw_rowk 
-unadj_00 = S_model$simulation$unadj; unadj_00-unadj #medium
-unemp_00 = S_model$simulation$unemp; unemp_00-unemp 
-ur_00 = S_model$simulation$ur; ur_00-ur 
-ur_ds_00 = S_model$simulation$ur_ds; ur_ds_00-ur_ds #medium
-uradj_00 = S_model$simulation$uradj; uradj_00-uradj 
-lf_00 = S_model$simulation$lf; lf_00-LF 
-pc_00 = S_model$simulation$pc; pc_00-pc 
-mkp_00 = S_model$simulation$mkp; mkp_00-mkp 
-emp_00 = S_model$simulation$emp; emp_00-emp #lidt
-urterm_00 = S_model$simulation$urterm; urterm_00-urterm 
-wage_00 = S_model$simulation$wage; wage_00-wage 
-wageindex_00 = S_model$simulation$wageindex; wageindex_00-wageindex 
-wage_ds_00 = S_model$simulation$wage_ds; wage_ds_00-wage_ds 
-prod_00 = S_model$simulation$prod; prod_00-prod 
-prod_ds_00 = S_model$simulation$prod_ds; prod_ds_00-prod_ds 
-acc_rate_00 = S_model$simulation$acc_rate; acc_rate_00-acc_rate 
-nl_check_00 = S_model$simulation$nl_check; nl_check_00-nl_check 
-fnl_check_00 = S_model$simulation$fnl_check; fnl_check_00-fnl_check 
-check_np_00 = S_model$simulation$check_np; check_np_00-check_np 
-check_ctr_00 = S_model$simulation$check_ctr; check_ctr_00-check_ctr 
-check_invest_00 = S_model$simulation$check_invest; check_invest_00-check_invest 
-check_iba_00 = S_model$simulation$check_iba; check_iba_00-check_iba 
-check_tax_00 = S_model$simulation$check_tax_00; pc_00-check_tax #lidt
-check_iba_rv_00 = S_model$simulation$check_iba_rv; check_iba_rv_00-check_iba_rv 
-check_iba_tr_00 = S_model$simulation$check_iba_tr; check_iba_tr_00-check_iba_tr #meget
-check_eq_00 = S_model$simulation$check_eq; check_eq_00-check_eq 
-check_eq_tr_00 = S_model$simulation$check_eq_tr; check_eq_tr_00-check_eq_tr 
-check_div_00 = S_model$simulation$check_div; check_div_00-check_div #meget
-check_l_00 = S_model$simulation$check_l; check_l_00-check_l 
-check_l_tr_00 = S_model$simulation$check_l_tr; check_l_tr_00-check_l_tr
-check_ins_00 = S_model$simulation$check_ins; check_ins_00-check_ins 
-check_ins_tr_00 = S_model$simulation$check_ins_tr; check_ins_tr_00-check_ins_tr #meget
-check_sec_00 = S_model$simulation$check_sec; check_sec_00-check_sec 
-g_00 = S_model$simulation$g; g_00-g
-y_00 = S_model$simulation$y; y_00-y
-i_00 = S_model$simulation$i; i_00-i
-x_00 = S_model$simulation$x; x_00-x
-m_00 = S_model$simulation$m; m_00-m
-gk_00 = S_model$simulation$gk; gk_00-gk
-yk_00 = S_model$simulation$yk; yk_00-yk
-ik_00 = S_model$simulation$ik; ik_00-ik
-xk_00 = S_model$simulation$xk; xk_00-xk
-mk_00 = S_model$simulation$mk; mk_00-mk
 
-npropinc_h_00 = S_model$simulation$npropinc_h; npropinc_h_00-npropinc_h
-yd_hk_ds_00 = S_model$simulation$yd_hk_ds; yd_hk_ds_00-yd_hk_ds
-pc_00 = S_model$simulation$pc; pc_00-pc
+
 ```
 
 
@@ -4671,27 +4295,27 @@ plot(yk_ds_00, ylim= c(430000, 540000), col= "green"); lines(yk_ds, col = "blue"
 legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid() 
 
-## Ser okay ud 
+
 
 
 plot(emp_00, col= "green"); lines(emp, col = "blue"); 
 legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid()
 
-## Passer ik helt 
+
 
 
 plot(pconk_ds_00,ylim= c(210000, 250000), col= "green"); lines(pconk_ds, col = "blue"); 
 legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid()
 
-## Ser okay ud 
+ 
 
 plot(ik_00, col= "green"); lines(ik, col = "blue"); 
 legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid()
 
-# Ser næsten ud til at være 1 til 1
+
 
 
 ```
@@ -4734,43 +4358,11 @@ Shock_g <- SIMULATE(S_model
                     ,simIterLimit=100
                     ,ConstantAdjustment=constantAdjList
                     )
-
-
-
 ```
 
 
 
 ```{r}
-part_01 = Shock_g$simulation$part
-lf_01 = Shock_g$simulation$lf
-pconk_ds_01 = Shock_g$simulation$pconk_ds
-yk_ds_01 = Shock_g$simulation$yk_ds 
-nben_h_rest_01 = Shock_g$simulation$nben_h_rest
-nben_h_01 = Shock_g$simulation$nben_h
-komp_r_01 = Shock_g$simulation$komp_r
-emp_01 = Shock_g$simulation$emp
-nben_h_01 = Shock_g$simulation$nben_h
-yd_h1_01 = Shock_g$simulation$yd_h1
-yh1_01 = Shock_g$simulation$yh1
-yd1_h_01 = Shock_g$simulation$yd1_h
-yd_hk_01 =  Shock_g$simulation$yd_hk
-yd_h_01 =  Shock_g$simulation$yd_h
-l_h_tr_01 = Shock_g$simulation$l_h_tr
-s_h_01 = Shock_g$simulation$s_h
-eq_h_01 = Shock_g$simulation$eq_h
-iba_h_01 = Shock_g$simulation$iba_h
-iba_f_tr_01 = Shock_g$simulation$iba_f_tr
-yd1_hk_ds_01 = Shock_g$simulation$yd1_hk_ds
-rw_ds_01 = Shock_g$simulation$rw_ds
-xk_ds_01 = Shock_g$simulation$xk_ds
-g_01 = Shock_g$simulation$g
-y_01 = Shock_g$simulation$y
-urterm_01 = Shock_g$simulation$urterm
-unemp_01 = Shock_g$simulation$unemp
-prodk_ds_01 = Shock_g$simulation$prodk_ds
-
-
 ###Gengivelse af stød til model
 
 yk_ds_01 = Shock_g$simulation$yk_ds
@@ -4779,9 +4371,9 @@ wage_ds_01 = Shock_g$simulation$wage_ds
 ur_ds_01 = Shock_g$simulation$ur_ds
 pc_ds_01 = Shock_g$simulation$pc_ds
 yd_hk_ds_01 = Shock_g$simulation$yd_hk_ds
-gk_01 = Shock_g$simulation$gk
-yh_01 = Shock_g$simulation$yh
-yh_01 = Shock_g$simulation$yh
+pconk_ds_01 = Shock_g$simulation$pconk_ds
+
+
 
 ```
 
@@ -4822,7 +4414,7 @@ plot(yd_hk_ds_01, col= "red"); lines(yd_hk_ds_00, col = "blue");
 legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
 grid()
 
-# Den her passer ik hhelt ved ik om den rigtige
+# Den her passer ik helt ved ik om den rigtige
 
 
 
