@@ -1368,6 +1368,18 @@ prodk_ds_shock = prodk_ds
 
 
 
+# New variables for LF model
+
+```{r}
+## komp_r
+dp_tot= sben_h_r*ratio_dag
+nben_h_un = round(dp_tot)
+nben_h_rest= nben_h - nben_h_un
+dp_person = nben_h_un/unemp
+w_h_r_trim = w_h_r - abm - d8_h
+wage_trim = w_h_r_trim/emp
+komp_r = dp_person/ wage_trim
+```
 
 
 
@@ -1558,10 +1570,31 @@ IDENTITY> i_equip_h_k
 EQ>  i_equip_h_k = i_equip_h_k_ds + alpha_20 + alpha_21*SD1 + alpha_22*SD2 + alpha_23*SD3 - mean_i_equip_h_k
 
 
-COMMENT> Har ændret fra NBEN_H1 til nben_h
-BEHAVIORAL> nben_h
-EQ> TSDELTALOG(nben_h) = P_671 + P_672*TSDELTALOG(zaland_jesper) + P_673*TSDELTA(unemp) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(nben_h,1)) + P_676*TSLAG(unemp,1) + P_677*LOG(TSLAG(zaland_jesper,1))
-COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677
+COMMENT> tilføjet
+IDENTITY> nben_h
+EQ>  nben_h = nben_h_rest + nben_h_un
+
+COMMENT> tilføjet
+IDENTITY> komp_r
+EQ>  komp_r = (dp_person/wage_trim)
+
+COMMENT> tilføjet
+IDENTITY> nben_h_un
+EQ>  nben_h_un = komp_r*wage_trim*unemp
+
+COMMENT> tilføjet
+IDENTITY> wage_trim
+EQ>  wage_trim = w_h_r_trim/emp
+
+COMMENT> tilføjet
+IDENTITY> w_h_r_trim
+EQ>  w_h_r_trim = w_h_r - abm - d8_h
+
+
+COMMENT> tilføjet
+BEHAVIORAL> nben_h_rest
+EQ> TSDELTALOG(nben_h_rest) = P_671 + P_672*TSDELTALOG(zaland_jesper) + P_673*TSDELTA(unemp) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(nben_h_rest,1)) + P_676*TSLAG(unemp,1) + P_677*LOG(TSLAG(zaland_jesper,1)) 
+COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677 
 STORE> coe(4)
 
 
@@ -2547,8 +2580,8 @@ EQ> urterm = ur - urs
 
 COMMENT> 
 BEHAVIORAL> rw_ds
-EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,4)) + p_522*TSDELTALOG(prodk_ds) + p_523*LOG(TSLAG(rw_ds,1)) + p_524*TSLAG(ur_ds,2) + p_525*LOG(TSLAG(prodk_ds,2)) + p_526*d_2009q4 + p_527*d_2011q1
-COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 
+EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,1))+  p_522*TSDELTALOG(TSLAG(komp_r),1) + p_523*TSDELTALOG(prodk_ds) + p_524*TSDELTALOG(TSLAG(prodk_ds),4) + p_525*LOG(TSLAG(rw_ds,1))+ p_526*LOG(TSLAG(komp_r,1)) + p_527*TSLAG(ur_ds,2) + p_528*LOG(TSLAG(prodk_ds,2)) + p_529*d_2009q4 + p_530*d_2011q1
+COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 p_528 p_529 p_530 
 STORE> coe(13)
 
 COMMENT> 
@@ -3336,25 +3369,25 @@ S_modelData=list(
   acc_rate = TIMESERIES(c(acc_rate),   
                         START=c(2005,2),FREQ=4),
   
-  # nben_h_rest = TIMESERIES(c(nben_h_rest),   
-   #                    START=c(2005,2),FREQ=4),
-  #nben_h_un = TIMESERIES(c(nben_h_un),   
-  #                      START=c(2005,2),FREQ=4),
-  #komp_r = TIMESERIES(c(komp_r),   
-   #                     START=c(2005,2),FREQ=4),
+   nben_h_rest = TIMESERIES(c(nben_h_rest),   
+                       START=c(2005,2),FREQ=4),
+  nben_h_un = TIMESERIES(c(nben_h_un),   
+                        START=c(2005,2),FREQ=4),
+  komp_r = TIMESERIES(c(komp_r),   
+                        START=c(2005,2),FREQ=4),
   shock = TIMESERIES(c(shock),   
                         START=c(2005,2),FREQ=4),
   g_shock = TIMESERIES(c(g_shock),   
                         START=c(2005,2),FREQ=4),
   
-  #wage_trim = TIMESERIES(c(wage_trim),   
-                        #START=c(2005,2),FREQ=4),
-   #dp_person = TIMESERIES(c(dp_person),   
-                        #START=c(2005,2),FREQ=4),
-  #abm = TIMESERIES(c(abm),   
-                        #START=c(2005,2),FREQ=4),
-  #w_h_r_trim = TIMESERIES(c(w_h_r_trim),   
-                        #START=c(2005,2),FREQ=4),
+  wage_trim = TIMESERIES(c(wage_trim),   
+                        START=c(2005,2),FREQ=4),
+   dp_person = TIMESERIES(c(dp_person),   
+                        START=c(2005,2),FREQ=4),
+  abm = TIMESERIES(c(abm),   
+                        START=c(2005,2),FREQ=4),
+  w_h_r_trim = TIMESERIES(c(w_h_r_trim),   
+                        START=c(2005,2),FREQ=4),
   
   
   ## Dummies
@@ -4674,6 +4707,7 @@ pc_00 = S_model$simulation$pc; pc_00-pc
 
 ```{r}
 plot(part_00, col= "green"); lines(part, col = "blue")
+plot(komp_r_00, col= "green"); lines(komp_r, col = "blue")
 ```
 
 
@@ -4727,6 +4761,7 @@ increase in public expenditure from 2010
 
 ```{r}
 shock_g=g %>% window(start= c(2010,1))
+shock_komp_r=komp_r %>% window(start= c(2010,1))
 ```
 
 
@@ -4736,7 +4771,7 @@ shock_g=g %>% window(start= c(2010,1))
 # Define add-factor list (defining shock)
 constantAdjList <- list(
   
- g = TIMESERIES(shock_g*0.02 ,START=c(2010,1),  FREQ='Q')
+ komp_r = TIMESERIES(shock_komp_r*0.1 ,START=c(2010,1),  FREQ='Q')
 
 )
 
@@ -4858,9 +4893,93 @@ library(dynlm)
 ```
 
 
-## Participation
+## Part
 
 ```{r}
-summary(dynlm(TSDELTALOG(part) ~ 1 + TSDELTALOG(TSLAG(part,2)) + TSDELTALOG(rw_ds) + TSDELTALOG(TSLAG(rw_ds,2))  + log(TSLAG(part,1)) + log(TSLAG(rw_ds,1)) + log(TSLAG(ur_ds,1)) + d_2013q4))
+reg_part_start=dynlm(TSDELTALOG(part) ~ 1 + L(TSDELTALOG(part),1:4) +  L(TSDELTALOG(rw_ds),0:4) + L(TSDELTALOG(ur_ds),0:4)+ L(log(part),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
+
+summary(reg_part_start)
+
 ```
 
+
+
+```{r}
+res_reg_part=residuals(reg_part_start)
+shapiro.test(res_reg_part)
+```
+Use F-es to remove lags
+
+```{r}
+
+ part_vars_1 <- str_c("L(TSDELTALOG(part), 1:4)", c(1,3,4))
+ rw_ds_vars_1 <- str_c("L(TSDELTALOG(rw_ds), 0:4)", c(1,3,4))
+ ur_ds_vars_1 <- str_c("L(TSDELTALOG(ur_ds), 0:4)", c(0,1,2,3,4))
+ 
+ 
+```
+
+```{r}
+library(car)
+
+vars_out_1 <- c(part_vars_1, rw_ds_vars_1,ur_ds_vars_1)
+vars_out_1
+ 
+linearHypothesis(reg_part_start, vars_out_1, rep(0, length(vars_out_1)))
+
+```
+
+Final model
+
+```{r}
+reg_part=dynlm(TSDELTALOG(part) ~ 0 + L(TSDELTALOG(part),2) +  L(TSDELTALOG(rw_ds),c(0,2)) + L(log(part),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
+
+summary(reg_part)
+```
+
+
+
+## rw_ds
+
+```{r}
+reg_rw_ds_start=dynlm(TSDELTALOG(rw_ds) ~ 0+ L(TSDELTA(rw_ds), 1:4) + L(TSDELTA(ur_ds), 0:4)+  L(TSDELTA(komp_r), 0:4) + L(TSDELTA(prodk_ds), 0:4) + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)) + d_2009q4 + d_2011q1)
+
+summary(reg_rw_ds_start)
+
+```
+
+
+```{r}
+res_reg_rw_ds=residuals(reg_rw_ds_start)
+shapiro.test(res_reg_rw_ds)
+```
+Use F-es to remove lags
+
+```{r}
+
+ rw_ds_vars_1 <- str_c("L(TSDELTA(rw_ds), 1:4)", c(1,2,3,4))
+ ur_ds_vars_1 <- str_c("L(TSDELTA(ur_ds), 0:4)", c(0,2,3,4))
+ komp_r_vars_1 <- str_c("L(TSDELTA(komp_r), 0:4)", c(0,1,2,3,4))
+ prodk_ds_vars_1 <- str_c("L(TSDELTA(prodk_ds), 0:4)", c(1,2,3))
+ 
+```
+
+```{r}
+library(car)
+
+vars_out_1 <- c(komp_r_vars_1, rw_ds_vars_1,ur_ds_vars_1,prodk_ds_vars_1 )
+vars_out_1
+ 
+linearHypothesis(reg_rw_ds_start, vars_out_1, rep(0, length(vars_out_1)))
+
+```
+
+Final model
+
+
+```{r}
+reg_rw_ds=dynlm(TSDELTALOG(rw_ds) ~ 0   + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)))
+
+summary(reg_rw_ds)
+
+```
