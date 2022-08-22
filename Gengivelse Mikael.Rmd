@@ -39,9 +39,6 @@ attach(globaldemand1)
 
 
 
-
-
-
 ```{r}
 ## Change name in globaldemand1
 
@@ -776,39 +773,6 @@ Ved ik helt om nedenstående skal med
 tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 ```
 
-
-# New variables
-
-```{r}
-# kompensations-raten
-
-#dp_tot= sben_h_r*ratio_dag
-#nben_h_un = round(dp_tot)
-#nben_h_rest= nben_h - nben_h_un
-#dp_person = nben_h_un/unemp
-#w_h_r_trim = w_h_r - abm - d8_h
-#wage_trim = w_h_r_trim/emp
-#komp_r = dp_person/ wage_trim
-
-#wage_trim_1= wage_trim %>% window(start= c(2014,1), end= c(2015,3))
-#unemp_1= unemp %>% window(start= c(2014,1), end= c(2015,3))
-
-#komp_r_shock= 0.15*wage_trim_1*unemp_1
-
-
-
-
-## forskel i løn og maks dagpenge 
-
-#diff_wageindex=as.data.frame(diff(wageindex_ds))
-
-#maks_dagpenge_index_ds = diff_wageindex %>%
-  #mutate(dagpenge_index= ifelse(x >= 0.02 & x <= 0.023 , 0.02, ifelse(x >0.02, x - 0.003, x)))
-
-#sum(maks_dagpenge_index_ds$x)
-#sum(maks_dagpenge_index_ds$dagpenge_index)
-
-```
 
 # The model 
 
