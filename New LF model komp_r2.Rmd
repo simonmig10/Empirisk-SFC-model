@@ -2714,8 +2714,8 @@ EQ> g = g_shock
 
 COMMENT> Endogonize partitipation rate
 BEHAVIORAL> part
-EQ> TSDELTALOG(part) = beta_0 + beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(rw_ds) + beta_3*TSDELTALOG(TSLAG(rw_ds,2))  + beta_4*log(TSLAG(part,1)) + beta_5*log(TSLAG(rw_ds,1)) + beta_6*TSLAG(ur_ds,1) + beta_7* d_2013q4
-COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7
+EQ> TSDELTALOG(part) =  beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(rw_ds) + beta_3*TSDELTALOG(TSLAG(rw_ds,1)) + beta_4*TSDELTALOG(TSLAG(rw_ds,2)) + beta_5*TSDELTALOG(TSLAG(rw_ds,3)) + beta_6*TSDELTA(ur_ds) + beta_7*log(TSLAG(part,1)) + beta_8*log(TSLAG(rw_ds,1)) + beta_9*TSLAG(komp_r,1) + beta_10*TSLAG(ur_ds,1) + beta_11* d_2013q4
+COEFF> beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7 beta_8 beta_9 beta_10 beta_11
 STORE> coe(16)
 
 
@@ -5062,8 +5062,19 @@ linearHypothesis(reg_part_start, vars_out_1, rep(0, length(vars_out_1)))
 
 Final model
 
+
+
 ```{r}
-reg_part=dynlm(TSDELTALOG(part) ~ 0 + L(TSDELTALOG(part),2)+  L(TSDELTALOG(rw_ds),0:3) + L(TSDELTALOG(ur_ds),0)+ L(log(part),1) + L(log(komp_r2),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
+"COMMENT> Endogonize partitipation rate
+BEHAVIORAL> part
+EQ> TSDELTALOG(part) =  beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(rw_ds) + beta_3*TSDELTALOG(TSLAG(rw_ds,1)) + beta_4*TSDELTALOG(TSLAG(rw_ds,2)) + beta_5*TSDELTALOG(TSLAG(rw_ds,3)) + beta_6*TSDELTA(ur_ds) + beta_7*log(TSLAG(part,1)) + beta_8*log(TSLAG(rw_ds,1)) + beta_9*TSLAG(ur_ds,1) + beta_10* d_2013q4
+COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7 beta_8 beta_9 beta_10
+STORE> coe(16)"
+```
+
+
+```{r}
+reg_part=dynlm(TSDELTALOG(part) ~ 0 + L(TSDELTALOG(part),2)+  L(TSDELTALOG(rw_ds),0:3) + L(TSDELTA(ur_ds),0)+ L(log(part),1) + L(log(komp_r2),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
 
 summary(reg_part)
 ```
