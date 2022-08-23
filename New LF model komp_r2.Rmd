@@ -1336,32 +1336,53 @@ prodk_ds_shock = prodk_ds
 dp_tot= sben_h_r*ratio_dag
 nben_h_un = round(dp_tot)
 nben_h_rest= nben_h - nben_h_un
-dp_person = nben_h_un/unemp
-w_h_r_trim = w_h_r - abm - d8_h
+dp_person = nben_h_un/(unemp*0.75)
+w_h_r_trim = w_h_r + d8_h
 wage_trim = w_h_r_trim/emp
 komp_r = dp_person/ wage_trim
 
+plot(komp_r)
 
 
-
-dp_tot1= sben_h_r*ratio_dag1
-nben_h_un1 = round(dp_tot1)
-nben_h_rest1= nben_h - nben_h_un1
-dp_person1 = nben_h_un1/unemp
-w_h_r_trim = w_h_r - abm - d8_h
+## komp_r1
+dp_tot= sben_h_r*ratio_dag
+nben_h_un = round(dp_tot)
+nben_h_rest= nben_h - nben_h_un
+dp_person1 = nben_h_un/(unemp*emp_ratio)
+w_h_r_trim = w_h_r
 wage_trim = w_h_r_trim/emp
 komp_r1 = dp_person1/ wage_trim
 
+plot(komp_r1)
 
-## forskel i løn og maks dagpenge 
 
-#diff_wageindex=as.data.frame(diff(wageindex_ds))
+## komp_r2
+dp_tot2= sben_h_r*ratio_dag2
+nben_h_un2 = round(dp_tot2)
+nben_h_rest2= nben_h - nben_h_un2
+dp_person2 = nben_h_un2/(unemp*emp_ratio)
+w_h_r_trim = w_h_r 
+wage_trim = w_h_r_trim/emp
+komp_r2 = dp_person2/ wage_trim
 
-#maks_dagpenge_index_ds = diff_wageindex %>%
-  #mutate(dagpenge_index= ifelse(x >= 0.02 & x <= 0.023 , 0.02, ifelse(x >0.02, x - 0.003, x)))
+plot(komp_r2)
 
-#sum(maks_dagpenge_index_ds$x)
-#sum(maks_dagpenge_index_ds$dagpenge_index)
+
+## komp_r2
+dp_tot2= sben_h_r*ratio_dag2
+nben_h_un2 = round(dp_tot2)
+nben_h_rest2= nben_h - nben_h_un2
+dp_person2 = nben_h_un2/(unemp*emp_ratio)
+w_h_r_trim1 = w_h_r - abm
+wage_trim1 = w_h_r_trim1/emp
+komp_r3 = dp_person2/ wage_trim1
+
+plot(komp_r3)
+
+
+plot(komp_r, col= "red", ylim= c(0.2,0.9)); lines(komp_r1, col = "blue");lines(komp_r2, col = "green");lines(komp_r3, col = "pink");grid()
+
+
 ```
 
 
@@ -1571,7 +1592,7 @@ EQ>  wage_trim = w_h_r_trim/emp
 
 COMMENT> tilføjet
 IDENTITY> w_h_r_trim
-EQ>  w_h_r_trim = w_h_r - abm - d8_h
+EQ>  w_h_r_trim = w_h_r
 
 
 COMMENT> tilføjet
@@ -2563,8 +2584,8 @@ EQ> urterm = ur - urs
 
 COMMENT> 
 BEHAVIORAL> rw_ds
-EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,1))+  p_522*TSDELTALOG(TSLAG(komp_r),1) + p_523*TSDELTALOG(prodk_ds) + p_524*TSDELTALOG(TSLAG(prodk_ds),4) + p_525*LOG(TSLAG(rw_ds,1))+ p_526*LOG(TSLAG(komp_r,1)) + p_527*TSLAG(ur_ds,2) + p_528*LOG(TSLAG(prodk_ds,2)) + p_529*d_2009q4 + p_530*d_2011q1
-COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 p_528 p_529 p_530 
+EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,4)) + p_522*TSDELTALOG(prodk_ds) + p_523*LOG(TSLAG(rw_ds,1)) + p_524*TSLAG(ur_ds,2) + p_525*LOG(TSLAG(prodk_ds,2)) + p_526*d_2009q4 + p_527*d_2011q1
+COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 
 STORE> coe(13)
 
 COMMENT> 
@@ -2693,8 +2714,8 @@ EQ> g = g_shock
 
 COMMENT> Endogonize partitipation rate
 BEHAVIORAL> part
-EQ> TSDELTALOG(part) = beta_0 + beta_1*LOG(komp_r)
-COEFF> beta_0 beta_1
+EQ> TSDELTALOG(part) = beta_0 + beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(rw_ds) + beta_3*TSDELTALOG(TSLAG(rw_ds,2))  + beta_4*log(TSLAG(part,1)) + beta_5*log(TSLAG(rw_ds,1)) + beta_6*TSLAG(ur_ds,1) + beta_7* d_2013q4
+COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7
 STORE> coe(16)
 
 
@@ -2712,6 +2733,13 @@ BEHAVIORAL> part
 EQ> TSDELTALOG(part) = beta_0 + beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(rw_ds) + beta_3*TSDELTALOG(TSLAG(rw_ds,2))  + beta_4*log(TSLAG(part,1)) + beta_5*log(TSLAG(rw_ds,1)) + beta_6*TSLAG(ur_ds,1) + beta_7* d_2013q4
 COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7
 STORE> coe(16)"
+
+
+"COMMENT> 
+BEHAVIORAL> rw_ds
+EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,1))+  p_522*TSDELTALOG(TSLAG(komp_r),1) + p_523*TSDELTALOG(prodk_ds) + p_524*TSDELTALOG(TSLAG(prodk_ds),4) + p_525*LOG(TSLAG(rw_ds,1))+ p_526*LOG(TSLAG(komp_r,1)) + p_527*TSLAG(ur_ds,2) + p_528*LOG(TSLAG(prodk_ds,2)) + p_529*d_2009q4 + p_530*d_2011q1
+COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 p_528 p_529 p_530 
+STORE> coe(13)"
 ```
 
 
@@ -3364,11 +3392,11 @@ S_modelData=list(
   acc_rate = TIMESERIES(c(acc_rate),   
                         START=c(2005,2),FREQ=4),
   
-   nben_h_rest = TIMESERIES(c(nben_h_rest),   
+   nben_h_rest = TIMESERIES(c(nben_h_rest2),   
                        START=c(2005,2),FREQ=4),
-  nben_h_un = TIMESERIES(c(nben_h_un),   
+  nben_h_un = TIMESERIES(c(nben_h_un2),   
                         START=c(2005,2),FREQ=4),
-  komp_r = TIMESERIES(c(komp_r),   
+  komp_r = TIMESERIES(c(komp_r2),   
                         START=c(2005,2),FREQ=4),
   shock = TIMESERIES(c(shock),   
                         START=c(2005,2),FREQ=4),
@@ -3377,7 +3405,7 @@ S_modelData=list(
   
   wage_trim = TIMESERIES(c(wage_trim),   
                         START=c(2005,2),FREQ=4),
-   dp_person = TIMESERIES(c(dp_person),   
+   dp_person = TIMESERIES(c(dp_person2),   
                         START=c(2005,2),FREQ=4),
   abm = TIMESERIES(c(abm),   
                         START=c(2005,2),FREQ=4),
@@ -4700,7 +4728,10 @@ pc_00 = S_model$simulation$pc; pc_00-pc
 
 ```{r}
 plot(part_00, col= "green"); lines(part, col = "blue")
-plot(komp_r_00, col= "green"); lines(komp_r, col = "blue")
+plot(komp_r_00, col= "green"); lines(komp_r2, col = "blue")
+
+plot(lf_00, col= "green"); lines(LF, col = "blue")
+plot(emp_00, col= "green"); lines(emp, col = "blue")
 ```
 
 
@@ -4997,10 +5028,9 @@ We can see that there is cointegration as we can conclude the error term to be I
 ### Error correction model
 
 ```{r}
-reg_part_start=dynlm(TSDELTALOG(part) ~ 1 + L(TSDELTALOG(part),1:4) +  L(TSDELTALOG(rw_ds),0:4) + L(TSDELTALOG(ur_ds),0:4)+ L(log(part),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
+reg_part_start=dynlm(TSDELTALOG(part) ~ 1 + L(TSDELTALOG(part),1:4) +  L(TSDELTALOG(komp_r2),0:4)+  L(TSDELTALOG(rw_ds),0:4) + L(TSDELTALOG(ur_ds),0:4)+ L(log(part),1) + L(log(komp_r2),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
 
 summary(reg_part_start)
-
 ```
 
 
@@ -5012,18 +5042,18 @@ shapiro.test(res_reg_part)
 Use F-es to remove lags
 
 ```{r}
-
- part_vars_1 <- str_c("L(TSDELTALOG(part), 1:4)", c(1,3,4))
- rw_ds_vars_1 <- str_c("L(TSDELTALOG(rw_ds), 0:4)", c(1,3,4))
- ur_ds_vars_1 <- str_c("L(TSDELTALOG(ur_ds), 0:4)", c(0,1,2,3,4))
+ komp_r_vars_1 <- str_c("L(TSDELTALOG(komp_r2), 0:4)", c(0,1,2,3,4))
+ part_vars_1 <- str_c("L(TSDELTALOG(part), 1:4)", c(4))
+ rw_ds_vars_1 <- str_c("L(TSDELTALOG(rw_ds), 0:4)", c(4))
+ ur_ds_vars_1 <- str_c("L(TSDELTALOG(ur_ds), 0:4)", c(1,2,3,4))
  
  
 ```
 
 ```{r}
-library(car)
 
-vars_out_1 <- c(part_vars_1, rw_ds_vars_1,ur_ds_vars_1)
+
+vars_out_1 <- c(komp_r_vars_1,part_vars_1, rw_ds_vars_1,ur_ds_vars_1)
 vars_out_1
  
 linearHypothesis(reg_part_start, vars_out_1, rep(0, length(vars_out_1)))
@@ -5033,11 +5063,10 @@ linearHypothesis(reg_part_start, vars_out_1, rep(0, length(vars_out_1)))
 Final model
 
 ```{r}
-reg_part=dynlm(TSDELTALOG(part) ~ 0 + L(TSDELTALOG(part),2) +  L(TSDELTALOG(rw_ds),c(0,2)) + L(log(part),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
+reg_part=dynlm(TSDELTALOG(part) ~ 0 + L(TSDELTALOG(part),2)+  L(TSDELTALOG(rw_ds),0:3) + L(TSDELTALOG(ur_ds),0)+ L(log(part),1) + L(log(komp_r2),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
 
 summary(reg_part)
 ```
-
 
 
 ## rw_ds
