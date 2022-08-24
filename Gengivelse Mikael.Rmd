@@ -1466,6 +1466,7 @@ EQ> nl_h = s_h - i_h - np_h + ctr_h
 
 COMMENT> 
 BEHAVIORAL> pconk_ds
+TSRANGE 2006 1 2020 1
 EQ> TSDELTALOG(pconk_ds) = C_1 + C_2*TSLAG(LOG(pconk_ds),1) + C_3*TSLAG(LOG(yd1_hk_ds),1) + C_4*TSLAG(LOG(yd2a_hk_ds),1) + C_5*TSLAG(LOG(fnw_hk),2) + C_6*TSDELTALOG(yd1_hk_ds) + C_7*TSDELTALOG(TSLAG(yd1_hk_ds,2)) + C_8*TSDELTALOG(yd2a_hk_ds) + C_10*d_2008q4 + C_11*d_2018q2 + C_12*d_2020q1
 COEFF> C_1 C_2 C_3 C_4 C_5 C_6 C_7 C_8 C_10 C_11 C_12
 STORE> coe(1)
@@ -1482,6 +1483,7 @@ EQ> pcon = pconk*pc
 
 COMMENT> Er ikke helt korrekt 
 BEHAVIORAL> i_bd_h_k_ds
+TSRANGE 2006 3 2020 1
 EQ> LOG(i_bd_h_k_ds) = P_620 + 
 P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ 
 P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ 
@@ -1510,6 +1512,7 @@ EQ> i_bd_h_k = i_bd_h_k_ds + (alpha_10 + alpha_11*SD1 + alpha_12*SD2 + alpha_13*
 
 COMMENT> 
 BEHAVIORAL> i_equip_h_k_ds
+TSRANGE 2006 2 2020 1
 EQ> LOG(i_equip_h_k_ds) = p_636 + p_637 * TSDELTALOG(TSLAG(i_equip_h_k_ds,1)/TSLAG(equip_h_k,2)) + p_638 * TSDELTALOG(TSLAG(i_equip_h_k_ds,2)/TSLAG(equip_h_k,3)) + p_639*TSDELTALOG(yd_hk_ds/TSLAG(equip_h_k,1)) + p_640*dummy_4 + alpha_1* TSLAG(LOG(i_equip_h_k_ds),1) + alpha_2* TSLAG(LOG(equip_h_k),1) + alpha_3* TSLAG(-LOG(equip_h_k),2)
 COEFF> p_636 p_637 p_638 p_639 p_640 alpha_1 alpha_2 alpha_3
 RESTRICT> alpha_1 = 1
@@ -1524,6 +1527,7 @@ EQ>  i_equip_h_k = i_equip_h_k_ds + alpha_20 + alpha_21*SD1 + alpha_22*SD2 + alp
 
 COMMENT> Har ændret fra NBEN_H1 til nben_h
 BEHAVIORAL> nben_h
+TSRANGE 2005 4 2020 1
 EQ> TSDELTALOG(nben_h) = P_671 + P_672*TSDELTALOG(zaland_jesper) + P_673*TSDELTA(unemp) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(nben_h,1)) + P_676*TSLAG(unemp,1) + P_677*LOG(TSLAG(zaland_jesper,1))
 COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677
 STORE> coe(4)
@@ -1539,6 +1543,7 @@ EQ> l_h_tr= l_h_tr_ratio * (-yd_hk_ds*pc)
 
 COMMENT> Mangler stadig at få tilpasset til ik diff
 BEHAVIORAL> l_h_tr_ratio
+TSRANGE 2006 2 2020 1
 EQ> TSDELTA(l_h_tr_ratio) = p_646 
 + p_641*TSDELTA(TSLAG(l_h_tr_ratio,2))
 + p_642*TSDELTA(iloan) 
@@ -1572,6 +1577,7 @@ EQ> eq_h= eq_h_ratio*(TSLAG(eq_h,1) +TSLAG(sec_h,1)+  TSLAG(iba_h,1)) + eq_h_rvx
 
 COMMENT> 
 BEHAVIORAL> eq_h_ratio
+TSRANGE 2006 1 2020 1
 EQ> TSDELTA(eq_h_ratio) =  p_770  
 + p_771* TSDELTA(TSLAG(ibd,1))
 + p_772* TSDELTA(TSLAG(ratio_in_eq_h,1))
@@ -1628,6 +1634,7 @@ EQ> ins_h_tr = d8_h + ins_h_tr_excl_d8
 
 COMMENT> 
 BEHAVIORAL> d8_h
+TSRANGE 2005 4 2020 1
 EQ> TSDELTALOG(d8_h) = p_701*TSDELTALOG(TSLAG(d8_h,1)) + p_702*TSDELTALOG(w_h_r) + p_703*TSDELTALOG(TSLAG(old_age_ratio,1)) + p_704*LOG(TSLAG(d8_h,1)) + p_705*LOG(TSLAG(w_h_r,1)) + p_706*LOG(TSLAG(old_age_ratio,1)) + p_707*d_2014q3
 COEFF> p_701 p_702 p_703 p_704 p_705 p_706 p_707
 STORE> coe(7)
@@ -1712,6 +1719,7 @@ EQ> rer = pc*xr/pf
 
 COMMENT> 
 BEHAVIORAL> xk_ds
+TSRANGE 2006 3 2020 1
 EQ> TSDELTALOG(xk_ds) =  p_651 + p_652*TSDELTALOG(TSLAG(gdp_tp,4)) + p_653*TSDELTALOG(rer) + p_654*LOG(TSLAG(xk_ds,1)) + p_655*LOG(TSLAG(gdp_tp,1)) + p_657*d_2008q2
 COEFF> p_651 p_652 p_653 p_654 p_655 p_657
 STORE> coe(8)
@@ -1726,6 +1734,7 @@ EQ> m = mk*pm
 
 COMMENT> 
 BEHAVIORAL> mk_ds
+TSRANGE 2006 2 2020 1
 EQ> TSDELTALOG(mk_ds) = p_661 + p_662*TSDELTALOG(TSLAG(mk_ds,2)) + p_663*TSDELTALOG(TSLAG(rer,1)) + p_664*TSDELTALOG(TSLAG(rer,3)) + p_665*TSDELTALOG(yk_ds) + p_666*LOG(TSLAG(mk_ds,1)) + p_667*LOG(TSLAG(yk_ds,1)) + p_668*d_2009q1 + p_669*d_2009q4
 COEFF> p_661 p_662 p_663 p_664 p_665 p_666 p_667 p_668 p_669
 STORE> coe(9)
@@ -1788,6 +1797,7 @@ EQ> tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 
 COMMENT> Er fixet
 BEHAVIORAL> i_bd_nfc_k_ds
+TSRANGE 2006 1 2020 1
 EQ> LOG(i_bd_nfc_k_ds) = p_800 + 
 p_801*TSDELTALOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + 
 p_802*TSDELTALOG(ps_ds) + 
@@ -1840,6 +1850,7 @@ EQ> i = i_nf + i_f + i_g + i_h
 
 COMMENT> 
 BEHAVIORAL> i_equip_nfc_k_ds
+TSRANGE 2006 1 2020 1
 EQ> LOG(i_equip_nfc_k_ds) = p_807 + p_808 * TSDELTALOG(TSLAG(i_equip_nfc_k_ds,1)/TSLAG(equip_nfc_k,2)) + p_809 * TSDELTALOG(ps_ds) + p_810 * TSDELTALOG(u_ds) + p_811 *  LOG(TSLAG(i_equip_nfc_k_ds,1)/TSLAG(equip_nfc_k,2)) + p_812 * LOG(TSLAG(ps_ds,1)) + p_813 * LOG(TSLAG(u_ds,1)) + p_814 * dummy_10 + p_815 * dummy_11 + p_890*TSDELTALOG(tobinq) + p_891*LOG(TSLAG(tobinq,1)) + alpha_1*TSLAG(LOG(i_equip_nfc_k_ds),1) + alpha_2*TSLAG(LOG(equip_nfc_k),1) + alpha_3*TSLAG(-LOG(equip_nfc_k),2)
 COEFF> p_807 p_808 p_809 p_810 p_811 p_812 p_813 p_814 p_815 p_890 p_891 alpha_1 alpha_2 alpha_3
 RESTRICT> alpha_1 = 1
@@ -2487,6 +2498,7 @@ COMMENT> The pricing equation implies a mark-up of (1 + 0.38) in the long-run, i
 
 COMMENT> 
 BEHAVIORAL> pc_ds
+TSRANGE 2006 3 2020 1
 EQ> TSDELTA(pc_ds) = C_21*TSDELTA(TSLAG(pc_ds,1)) + C_22*TSDELTA(TSLAG(pc_ds,2)) + C_23*TSDELTA(TSLAG(pc_ds,4)) + C_24*TSDELTA(wage_ds/prod_ds+pm_ds) + C_25*TSLAG(pc_ds,1) + eta*(TSLAG(wage_ds,1)/TSLAG(prod_ds,1)+TSLAG(pm_ds,1))
 COEFF> C_21 C_22 C_23 C_24 C_25 eta
 STORE> coe(12)
@@ -2682,8 +2694,6 @@ S_modelData=list(
   propinc_r_nf = TIMESERIES(c(propinc_r_nf ),   
                            START=c(2005,2),FREQ=4),
   propinc_p_nf= TIMESERIES(c(propinc_p_nf),   
-                           START=c(2005,2),FREQ=4),
-  propinc_p_h = TIMESERIES(c(propinc_p_h),   
                            START=c(2005,2),FREQ=4),
   npropinc_h = TIMESERIES(c(npropinc_h),   
                           START=c(2005,2),FREQ=4),
@@ -4217,7 +4227,6 @@ S_model=LOAD_MODEL_DATA(S_model,S_modelData)
 #Estimate model coefficients
 S_model=ESTIMATE(S_model
                  ,TSRANGE=c(2006,3,2020,1)
-                 ,forceTSRANGE = TRUE
 )
 ```
 
@@ -4247,8 +4256,8 @@ yd_hk_ds_00 = S_model$simulation$yd_hk_ds
 pconk_ds_00 = S_model$simulation$pconk_ds 
 ur_ds_00 = S_model$simulation$ur_ds
 
-
 ```
+
 
 
 
@@ -4376,9 +4385,7 @@ plot(yd_hk_ds_01, col= "red"); lines(yd_hk_ds_00, col = "blue");
 legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
 grid()
 
-# Den her passer ik helt ved ik om den rigtige
-
-
+# The last one doesnt fit the working paper, but fits the model used for this replication
 
 ```
 
