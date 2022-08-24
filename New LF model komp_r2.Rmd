@@ -1250,17 +1250,7 @@ reprate_bd_h = (mean(delta_bd_h)*stats::lag(bd_h_k,-1))/i_bd_h_k_ds # replacemen
 
 
 
-
-
 # Genskabning
-
-Jeg bliver nødt til at ændre nogle af variablene for at lave genskabning
-
-```{r}
-#s_row1 = m - x + p_tax_row - p_sub_row + (w_row_r - w_row_p) +  (npropinc_row) + (tax_row) + nben_row + oth_row
-#yh_f1 = b2_f_r + (npropinc_f)
-#yh_h1 = w_h_r + b2_h_r + (npropinc_h )
-```
 
 ## Extra variables created to run the model:
 
@@ -1331,6 +1321,8 @@ prodk_ds_shock = prodk_ds
 
 # New variables for LF model
 
+## Komp_r
+
 ```{r}
 ## komp_r
 dp_tot= sben_h_r*ratio_dag
@@ -1386,8 +1378,23 @@ plot(komp_r, col= "red", ylim= c(0.2,0.9)); lines(komp_r1, col = "blue");lines(k
 ```
 
 
+## max_dp
 
-Trying first to add all the identity equations 
+Bruger estimater der op til 2009 er fra danmarks statistik bank, og derefter er fra andre hjemmesider der inkludere et beløb. 
+
+Bruger 
+
+```{r}
+
+max_dp= c(641*21.667, 654*21.667, 667*21.667, 683*21.667, 703*21.667, 15708, 16293, 16597, 17073, 801*21.667, 815*21.667, 827*21.667, 18113, 18403, 18633, 18866,19083)
+
+max_dp_growth= diff(max_dp)/max_dp*100
+
+```
+
+
+
+# Txt. for model
 
 ```{r}
 
@@ -1518,6 +1525,7 @@ EQ> nl_h = s_h - i_h - np_h + ctr_h
 
 COMMENT> 
 BEHAVIORAL> pconk_ds
+TSRANGE 2006 1 2020 1
 EQ> TSDELTALOG(pconk_ds) = C_1 + C_2*TSLAG(LOG(pconk_ds),1) + C_3*TSLAG(LOG(yd1_hk_ds),1) + C_4*TSLAG(LOG(yd2a_hk_ds),1) + C_5*TSLAG(LOG(fnw_hk),2) + C_6*TSDELTALOG(yd1_hk_ds) + C_7*TSDELTALOG(TSLAG(yd1_hk_ds,2)) + C_8*TSDELTALOG(yd2a_hk_ds) + C_10*d_2008q4 + C_11*d_2018q2 + C_12*d_2020q1
 COEFF> C_1 C_2 C_3 C_4 C_5 C_6 C_7 C_8 C_10 C_11 C_12
 STORE> coe(1)
@@ -1532,8 +1540,9 @@ IDENTITY> pcon
 EQ> pcon = pconk*pc
 
 
-COMMENT> Er ikke helt korrekt 
+COMMENT>  
 BEHAVIORAL> i_bd_h_k_ds
+TSRANGE 2006 3 2020 1
 EQ> LOG(i_bd_h_k_ds) = P_620 + 
 P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ 
 P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ 
@@ -1562,6 +1571,7 @@ EQ> i_bd_h_k = i_bd_h_k_ds + (alpha_10 + alpha_11*SD1 + alpha_12*SD2 + alpha_13*
 
 COMMENT> 
 BEHAVIORAL> i_equip_h_k_ds
+TSRANGE 2006 2 2020 1
 EQ> LOG(i_equip_h_k_ds) = p_636 + p_637 * TSDELTALOG(TSLAG(i_equip_h_k_ds,1)/TSLAG(equip_h_k,2)) + p_638 * TSDELTALOG(TSLAG(i_equip_h_k_ds,2)/TSLAG(equip_h_k,3)) + p_639*TSDELTALOG(yd_hk_ds/TSLAG(equip_h_k,1)) + p_640*dummy_4 + alpha_1* TSLAG(LOG(i_equip_h_k_ds),1) + alpha_2* TSLAG(LOG(equip_h_k),1) + alpha_3* TSLAG(-LOG(equip_h_k),2)
 COEFF> p_636 p_637 p_638 p_639 p_640 alpha_1 alpha_2 alpha_3
 RESTRICT> alpha_1 = 1
@@ -1597,6 +1607,7 @@ EQ>  w_h_r_trim = w_h_r
 
 COMMENT> tilføjet
 BEHAVIORAL> nben_h_rest
+TSRANGE 2005 4 2020 1
 EQ> TSDELTALOG(nben_h_rest) = P_671 + P_672*TSDELTALOG(zaland_jesper) + P_673*TSDELTA(unemp) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(nben_h_rest,1)) + P_676*TSLAG(unemp,1) + P_677*LOG(TSLAG(zaland_jesper,1)) 
 COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677 
 STORE> coe(4)
@@ -1612,6 +1623,7 @@ EQ> l_h_tr= l_h_tr_ratio * (-yd_hk_ds*pc)
 
 COMMENT> Mangler stadig at få tilpasset til ik diff
 BEHAVIORAL> l_h_tr_ratio
+TSRANGE 2006 2 2020 1
 EQ> TSDELTA(l_h_tr_ratio) = p_646 
 + p_641*TSDELTA(TSLAG(l_h_tr_ratio,2))
 + p_642*TSDELTA(iloan) 
@@ -1645,6 +1657,7 @@ EQ> eq_h= eq_h_ratio*(TSLAG(eq_h,1) +TSLAG(sec_h,1)+  TSLAG(iba_h,1)) + eq_h_rvx
 
 COMMENT> 
 BEHAVIORAL> eq_h_ratio
+TSRANGE 2006 1 2020 1
 EQ> TSDELTA(eq_h_ratio) =  p_770  
 + p_771* TSDELTA(TSLAG(ibd,1))
 + p_772* TSDELTA(TSLAG(ratio_in_eq_h,1))
@@ -1701,6 +1714,7 @@ EQ> ins_h_tr = d8_h + ins_h_tr_excl_d8
 
 COMMENT> 
 BEHAVIORAL> d8_h
+TSRANGE 2005 4 2020 1
 EQ> TSDELTALOG(d8_h) = p_701*TSDELTALOG(TSLAG(d8_h,1)) + p_702*TSDELTALOG(w_h_r) + p_703*TSDELTALOG(TSLAG(old_age_ratio,1)) + p_704*LOG(TSLAG(d8_h,1)) + p_705*LOG(TSLAG(w_h_r,1)) + p_706*LOG(TSLAG(old_age_ratio,1)) + p_707*d_2014q3
 COEFF> p_701 p_702 p_703 p_704 p_705 p_706 p_707
 STORE> coe(7)
@@ -1785,6 +1799,7 @@ EQ> rer = pc*xr/pf
 
 COMMENT> 
 BEHAVIORAL> xk_ds
+TSRANGE 2006 3 2020 1
 EQ> TSDELTALOG(xk_ds) =  p_651 + p_652*TSDELTALOG(TSLAG(gdp_tp,4)) + p_653*TSDELTALOG(rer) + p_654*LOG(TSLAG(xk_ds,1)) + p_655*LOG(TSLAG(gdp_tp,1)) + p_657*d_2008q2
 COEFF> p_651 p_652 p_653 p_654 p_655 p_657
 STORE> coe(8)
@@ -1799,6 +1814,7 @@ EQ> m = mk*pm
 
 COMMENT> 
 BEHAVIORAL> mk_ds
+TSRANGE 2006 2 2020 1
 EQ> TSDELTALOG(mk_ds) = p_661 + p_662*TSDELTALOG(TSLAG(mk_ds,2)) + p_663*TSDELTALOG(TSLAG(rer,1)) + p_664*TSDELTALOG(TSLAG(rer,3)) + p_665*TSDELTALOG(yk_ds) + p_666*LOG(TSLAG(mk_ds,1)) + p_667*LOG(TSLAG(yk_ds,1)) + p_668*d_2009q1 + p_669*d_2009q4
 COEFF> p_661 p_662 p_663 p_664 p_665 p_666 p_667 p_668 p_669
 STORE> coe(9)
@@ -1861,6 +1877,7 @@ EQ> tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 
 COMMENT> Er fixet
 BEHAVIORAL> i_bd_nfc_k_ds
+TSRANGE 2006 1 2020 1
 EQ> LOG(i_bd_nfc_k_ds) = p_800 + 
 p_801*TSDELTALOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + 
 p_802*TSDELTALOG(ps_ds) + 
@@ -1913,6 +1930,7 @@ EQ> i = i_nf + i_f + i_g + i_h
 
 COMMENT> 
 BEHAVIORAL> i_equip_nfc_k_ds
+TSRANGE 2006 1 2020 1
 EQ> LOG(i_equip_nfc_k_ds) = p_807 + p_808 * TSDELTALOG(TSLAG(i_equip_nfc_k_ds,1)/TSLAG(equip_nfc_k,2)) + p_809 * TSDELTALOG(ps_ds) + p_810 * TSDELTALOG(u_ds) + p_811 *  LOG(TSLAG(i_equip_nfc_k_ds,1)/TSLAG(equip_nfc_k,2)) + p_812 * LOG(TSLAG(ps_ds,1)) + p_813 * LOG(TSLAG(u_ds,1)) + p_814 * dummy_10 + p_815 * dummy_11 + p_890*TSDELTALOG(tobinq) + p_891*LOG(TSLAG(tobinq,1)) + alpha_1*TSLAG(LOG(i_equip_nfc_k_ds),1) + alpha_2*TSLAG(LOG(equip_nfc_k),1) + alpha_3*TSLAG(-LOG(equip_nfc_k),2)
 COEFF> p_807 p_808 p_809 p_810 p_811 p_812 p_813 p_814 p_815 p_890 p_891 alpha_1 alpha_2 alpha_3
 RESTRICT> alpha_1 = 1
@@ -2560,6 +2578,7 @@ COMMENT> The pricing equation implies a mark-up of (1 + 0.38) in the long-run, i
 
 COMMENT> 
 BEHAVIORAL> pc_ds
+TSRANGE 2006 3 2020 1
 EQ> TSDELTA(pc_ds) = C_21*TSDELTA(TSLAG(pc_ds,1)) + C_22*TSDELTA(TSLAG(pc_ds,2)) + C_23*TSDELTA(TSLAG(pc_ds,4)) + C_24*TSDELTA(wage_ds/prod_ds+pm_ds) + C_25*TSLAG(pc_ds,1) + eta*(TSLAG(wage_ds,1)/TSLAG(prod_ds,1)+TSLAG(pm_ds,1))
 COEFF> C_21 C_22 C_23 C_24 C_25 eta
 STORE> coe(12)
@@ -2584,6 +2603,7 @@ EQ> urterm = ur - urs
 
 COMMENT> 
 BEHAVIORAL> rw_ds
+
 EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,4)) + p_522*TSDELTALOG(prodk_ds) + p_523*LOG(TSLAG(rw_ds,1)) + p_524*TSLAG(ur_ds,2) + p_525*LOG(TSLAG(prodk_ds,2)) + p_526*d_2009q4 + p_527*d_2011q1
 COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 
 STORE> coe(13)
@@ -2714,6 +2734,7 @@ EQ> g = g_shock
 
 COMMENT> Endogonize partitipation rate
 BEHAVIORAL> part
+TSRANGE 2006 2 2020 1
 EQ> TSDELTALOG(part) =  beta_1*TSDELTA(TSLAG(part,2)) + beta_2*TSDELTALOG(rw_ds) + beta_3*TSDELTALOG(TSLAG(rw_ds,1)) + beta_4*TSDELTALOG(TSLAG(rw_ds,2)) + beta_5*TSDELTALOG(TSLAG(rw_ds,3))  + beta_7*(TSLAG(part,1)) + beta_8*log(TSLAG(rw_ds,1)) + beta_9*TSLAG(komp_r,1) + beta_10*TSLAG(ur_ds,1) + beta_11* d_2013q4
 COEFF> beta_1 beta_2 beta_3 beta_4 beta_5 beta_7 beta_8 beta_9 beta_10 beta_11
 STORE> coe(16)
@@ -4333,17 +4354,17 @@ S_model=LOAD_MODEL_DATA(S_model,S_modelData)
 
 ```
 
+# Estimate
 
 ```{r}
 
 #Estimate model coefficients
 S_model=ESTIMATE(S_model
                  ,TSRANGE=c(2006,3,2020,1)
-                 ,forceTSRANGE = TRUE
 )
 ```
 
-
+# Simulate
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
@@ -4447,8 +4468,6 @@ int_p_h_00 = S_model$simulation$int_p_h
 iloan_00 = S_model$simulation$iloan
 int_p_h_adj_00 = S_model$simulation$int_p_h_adj
 
-
-options(scipen = 999)
 
 ## RESCHECK
 yk_00 = S_model$simulation$yk
@@ -4732,6 +4751,7 @@ plot(komp_r_00, col= "green"); lines(komp_r2, col = "blue")
 
 plot(lf_00, col= "green"); lines(LF, col = "blue")
 plot(emp_00, col= "green"); lines(emp, col = "blue")
+plot(wageindex_00, col= "green"); lines(wageindex, col = "blue")
 ```
 
 
@@ -4770,8 +4790,54 @@ grid()
 
 # Shocks
 
-consisting of a 2% permanent
-increase in public expenditure from 2010
+
+## Komp_r shock
+
+```{r}
+wageindex
+
+#Yearly change in wage: (as max dagpenge kun ændres årligt?)
+
+wage_growth=TSDELTA(wageindex,4)
+
+wage_growth_1q=as.data.frame(as.numeric(wage_growth)[c(4,8,12,16,20,24,28,32,36,40,44,48,52,56)])
+
+wage_growth_1q %>%
+  rename(Q1='as.numeric(wage_growth)[c(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56)]') %>%
+  mutate(max_dp_growth= ifelse(Q1>= 0.023 , 0.023, ifelse(Q1>= 0.02 & Q1 < 0.023, 0.02, Q1) )) %>%
+  mutate(diff= Q1 - max_dp_growth) %>%
+  summarise(sum_diff= sum(diff))
+
+
+## ud fra ADAMS forklaring
+
+tp_pr= TSLAG(wage_growth- 0.02, 8)
+
+# vi kan se de alle ligger under 3% derfor burde stattilpasnings procenten bare være 0 og dermed statsreguleringen er bare 2%
+
+wage_growth_1q %>%
+  rename(Q1='as.numeric(wage_growth)[c(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56)]') %>%
+  mutate(max_dp_growth= 0.02) %>%
+  mutate(diff= Q1 - max_dp_growth) %>%
+  summarise(sum_diff= sum(diff))
+
+# Nu med aftagende statsregulering 
+
+fradrag= c(0,0,0,0,0,0,0,0,0,0.3,0.4,0.75,0.75,0.75)
+Stat_reg= c(1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4)
+new_stat_reg= (Stat_reg-fradrag)/100
+
+wage_growth_1q %>%
+  rename(Q1='as.numeric(wage_growth)[c(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56)]') %>%
+  mutate(max_dp_growth= new_stat_reg) %>%
+  mutate(diff= Q1 - max_dp_growth) %>%
+  summarise(sum_diff= sum(diff))
+
+
+```
+
+
+
 
 ## Scenario 1
 

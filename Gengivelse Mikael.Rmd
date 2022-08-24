@@ -25,8 +25,6 @@ library(tidyverse)
 AAMK <- read_excel("AAMK.xlsx")
 globaldemand1 <- read_excel("globaldemand1.xlsx")
 
-
-
 names(AAMK) <- tolower(names(AAMK))
 names(globaldemand1) <- tolower(names(globaldemand1))
 
@@ -4221,7 +4219,7 @@ S_modelData=list(
 S_model=LOAD_MODEL_DATA(S_model,S_modelData)
 ```
 
-
+# Estimate
 ```{r}
 
 #Estimate model coefficients
@@ -4230,7 +4228,7 @@ S_model=ESTIMATE(S_model
 )
 ```
 
-
+# Simulate 
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
