@@ -1321,6 +1321,24 @@ prodk_ds_shock = prodk_ds
 
 # New variables for LF model
 
+## max_dp
+
+Bruger estimater der op til 2009 er fra danmarks statistik bank, og derefter er fra andre hjemmesider der inkludere et beløb. 
+
+
+```{r}
+max_dp_month= c(641*21.667, 654*21.667, 667*21.667, 683*21.667, 703*21.667, 15708, 16293, 16597, 17073, 801*21.667, 815*21.667, 827*21.667, 18113, 18403, 18633, 18866,19083)
+max_dp_q= max_dp_month*3
+
+data_dp_q= ts(c(max_dp_q[1],max_dp_q[1],max_dp_q[1],max_dp_q[1],max_dp_q[2],max_dp_q[2],max_dp_q[2],max_dp_q[2],max_dp_q[3],max_dp_q[3],max_dp_q[3],max_dp_q[3],max_dp_q[4],max_dp_q[4],max_dp_q[4],max_dp_q[4],max_dp_q[5],max_dp_q[5],max_dp_q[5],max_dp_q[5],max_dp_q[6],max_dp_q[6],max_dp_q[6],max_dp_q[6],max_dp_q[7],max_dp_q[7],max_dp_q[7],max_dp_q[7],max_dp_q[8],max_dp_q[8],max_dp_q[8],max_dp_q[8],max_dp_q[9],max_dp_q[9],max_dp_q[9],max_dp_q[9],max_dp_q[10],max_dp_q[10],max_dp_q[10],max_dp_q[10],max_dp_q[11],max_dp_q[11],max_dp_q[11],max_dp_q[11],max_dp_q[12],max_dp_q[12],max_dp_q[12],max_dp_q[12],max_dp_q[13],max_dp_q[13],max_dp_q[13],max_dp_q[13],max_dp_q[14],max_dp_q[14],max_dp_q[14],max_dp_q[14],max_dp_q[15],max_dp_q[15],max_dp_q[15],max_dp_q[15],max_dp_q[16],max_dp_q[16],max_dp_q[16],max_dp_q[16],max_dp_q[17],max_dp_q[17],max_dp_q[17],max_dp_q[17]))
+
+max_dp_quarter=ts(data_dp_q/1000, start= c(2004,1), frequency = 4)
+
+max_dp_growth=TSDELTA(max_dp_quarter,4)/TSLAG(max_dp_quarter,4)
+```
+
+
+
 ## Komp_r
 
 ```{r}
@@ -1360,7 +1378,7 @@ komp_r2 = dp_person2/ wage_trim
 plot(komp_r2)
 
 
-## komp_r2
+## komp_r3
 dp_tot2= sben_h_r*ratio_dag2
 nben_h_un2 = round(dp_tot2)
 nben_h_rest2= nben_h - nben_h_un2
@@ -1375,22 +1393,14 @@ plot(komp_r3)
 plot(komp_r, col= "red", ylim= c(0.2,0.9)); lines(komp_r1, col = "blue");lines(komp_r2, col = "green");lines(komp_r3, col = "pink");grid()
 
 
-```
+## Komp_r4 ud fra maximal dp
 
-
-## max_dp
-
-Bruger estimater der op til 2009 er fra danmarks statistik bank, og derefter er fra andre hjemmesider der inkludere et beløb. 
-
-Bruger 
-
-```{r}
-
-max_dp= c(641*21.667, 654*21.667, 667*21.667, 683*21.667, 703*21.667, 15708, 16293, 16597, 17073, 801*21.667, 815*21.667, 827*21.667, 18113, 18403, 18633, 18866,19083)
-
-max_dp_growth= diff(max_dp)/max_dp*100
+komp_r4 = max_dp_quarter/ wage_trim1
+plot(komp_r4)
 
 ```
+
+
 
 
 
@@ -4794,7 +4804,6 @@ grid()
 ## Komp_r shock
 
 ```{r}
-wageindex
 
 #Yearly change in wage: (as max dagpenge kun ændres årligt?)
 
