@@ -17,9 +17,7 @@ library(readxl)
 library(tidyverse)
 ```
 
-
 # Import data
-
 
 ```{r}
 AAMK <- read_excel("AAMK.xlsx")
@@ -37,11 +35,6 @@ attach(AAMK)
 attach(globaldemand1)
 ```
 
-
-
-
-
-
 ```{r}
 ## Change name in globaldemand1
 
@@ -49,17 +42,14 @@ g_20= globaldemand1$`g-20`
 
 ```
 
-
 ```{r}
 eq_nf_l_nf = res_eq_nf_l
 eq_f_l_f = res_eq_f_l
 ```
 
-
 # PARAMETERS
 
 ## Create dummies
-
 
 ```{r}
 d_2006q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
@@ -201,8 +191,8 @@ shock= ts(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 ```
 
-
 Dummies til stød
+
 ```{r}
 d_2013q4=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
  dummy_start=c(2013,4), dummy_end = c(2013,4),
@@ -213,9 +203,9 @@ d_2017q1=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
  basic_value = 0, dummy_value = 1, frequency = 4)
 ```
 
-# Variables 
+# Variables
 
-## Real Variables 
+## Real Variables
 
 ```{r}
 pc = pc/100
@@ -232,8 +222,6 @@ xk = x/px
 mk = m/pm
 ```
 
-
-
 ```{r}
 
 i_adj_h = i_h -  (i_equip_h + i_bd_h)
@@ -249,14 +237,12 @@ i_equip_g_k = i_equip_g/p_equip
 i_equip_fc_k =  i_equip_fc/p_equip
 ```
 
-
 ```{r}
 i_bd_h_k =  i_bd_h/p_bd
 i_bd_nfc_k =  i_bd_nfc/p_bd
 i_bd_g_k =  i_bd_g/p_bd
 i_bd_fc_k =  i_bd_fc/p_bd
 ```
-
 
 I just deflate the adjustment terms using p_equip as well (assuming most of it is changes in inventories)
 
@@ -277,8 +263,6 @@ ik =  i_equip_h_k + i_equip_nfc_k  +  i_equip_g_k + i_equip_fc_k +  i_bd_h_k + i
 ikk = i/pi_1
 ```
 
-
-
 ```{r}
 yk = ik + pconk + gk + xk - mk
 ```
@@ -295,7 +279,6 @@ iba_f = - (iba_h + iba_nf + iba_g + iba_row) # The data from the database is not
 iba_f_tr = - (iba_h_tr + iba_nf_tr + iba_g_tr + iba_row_tr) #The data from the database is not consistent (the sum of IBA transactions does not add up to zero). I fix it by assuming that iba_f_tr is entirely demand-led.
 ```
 
-
 ```{r}
 ### Jeg tager bare og fjerner første observation fra dem der er minuse så den først starer i 2005q3
 
@@ -306,11 +289,9 @@ iba_g_rvx=diff(iba_g)-iba_g_tr[-1]
 iba_row_rvx=diff(iba_row)-iba_row_tr[-1]
 ```
 
-
 ```{r}
 eq_h = - ((eq_f_a - eq_f_l) + (eq_nf_a - eq_nf_l) + eq_g + (eq_row_a - eq_row_l)) #The data from the database is not consistent (the sum of the stocks of equities does not add up to zero). I fix it by assuming that eq_h absorbbs the small discrepancies that come from the database.
 ```
-
 
 ```{r}
 ### Der ages diff så de sarer alle i 2005Q3
@@ -324,7 +305,6 @@ eq_g_rvx=diff(eq_g)-eq_g_tr[-1]
 eq_row_a_rvx=diff(eq_row_a)-eq_row_a_tr[-1]
 eq_row_l_rvx=diff(eq_row_l)-eq_row_l_tr[-1]
 ```
-
 
 ```{r}
 
@@ -359,7 +339,6 @@ eq_row_l_rvx = diff(eq_row_l)-eq_row_l_tr[-1]
 ins_f = - (ins_row + ins_h + ins_nf + ins_g) # The database is almost consistent, but I redifine ins_f to make it fully consistent and avoid carrying discrepancies along when running the simulations.
 ins_f_tr = - (ins_row_tr + ins_h_tr + ins_nf_tr + ins_g_tr) # The database is almost consistent, but I redifine ins_f_tr to make it fully consistent and avoid carrying discrepancies along when running the simulations.
 ```
-
 
 ```{r}
 
@@ -412,7 +391,6 @@ int_r_h_adj = int_r_h  - (stats::lag(idep,-1)*stats::lag(iba_h,-1)  + stats::lag
 int_p_h_adj = int_p_h  + stats::lag(iloan,-1)*stats::lag(l_h,-1)
 ```
 
-
 ```{r}
 #For the rest of the sectors, we just calculate the discrepancies based on net asset holding
 int_g_adj = (int_r_g - int_p_g) - (stats::lag(idep,-1)*stats::lag(iba_g,-1) + stats::lag(iloan,-1)*stats::lag(l_g,-1) + stats::lag(ibd,-1)*stats::lag(sec_g,-1))
@@ -427,9 +405,7 @@ int_f_adj = (int_r_f - int_p_f) - (stats::lag(idep,-1)*stats::lag(iba_f,-1) + st
 test = int_nf_adj  + int_h_adj  + int_g_adj  + int_f_adj  + int_row_adj
 ```
 
-
 Below we create series for equities viz-a-viz counterparties. The data is only available from 2012 onwards so we use the porportion w.r.t to the aggregate payments to create data back in time (because we have aggregate data)
-
 
 ```{r}
 
@@ -442,7 +418,6 @@ mean(alpha_nf_rv[c(1:2,4:30)])
 mean(alpha_f_rv[c(1:2,4:30)])
 mean(alpha_row_rv[c(1:2,4:30)])
 ```
-
 
 dummies for equity revaluation equations
 
@@ -458,7 +433,6 @@ dummy_2=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
  basic_value = 0, dummy_value = 1, frequency = 4)
 
 ```
-
 
 ```{r}
 #Tjek om rigtige
@@ -519,7 +493,6 @@ div_nf1_adj =  (div_r_nf  - div_p_nf) - (stats::lag(Neq_nf,-1)*stats::lag(divd,-
 div_nf_adj = d_20124*(div_nf2_adj) + (1-d_20124)*(div_nf1_adj)
 ```
 
-
 ```{r}
 div_nf =d_20124*(((stats::lag(eq_nf_a_nf,-1) + stats::lag(eq_nf_a_f,-1) - stats::lag(eq_nf_l_nf,-1) + stats::lag(eq_h_nf,-1) + stats::lag(eq_row_a_nf,-1) + stats::lag(eq_f_a_nf,-1) + stats::lag(eq_g_nf,-1)))* stats::lag(divd,-1) + stats::lag(eq_nf_a_row,-1)*stats::lag(diva,-1)) + (1-d_20124)*(stats::lag(Neq_nf,-1)*stats::lag(divd,-1)) + div_nf_adj
 
@@ -537,18 +510,12 @@ div_f_adj = d_20124*div_f2_adj + (1-d_20124)*(div_f1_adj)
 
 ```
 
-
-
-
-
-
 ```{r}
 div_f = d_20124 *(((stats::lag(eq_f_a_f,-1) + stats::lag(eq_nf_a_nf,-1)) - (stats::lag(eq_f_l_f,-1) + stats::lag(eq_h_f,-1)+ stats::lag(eq_row_a_f,-1) + stats::lag(eq_nf_a_f,-1) + stats::lag(eq_g_f,-1)))* stats::lag(divd,-1) + stats::lag(eq_f_a_row,-1)*stats::lag(diva,-1)) + (1-d_20124)*((stats::lag(Neq_f,-1)*stats::lag(divd,-1))) +  div_f_adj 
 
 
 div_f1 =  div_r_f - div_p_f
 ```
-
 
 ```{r}
 div_h2_adj = div_r_h - ((stats::lag(eq_h_nf,-1) + stats::lag(eq_h_f,-1))*stats::lag(divd,-1) + stats::lag(eq_h_row,-1)*stats::lag(diva,-1))
@@ -592,7 +559,6 @@ div_row = d_20124 * (  (stats::lag(eq_row_a_nf,-1) + stats::lag(eq_row_a_f,-1))*
 div_row1 =  div_r_row - div_p_row
 ```
 
-
 ```{r}
 check_div1 =  (div_r_row - div_p_row) +  (div_r_g - div_p_g) +  (div_r_h - div_p_h) +  (div_r_nf - div_p_nf) +  (div_r_f - div_p_f)
 
@@ -617,7 +583,6 @@ ins_h_tr_excl_d8 = ins_h_tr - d8_h
 
 Below I compute the adjustment variables that correct the discrepancy between net lending and financial net lending
 
-
 ```{r}
 nl_h = s_h - i_h - np_h + ctr_h
 fnl_h = iba_h_tr + sec_h_tr + l_h_tr + eq_h_tr + ins_h_tr
@@ -636,13 +601,11 @@ fnl_f = iba_f_tr + sec_f_a_tr + sec_f_d_tr + l_f_tr + eq_f_a_tr - eq_f_l_tr + in
 nl_f_adj = fnl_f - nl_f
 ```
 
-
 ```{r}
 nl_g = s_g - i_g - np_g + ctr_g
 fnl_g = iba_g_tr + eq_g_tr + sec_g_tr + l_g_tr + ins_g_tr
 nl_g_adj = fnl_g - nl_g 
 ```
-
 
 ```{r}
 int_row = (stats::lag(idep,-1)*stats::lag(iba_row,-1) + stats::lag(iboa,-1)*stats::lag(sec_row,-1) + stats::lag(iloan,-1)*stats::lag(l_row,-1))
@@ -661,7 +624,6 @@ fnl_row = iba_row_tr + Neq_row_tr  + sec_row_tr + l_row_tr + ins_row_tr
 
 nl_row_adj = fnl_row - nl_row 
 ```
-
 
 ```{r}
 sumfnl = fnl_h + fnl_f + fnl_nf + fnl_g + fnl_row
@@ -705,8 +667,6 @@ u=yk/(bd_nfc_k+equip_nfc_k) #Rate of capacity utilization
 prate=s_nf/(stats::lag(bd_nfc,-1)+stats::lag(equip_nfc,-1)) # Profit rate
 ```
 
-
-
 Labour market
 
 ```{r}
@@ -737,7 +697,6 @@ Labour market
  nben_h = nsben_h + d8_h
 ```
 
-
 ```{r}
 nl_check= (nl_h + nl_f + nl_nf + nl_g + nl_row) # needs to be fixed:
  fnl_check= (fnl_h + fnl_f + fnl_nf + fnl_g + fnl_row)  # this one is fine: because there is almost no connection between the real side and financial side at the moment
@@ -757,8 +716,8 @@ nl_check= (nl_h + nl_f + nl_nf + nl_g + nl_row) # needs to be fixed:
 check_sec = sec_h + sec_f_a + sec_f_d + sec_nf + sec_g + sec_row ## needs to be fixed
 ```
 
+Ved ik helt om nedenstående skal med
 
-Ved ik helt om nedenstående skal med 
 ```{r}
 #smpl 2005q2 2019q1
 
@@ -768,10 +727,7 @@ Ved ik helt om nedenstående skal med
 tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
 ```
 
-
-
-
-# The model 
+# The model
 
 ```{r}
 library(mFilter)
@@ -780,6 +736,7 @@ library(knitr)
 ```
 
 ## DEseasonalyse
+
 ```{r}
 
 ## I_BD_H_K
@@ -1248,8 +1205,6 @@ rw_ds = wage_ds/pc_ds #real wage rate based on deseasonalized variables
 reprate_bd_h = (mean(delta_bd_h)*stats::lag(bd_h_k,-1))/i_bd_h_k_ds # replacement rate 
 ```
 
-
-
 # Genskabning
 
 ## Extra variables created to run the model:
@@ -1316,15 +1271,11 @@ prodk_ds_shock = prodk_ds
 
 ```
 
-
-
-
 # New variables for LF model
 
 ## max_dp
 
-Bruger estimater der op til 2009 er fra danmarks statistik bank, og derefter er fra andre hjemmesider der inkludere et beløb. 
-
+Bruger estimater der op til 2009 er fra danmarks statistik bank, og derefter er fra andre hjemmesider der inkludere et beløb.
 
 ```{r}
 max_dp_month= c(641*21.667, 654*21.667, 667*21.667, 683*21.667, 703*21.667, 15708, 16293, 16597, 17073, 801*21.667, 815*21.667, 827*21.667, 18113, 18403, 18633, 18866,19083)
@@ -1337,11 +1288,17 @@ max_dp_quarter=ts(data_dp_q/1000, start= c(2004,1), frequency = 4)
 max_dp_growth=TSDELTA(max_dp_quarter,4)/TSLAG(max_dp_quarter,4)
 ```
 
-
-
 ## Komp_r
 
+As some of the variables are yearly and stock variables we devide them by 4 
+
 ```{r}
+tyd_q= tyd/4
+tydd_q= tydd/4
+```
+
+
+```{r, fig.width=10, fig.height=7}
 ## komp_r
 dp_tot= sben_h_r*ratio_dag
 nben_h_un = round(dp_tot)
@@ -1390,15 +1347,53 @@ komp_r3 = dp_person2/ wage_trim1
 plot(komp_r3)
 
 
-plot(komp_r, col= "red", ylim= c(0.2,0.9)); lines(komp_r1, col = "blue");lines(komp_r2, col = "green");lines(komp_r3, col = "pink");grid()
-
-
 ## Komp_r4 ud fra maximal dp
+## Kan muligvis finde antallet af maxdagpenge modtagere.
 
-komp_r4 = max_dp_quarter/ wage_trim1
+komp_r4 = max_dp_quarter*0.8/ wage_trim1
 plot(komp_r4)
 
+
+## komp_r5 Bruger "kuld", "uld" og "tyd" fra ADAM
+
+nben_h_rest5= nben_h - tydd_q
+dp_person5 = tydd_q/(ul* kuld)
+w_h_r_trim1 = w_h_r - abm
+wage_trim1 = w_h_r_trim1/emp
+komp_r5 = dp_person5/ wage_trim1
+
+plot(komp_r5)
+
+
+## komp_r6 Bruger "kuld" og "tyd" fra ADAM
+
+nben_h_rest6= nben_h - tydd_q
+dp_person6 = tydd_q/(unemp* kuld)
+w_h_r_trim1 = w_h_r - abm
+wage_trim1 = w_h_r_trim1/emp
+komp_r6 = dp_person6/ wage_trim1
+
+plot(komp_r6)
+
+
+## komp_r7 bruger "kuld"
+dp_tot7= sben_h_r*ratio_dag
+nben_h_un7 = round(dp_tot7)
+nben_h_rest7= nben_h - nben_h_un7
+dp_person7 = nben_h_un7/(unemp*kuld)
+w_h_r_trim1 = w_h_r - abm
+wage_trim1 = w_h_r_trim1/emp
+komp_r7 = dp_person7/ wage_trim1
+
+plot(komp_r7)
+
+
+
+plot(komp_r, col= "red", ylim= c(0.2,0.9)); lines(komp_r1, col = "blue");lines(komp_r2, col = "green");lines(komp_r3, col = "pink"); lines(komp_r4, col = "yellow");lines(komp_r5, col = "black");lines(komp_r6, col = "orange");lines(komp_r7, col = rgb(0.4,1,1));legend("top",legend=c("kompr", "kompr1", "kompr2", "kompr3", "kompr4", "kompr5", "kompr6","kompr7"),lty=c(1,1,1,1,1,1,1,1),lwd=c(2),bty="n", col = c("red", "blue","green","pink","yellow","black","orange",rgb(0.4,1,1)));grid()
+
 ```
+
+Vi kan se at den store forskel ligger i om vi bruger unemployment data fra vores model eller ADAM. 
 
 
 
@@ -2753,9 +2748,6 @@ STORE> coe(16)
 END"
 ```
 
-
-
-
 # Equations der måske skal bruges
 
 ```{r}
@@ -2773,7 +2765,6 @@ COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 p_528 p_529 p_530
 STORE> coe(13)"
 ```
 
-
 ```{r}
 S_model=LOAD_MODEL(modelText = S_model.txt)
 ```
@@ -2790,7 +2781,6 @@ ratio_in_eq_h= (div_r_h+eq_h_rvx)/TSLAG(eq_h)
 ur_ds_shock= ur_ds
 yd1_hk_ds_shock= yd1_hk_ds
 ```
-
 
 ```{r}
 
@@ -4356,9 +4346,6 @@ S_modelData=list(
 )
 ```
 
-
-
-
 ```{r}
 S_model=LOAD_MODEL_DATA(S_model,S_modelData)
 
@@ -4375,6 +4362,7 @@ S_model=ESTIMATE(S_model
 ```
 
 # Simulate
+
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
@@ -4385,9 +4373,7 @@ S_model <- SIMULATE(S_model
                    )
 ```
 
-
 ### compare with real data
-
 
 ```{r, echo=FALSE}
 part_00 = S_model$simulation$part
@@ -4752,9 +4738,6 @@ yd_hk_ds_00 = S_model$simulation$yd_hk_ds; yd_hk_ds_00-yd_hk_ds
 pc_00 = S_model$simulation$pc; pc_00-pc
 ```
 
-
-
-
 ```{r}
 plot(part_00, col= "green"); lines(part, col = "blue")
 plot(komp_r_00, col= "green"); lines(komp_r2, col = "blue")
@@ -4763,9 +4746,6 @@ plot(lf_00, col= "green"); lines(LF, col = "blue")
 plot(emp_00, col= "green"); lines(emp, col = "blue")
 plot(wageindex_00, col= "green"); lines(wageindex, col = "blue")
 ```
-
-
-
 
 ```{r}
 
@@ -4796,10 +4776,7 @@ grid()
 
 ```
 
-
-
 # Shocks
-
 
 ## Komp_r shock
 
@@ -4846,6 +4823,19 @@ wage_growth_1q %>%
 ```
 
 
+De nævner selv at den løn stigning der regnes med er fratrukket arbejdsgiveradministrerede pensionsordninger 
+
+
+```{r}
+
+max_dp_2009= 47124
+kons_max_dp= ts(c(47124, 47124*1.02, 47124*(1.02^2),47124*(1.02^3), 47124*(1.02^4), 47124*(1.02^5), 47124*(1.02^6), 47124*(1.02^6)*(1.011), 47124*(1.02^6)*(1.011)*(1.01), 47124*(1.02^6)*(1.011)*(1.01)*(1.0065), 47124*(1.02^6)*(1.011)*(1.01)*(1.0065^2), 47124*(1.02^6)*(1.011)*(1.01)*(1.0065^3)), start = 2009, frequency = 1)
+
+
+plot(kons_max_dp)
+
+plot(max_dp_quarter[c(21,25,29,33,37,41,45,49,53,57,61,65)]*1000, type="l")
+```
 
 
 ## Scenario 1
@@ -4857,9 +4847,6 @@ shock_g=g %>% window(start= c(2010,1))
 shock_komp_r=komp_r %>% window(start= c(2010,1))
 ```
 
-
-
-
 ```{r}
 # Define add-factor list (defining shock)
 constantAdjList <- list(
@@ -4869,7 +4856,6 @@ constantAdjList <- list(
 )
 
 ```
-
 
 ```{r}
 # Simulate the model (following shock)
@@ -4884,8 +4870,6 @@ Shock_g <- SIMULATE(S_model
 
 
 ```
-
-
 
 ```{r}
 part_01 = Shock_g$simulation$part
@@ -4931,9 +4915,6 @@ yh_01 = Shock_g$simulation$yh
 
 ```
 
-
-
-
 ```{r}
 
 
@@ -4974,11 +4955,7 @@ grid()
 
 ```
 
-
-
-
-
-#Empirical testing 
+\#Empirical testing
 
 ```{r}
 library(dynlm)
@@ -5008,7 +4985,6 @@ summary(urca_part_diff)
 
 part is I(1)
 
-
 ## Komp_r
 
 ```{r}
@@ -5020,10 +4996,6 @@ summary(model_start_komp)
 res_start_komp= residuals(model_start_komp)
 shapiro.test(res_start_komp)
 ```
-
-
-
-
 
 ```{r}
 urca_komp_r= ur.df(komp_r, lags = 4, type = "drift")
@@ -5038,21 +5010,13 @@ urca_komp_r_diff= ur.df(diff(komp_r), lags = 2, type = "drift")
 summary(urca_komp_r_diff)
 ```
 
+Ser ud til komp_r er I(0) på 10% significans niveau, meget tæt på 5%
 
-Ser ud til komp_r er I(0) på 10% significans niveau, meget tæt på 5% 
-
-# Econometrics models: 
-
-
-
+# Econometrics models:
 
 ## Part
 
-
-
-
-
-### Test for cointergration: 
+### Test for cointergration:
 
 ```{r}
 eg_part= dynlm(part~komp_r)
@@ -5065,8 +5029,7 @@ eg_part_res=residuals(eg_part)
 plot(eg_part_res)
 ```
 
-
-Use function: 
+Use function:
 
 ```{r}
 arpdiag<-function(series,lags){
@@ -5080,8 +5043,6 @@ Autocorrelation",ylim=c(0,1))
 axis(1,1:lags)
 abline(0.05,0,lty=2,col = "blue")}
 ```
-
-
 
 ```{r}
 adf_eg_part<-ur.df(eg_part_res,lags=0,type='none')
@@ -5108,12 +5069,11 @@ reg_part_start=dynlm(TSDELTALOG(part) ~ 1 + L(TSDELTALOG(part),1:4) +  L(TSDELTA
 summary(reg_part_start)
 ```
 
-
-
 ```{r}
 res_reg_part=residuals(reg_part_start)
 shapiro.test(res_reg_part)
 ```
+
 Use F-es to remove lags
 
 ```{r}
@@ -5137,8 +5097,6 @@ linearHypothesis(reg_part_start, vars_out_1, rep(0, length(vars_out_1)))
 
 Final model
 
-
-
 ```{r}
 "COMMENT> Endogonize partitipation rate
 BEHAVIORAL> part
@@ -5147,13 +5105,11 @@ COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7 beta_8 beta_9 bet
 STORE> coe(16)"
 ```
 
-
 ```{r}
 reg_part=dynlm(TSDELTALOG(part) ~ 0 + L(TSDELTALOG(part),2)+  L(TSDELTALOG(rw_ds),0:3) + L(TSDELTA(ur_ds),0)+ L(log(part),1) + L(log(komp_r2),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
 
 summary(reg_part)
 ```
-
 
 ## rw_ds
 
@@ -5164,11 +5120,11 @@ summary(reg_rw_ds_start)
 
 ```
 
-
 ```{r}
 res_reg_rw_ds=residuals(reg_rw_ds_start)
 shapiro.test(res_reg_rw_ds)
 ```
+
 Use F-es to remove lags
 
 ```{r}
@@ -5191,7 +5147,6 @@ linearHypothesis(reg_rw_ds_start, vars_out_1, rep(0, length(vars_out_1)))
 ```
 
 Final model
-
 
 ```{r}
 reg_rw_ds=dynlm(TSDELTALOG(rw_ds) ~ 0   + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)))

@@ -1,0 +1,96 @@
+---
+title: "komp_r"
+author: "Simon"
+date: "26/8/2022"
+output: html_document
+---
+```{r}
+rm(list = ls())
+
+library(tstools)
+library(readxl)
+library(tidyverse)
+```
+
+```{r}
+komp_r <- read_excel("komp_r.xlsx")
+
+komp_r=lapply(komp_r, function(t) ts(t, start=c(2005), end=c(2021),frequency=1))
+
+attach(komp_r)
+```
+
+```{r}
+komp_r1= (tyd/uld)/(lah*(1-tsya)*0.001) 
+plot(komp_r1)
+
+
+komp_r2= (tyd/uld)/((lnap*ha)*(1-tsya)*0.001) 
+
+plot(komp_r2)
+```
+
+
+# Udregn max_dp
+
+```{r}
+
+AAMK <- read_excel("AAMK.xlsx")
+globaldemand1 <- read_excel("globaldemand1.xlsx")
+
+
+
+names(AAMK) <- tolower(names(AAMK))
+names(globaldemand1) <- tolower(names(globaldemand1))
+
+AAMK=lapply(AAMK, function(t) ts(t, start=c(2005, 2), end=c(2020, 1),frequency=4))
+globaldemand1=lapply(globaldemand1, function(t) ts(t, start=c(2005, 2), end=c(2020, 1),frequency=4))
+
+attach(AAMK)
+attach(globaldemand1)
+```
+
+
+
+```{r}
+
+#Yearly change in wage: (as max dagpenge kun ændres årligt?)
+
+wage_growth=TSDELTA(wageindex,4)
+
+wage_growth_1q=as.data.frame(as.numeric(wage_growth)[c(4,8,12,16,20,24,28,32,36,40,44,48,52,56)])
+
+wage_growth_1q %>%
+  rename(Q1='as.numeric(wage_growth)[c(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56)]') %>%
+  mutate(max_dp_growth= ifelse(Q1>= 0.023 , 0.023, ifelse(Q1>= 0.02 & Q1 < 0.023, 0.02, Q1) )) %>%
+  mutate(diff= Q1 - max_dp_growth) %>%
+  summarise(sum_diff= sum(diff))
+
+
+## ud fra ADAMS forklaring
+
+tp_pr= TSLAG(wage_growth- 0.02, 8)
+
+# vi kan se de alle ligger under 3% derfor burde stattilpasnings procenten bare være 0 og dermed statsreguleringen er bare 2%
+
+wage_growth_1q %>%
+  rename(Q1='as.numeric(wage_growth)[c(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56)]') %>%
+  mutate(max_dp_growth= 0.02) %>%
+  mutate(diff= Q1 - max_dp_growth) %>%
+  summarise(sum_diff= sum(diff))
+
+# Nu med aftagende statsregulering 
+
+fradrag= c(0,0,0,0,0,0,0,0,0,0.3,0.4,0.75,0.75,0.75)
+Stat_reg= c(1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4)
+new_stat_reg= (Stat_reg-fradrag)/100
+
+wage_growth_1q %>%
+  rename(Q1='as.numeric(wage_growth)[c(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56)]') %>%
+  mutate(max_dp_growth= new_stat_reg) %>%
+  mutate(diff= Q1 - max_dp_growth) %>%
+  summarise(sum_diff= sum(diff))
+
+
+```
+
