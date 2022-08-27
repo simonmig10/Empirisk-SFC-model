@@ -4923,7 +4923,10 @@ plot(komp_r_ny1)
 ```{r}
 (obs_dp_q/1000)*emp*0.85
 
-wage
+
+obs_dp_q_test=obs_dp_q/1000
+
+lm(window(tydd,start=c(2007,1)) ~ obs_dp_q_test)
 
 ```
 
@@ -5221,7 +5224,7 @@ res_reg_rw_ds=residuals(reg_rw_ds_start)
 shapiro.test(res_reg_rw_ds)
 ```
 
-Use F-es to remove lags
+Use F-test to remove lags
 
 ```{r}
 
