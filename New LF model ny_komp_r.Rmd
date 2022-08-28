@@ -4943,7 +4943,7 @@ total_dp_wage= wage_dp_q_test*total_dp_reg$coefficients[1]*window(unemp,start=c(
 komp_r_wage=wage_dp_q_test*total_dp_reg$coefficients[1]/window(wage_trim1,start=c(2007,1))
 
 plot(total_dp_wage)
-plot(total_dp_obs)
+plot(komp_r_wage - komp_r_obs)
 plot(total_dp_wage-total_dp_obs)
 ```
 
