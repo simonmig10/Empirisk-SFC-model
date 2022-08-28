@@ -4921,18 +4921,30 @@ plot(komp_r_ny1)
 
 
 ```{r}
-(obs_dp_q/1000)*emp*0.85
-
 
 obs_dp_q_test=obs_dp_q/1000
+adam_dp_person= (tyd/uld)/4
 
-lm(window(tydd,start=c(2007,1)) ~ obs_dp_q_test)
+## Måske brug IV-regression
+total_dp_reg=lm(window(adam_dp_person,start=c(2007,1)) ~ 0 +obs_dp_q_test)
+
+total_dp_obs=total_dp_reg$fitted.values*window(unemp,start=c(2007,1))*window(kuld,start=c(2007,1))
+
+komp_r_obs=total_dp_reg$fitted.values/window(wage_trim1,start=c(2007,1))
 
 ```
 
 
 ```{r}
-wage_dp_q
+wage_dp_q_test= wage_dp_q/1000
+
+total_dp_wage= wage_dp_q_test*total_dp_reg$coefficients[1]*window(unemp,start=c(2007,1))*window(kuld,start=c(2007,1))
+
+komp_r_wage=wage_dp_q_test*total_dp_reg$coefficients[1]/window(wage_trim1,start=c(2007,1))
+
+plot(total_dp_wage)
+plot(total_dp_obs)
+plot(total_dp_wage-total_dp_obs)
 ```
 
 
