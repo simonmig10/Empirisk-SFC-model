@@ -1268,6 +1268,7 @@ propinc_r_nf = int_r_nf + div_r_nf + ins_r_nf + res_r_nf
 
 g_shock= g
 prodk_ds_shock = prodk_ds
+max_dp_shock= obs_dp_q_test
 
 ```
 
@@ -1398,7 +1399,67 @@ plot(komp_r, col= "red", ylim= c(0.2,0.9)); lines(komp_r1, col = "blue");lines(k
 Vi kan se at den store forskel ligger i om vi bruger unemployment data fra vores model eller ADAM. 
 
 
+# code for Shocks
 
+## Komp_r shock
+
+```{r}
+
+library(magrittr)
+
+#Yearly change in wage: (as max dagpenge kun ændres årligt?)
+
+wage_growth=TSDELTA(wageindex,4)
+
+wage_growth_1q=as.data.frame(as.numeric(wage_growth)[c(1,4,8,12,16,20,24,28,32,36,40,44,48,52,56)]) # Jeg bruger kvartal 2 fra 2006 som udviklling i 2006
+
+wage_growth_1q %<>% 
+  rename(Q1='as.numeric(wage_growth)[c(1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56)]')
+```
+
+
+De nævner selv at den løn stigning der regnes med er fratrukket arbejdsgiveradministrerede pensionsordninger 
+
+
+```{r}
+#Udregninger af maximal dagpenge beløb er lavet i "udregning af dagpenge"
+
+komp_r_ny = obs_dp_q_test/ wage_trim1
+plot(komp_r_ny)
+
+
+komp_r_ny1 = wage_dp_q_test/ wage_trim1
+plot(komp_r_ny1)
+```
+
+
+### Udregning af dagpenge total
+
+```{r}
+adam_dp_person= (tyd/uld)/4
+```
+
+
+```{r}
+## Måske brug IV-regression
+total_dp_reg=lm(adam_dp_person ~ 0 +obs_dp_q_test)
+summary(total_dp_reg)
+
+total_dp_obs=total_dp_reg$fitted.values*unemp*kuld
+
+komp_r_obs=total_dp_reg$fitted.values/wage_trim1
+
+```
+
+
+```{r}
+total_dp_wage= wage_dp_q_test*total_dp_reg$coefficients[1]*unemp*kuld
+
+komp_r_wage=wage_dp_q_test*total_dp_reg$coefficients[1]/wage_trim1
+
+
+nben_h_rest_obs= nben_h - total_dp_obs
+```
 
 
 # Txt. for model
@@ -1595,13 +1656,21 @@ COMMENT> tilføjet
 IDENTITY> nben_h
 EQ>  nben_h = nben_h_rest + nben_h_un
 
+
 COMMENT> tilføjet
 IDENTITY> komp_r
 EQ>  komp_r = (dp_person/wage_trim)
 
+
 COMMENT> tilføjet
 IDENTITY> nben_h_un
-EQ>  nben_h_un = komp_r*wage_trim*unemp
+EQ>  nben_h_un = dp_person*unemp*kuld
+
+COMMENT> tilføjet
+BEHAVIORAL> dp_person
+EQ>  dp_person = p_dp*max_dp
+COEFF> p_dp
+STORE> coe(16)
 
 COMMENT> tilføjet
 IDENTITY> wage_trim
@@ -1609,7 +1678,7 @@ EQ>  wage_trim = w_h_r_trim/emp
 
 COMMENT> tilføjet
 IDENTITY> w_h_r_trim
-EQ>  w_h_r_trim = w_h_r
+EQ>  w_h_r_trim = w_h_r-abm
 
 
 COMMENT> tilføjet
@@ -2739,6 +2808,10 @@ COMMENT> Lavet for at kunne støde til g
 IDENTITY> g
 EQ> g = g_shock
 
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> max_dp
+EQ> max_dp = max_dp_shock
+
 COMMENT> Endogonize partitipation rate
 BEHAVIORAL> part
 TSRANGE 2006 2 2020 1
@@ -2792,6 +2865,8 @@ yd1_hk_ds_shock= yd1_hk_ds
 S_modelData=list(  
   ## Households
   
+  max_dp_shock = TIMESERIES(c(max_dp_shock),   
+                       START=c(2005,2),FREQ=4),
   
   int_r_h = TIMESERIES(c(int_r_h),   
                        START=c(2005,2),FREQ=4),
@@ -3415,24 +3490,28 @@ S_modelData=list(
   acc_rate = TIMESERIES(c(acc_rate),   
                         START=c(2005,2),FREQ=4),
   
-   nben_h_rest = TIMESERIES(c(nben_h_rest2),   
+   nben_h_rest = TIMESERIES(c(nben_h_rest_obs),   
                        START=c(2005,2),FREQ=4),
-  nben_h_un = TIMESERIES(c(nben_h_un2),   
+  nben_h_un = TIMESERIES(c(total_dp_obs),   
                         START=c(2005,2),FREQ=4),
-  komp_r = TIMESERIES(c(komp_r2),   
+  komp_r = TIMESERIES(c(komp_r_obs),   
                         START=c(2005,2),FREQ=4),
   shock = TIMESERIES(c(shock),   
                         START=c(2005,2),FREQ=4),
   g_shock = TIMESERIES(c(g_shock),   
                         START=c(2005,2),FREQ=4),
   
-  wage_trim = TIMESERIES(c(wage_trim),   
+  wage_trim = TIMESERIES(c(wage_trim1),   
                         START=c(2005,2),FREQ=4),
-   dp_person = TIMESERIES(c(dp_person2),   
+   dp_person = TIMESERIES(c(adam_dp_person),   
+                        START=c(2005,2),FREQ=4),
+  max_dp = TIMESERIES(c(obs_dp_q_test),   
+                        START=c(2005,2),FREQ=4),
+  kuld = TIMESERIES(c(kuld),   
                         START=c(2005,2),FREQ=4),
   abm = TIMESERIES(c(abm),   
                         START=c(2005,2),FREQ=4),
-  w_h_r_trim = TIMESERIES(c(w_h_r_trim),   
+  w_h_r_trim = TIMESERIES(c(w_h_r_trim1),   
                         START=c(2005,2),FREQ=4),
   
   
@@ -4742,7 +4821,7 @@ pc_00 = S_model$simulation$pc; pc_00-pc
 
 ```{r}
 plot(part_00, col= "green"); lines(part, col = "blue")
-plot(komp_r_00, col= "green"); lines(komp_r2, col = "blue")
+plot(komp_r_00, col= "green"); lines(komp_r_obs, col = "blue")
 
 plot(lf_00, col= "green"); lines(LF, col = "blue")
 plot(emp_00, col= "green"); lines(emp, col = "blue")
@@ -4778,174 +4857,6 @@ grid()
 
 ```
 
-# Shocks
-
-## Komp_r shock
-
-```{r}
-
-library(magrittr)
-
-#Yearly change in wage: (as max dagpenge kun ændres årligt?)
-
-wage_growth=TSDELTA(wageindex,4)
-
-wage_growth_1q=as.data.frame(as.numeric(wage_growth)[c(4,8,12,16,20,24,28,32,36,40,44,48,52,56)])
-
-wage_growth_1q %<>% 
-  rename(Q1='as.numeric(wage_growth)[c(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56)]')
-
-wage_growth_1q %>%
-  mutate(max_dp_growth= ifelse(Q1>= 0.023 , 0.023, ifelse(Q1>= 0.02 & Q1 < 0.023, 0.02, Q1) )) %>%
-  mutate(diff= Q1 - max_dp_growth) %>%
-  summarise(sum_diff= sum(diff))
-
-
-## ud fra ADAMS forklaring
-
-tp_pr= TSLAG(wage_growth- 0.02, 8)
-
-# vi kan se de alle ligger under 3% derfor burde stattilpasnings procenten bare være 0 og dermed statsreguleringen er bare 2%
-
-wage_growth_1q %>%
-  mutate(max_dp_growth= 0.02) %>%
-  mutate(diff= Q1 - max_dp_growth) %>%
-  summarise(sum_diff= sum(diff))
-
-# Nu med aftagende statsregulering 
-
-fradrag= c(0,0,0,0,0,0,0,0,0,0.3,0.4,0.75,0.75,0.75)
-Stat_reg= c(1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4)
-new_stat_reg= (Stat_reg-fradrag)/100
-
-wage_growth_1q %>%
-  mutate(max_dp_growth= new_stat_reg) %>%
-  mutate(diff= Q1 - max_dp_growth) %>%
-  summarise(sum_diff= sum(diff))
-
-
-```
-
-
-De nævner selv at den løn stigning der regnes med er fratrukket arbejdsgiveradministrerede pensionsordninger 
-
-
-```{r}
-
-## Statsregulerings procenten er fratrukket fradrag fra 2016. 
-stats_reg= c(0.02, 0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.011, 0.016, 0.0125, 0.0125, 0.0115)
-
-## Tilpasnings og statstilpasningsprocent
-tilpas_pr= wage_growth_1q %>%
-  mutate(tilpas= Q1 - 0.02) %>%
-  mutate(stats_tilpas= ifelse(tilpas >= 0 & tilpas <= 0.03, 0, tilpas))
-
-## Udregning af maximum dp ved brug af regler fra statistik banken. 
-obs_max_dp= ts(c(44395,
-                 44395*1.02,
-                 44395*(1.02^2),
-                 44395*(1.02^3),
-                 44395*(1.02^4),
-                 44395*(1.02^5),
-                 44395*(1.02^6),
-                 44395*(1.02^7),
-                 44395*(1.02^8),
-                 44395*(1.02^8)*(1.011),
-                 44395*(1.02^8)*(1.011)*(1.016),
-                 44395*(1.02^8)*(1.011)*(1.016)*(1.0125),
-                 44395*(1.02^8)*(1.011)*(1.016)*(1.0125^2),
-                 44395*(1.02^8)*(1.011)*(1.016)*(1.0125^2)* (1.0115)),
-               start = 2007, frequency = 1)
-
-plot(obs_max_dp)
-
-plot(max_dp_q[4:17], type = "l")
-
-
-obs_dp_q= ts(c(obs_max_dp[1],obs_max_dp[1],obs_max_dp[1],obs_max_dp[1],obs_max_dp[2],obs_max_dp[2],obs_max_dp[2],obs_max_dp[2],obs_max_dp[3],obs_max_dp[3],obs_max_dp[3],obs_max_dp[3],obs_max_dp[4],obs_max_dp[4],obs_max_dp[4],obs_max_dp[4],obs_max_dp[5],obs_max_dp[5],obs_max_dp[5],obs_max_dp[5],obs_max_dp[6],obs_max_dp[6],obs_max_dp[6],obs_max_dp[6],obs_max_dp[7],obs_max_dp[7],obs_max_dp[7],obs_max_dp[7],obs_max_dp[8],obs_max_dp[8],obs_max_dp[8],obs_max_dp[8],obs_max_dp[9],obs_max_dp[9],obs_max_dp[9],obs_max_dp[9],obs_max_dp[10],obs_max_dp[10],obs_max_dp[10],obs_max_dp[10],obs_max_dp[11],obs_max_dp[11],obs_max_dp[11],obs_max_dp[11],obs_max_dp[12],obs_max_dp[12],obs_max_dp[12],obs_max_dp[12],obs_max_dp[13],obs_max_dp[13],obs_max_dp[13],obs_max_dp[13],obs_max_dp[14]), start = 2007, frequency = 4)
-
-
-
-komp_r_ny = obs_dp_q*0.8/1000/ window(wage_trim1, start=c(2007,1))
-plot(komp_r_ny)
-  
-
-
-```
-
-
-
-```{r}
-
-## Dagpenge hvis de havde fulgt lønudviklingen 1 til 1 med start i 2007
-
-wage_growth_1q
-
-wage_growth_1q %>%
-  mutate(sum= cumsum(Q1))%>%
-  mutate(sum_mean= sum/c(1,2,3,4,5,6,7,8,9,10,11,12,13,14))
-
-wage_max_dp= ts(c(44395,
-                 44395*1.043,
-                 44395*(1.044^2),
-                 44395*(1.041^3), 
-                 44395*(1.039^4), 
-                 44395*(1.036^5), 
-                 44395*(1.033^6), 
-                 44395*(1.031^7),
-                 44395*(1.032^8),
-                 44395*(1.028^9), 
-                 44395*(1.026^10),
-                 44395*(1.027^11),
-                 44395*(1.026^12),
-                 44395*(1.026^13),
-                 44395*(1.027^14)),
-               start = 2007, frequency = 1)
-
-
-plot(wage_max_dp)
-
-plot(wage_max_dp - obs_max_dp)
-
-
-wage_dp_q= ts(c(wage_max_dp[1],wage_max_dp[1],wage_max_dp[1],wage_max_dp[1],wage_max_dp[2],wage_max_dp[2],wage_max_dp[2],wage_max_dp[2],wage_max_dp[3],wage_max_dp[3],wage_max_dp[3],wage_max_dp[3],wage_max_dp[4],wage_max_dp[4],wage_max_dp[4],wage_max_dp[4],wage_max_dp[5],wage_max_dp[5],wage_max_dp[5],wage_max_dp[5],wage_max_dp[6],wage_max_dp[6],wage_max_dp[6],wage_max_dp[6],wage_max_dp[7],wage_max_dp[7],wage_max_dp[7],wage_max_dp[7],wage_max_dp[8],wage_max_dp[8],wage_max_dp[8],wage_max_dp[8],wage_max_dp[9],wage_max_dp[9],wage_max_dp[9],wage_max_dp[9],wage_max_dp[10],wage_max_dp[10],wage_max_dp[10],wage_max_dp[10],wage_max_dp[11],wage_max_dp[11],wage_max_dp[11],wage_max_dp[11],wage_max_dp[12],wage_max_dp[12],wage_max_dp[12],wage_max_dp[12],wage_max_dp[13],wage_max_dp[13],wage_max_dp[13],wage_max_dp[13],wage_max_dp[14]), start = 2007, frequency = 4)
-
-
-komp_r_ny1 = wage_dp_q*0.8/1000/ window(wage_trim1, start=c(2007,1))
-plot(komp_r_ny1)
-
-
-```
-
-### Udregning af dagpenge total
-
-
-```{r}
-
-obs_dp_q_test=obs_dp_q/1000
-adam_dp_person= (tyd/uld)/4
-
-## Måske brug IV-regression
-total_dp_reg=lm(window(adam_dp_person,start=c(2007,1)) ~ 0 +obs_dp_q_test)
-
-total_dp_obs=total_dp_reg$fitted.values*window(unemp,start=c(2007,1))*window(kuld,start=c(2007,1))
-
-komp_r_obs=total_dp_reg$fitted.values/window(wage_trim1,start=c(2007,1))
-
-```
-
-
-```{r}
-wage_dp_q_test= wage_dp_q/1000
-
-total_dp_wage= wage_dp_q_test*total_dp_reg$coefficients[1]*window(unemp,start=c(2007,1))*window(kuld,start=c(2007,1))
-
-komp_r_wage=wage_dp_q_test*total_dp_reg$coefficients[1]/window(wage_trim1,start=c(2007,1))
-
-plot(total_dp_wage)
-plot(komp_r_wage - komp_r_obs)
-plot(total_dp_wage-total_dp_obs)
-```
 
 
 
@@ -4962,7 +4873,7 @@ shock_komp_r=komp_r %>% window(start= c(2010,1))
 # Define add-factor list (defining shock)
 constantAdjList <- list(
   
- komp_r = TIMESERIES(shock_komp_r*0.1 ,START=c(2010,1),  FREQ='Q')
+ max_dp = TIMESERIES(wage_dp_q_test-obs_dp_q_test ,START=c(2005,2),  FREQ='Q')
 
 )
 
@@ -5062,8 +4973,6 @@ grid()
 
 # Den her passer ik hhelt ved ik om den rigtige
 
-
-
 ```
 
 #Empirical testing
@@ -5099,7 +5008,7 @@ part is I(1)
 ## Komp_r
 
 ```{r}
-model_start_komp <- dynlm(diff(komp_r) ~ 1+ L(komp_r, 1) + L(diff(komp_r), c(1, 2,4))+ d_2020q1+ d_2009q1)
+model_start_komp <- dynlm(diff(komp_r_obs) ~ 1+ L(komp_r_obs, 1) + L(diff(komp_r_obs), c(1,2,3,4)))
 summary(model_start_komp)
 ```
 
@@ -5109,14 +5018,14 @@ shapiro.test(res_start_komp)
 ```
 
 ```{r}
-urca_komp_r= ur.df(komp_r, lags = 4, type = "drift")
+urca_komp_r= ur.df(komp_r_obs, lags = 4, type = "drift")
 summary(urca_komp_r)
 ```
 
 Ser ud til vi skal tage diff
 
 ```{r}
-urca_komp_r_diff= ur.df(diff(komp_r), lags = 2, type = "drift")
+urca_komp_r_diff= ur.df(diff(komp_r_obs), lags = 3, type = "drift")
 
 summary(urca_komp_r_diff)
 ```
@@ -5175,7 +5084,7 @@ We can see that there is cointegration as we can conclude the error term to be I
 ### Error correction model
 
 ```{r}
-reg_part_start=dynlm(TSDELTALOG(part) ~ 1 + L(TSDELTALOG(part),1:4) +  L(TSDELTALOG(komp_r2),0:4)+  L(TSDELTALOG(rw_ds),0:4) + L(TSDELTALOG(ur_ds),0:4)+ L(log(part),1) + L(log(komp_r2),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
+reg_part_start=dynlm(TSDELTALOG(part) ~ 1 + L(TSDELTALOG(part),1:4) +  L(TSDELTALOG(komp_r_obs),0:4)+  L(TSDELTALOG(rw_ds),0:4) + L(TSDELTALOG(ur_ds),0:4)+ L(log(part),1) + L(log(komp_r_obs),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
 
 summary(reg_part_start)
 ```
@@ -5188,12 +5097,10 @@ shapiro.test(res_reg_part)
 Use F-es to remove lags
 
 ```{r}
- komp_r_vars_1 <- str_c("L(TSDELTALOG(komp_r2), 0:4)", c(0,1,2,3,4))
- part_vars_1 <- str_c("L(TSDELTALOG(part), 1:4)", c(4))
- rw_ds_vars_1 <- str_c("L(TSDELTALOG(rw_ds), 0:4)", c(4))
+ komp_r_vars_1 <- str_c("L(TSDELTALOG(komp_r_obs), 0:4)", c(3,4))
+ part_vars_1 <- str_c("L(TSDELTALOG(part), 1:4)", c(1,3))
+ rw_ds_vars_1 <- str_c("L(TSDELTALOG(rw_ds), 0:4)", c(0,2,3,4))
  ur_ds_vars_1 <- str_c("L(TSDELTALOG(ur_ds), 0:4)", c(1,2,3,4))
- 
- 
 ```
 
 ```{r}
@@ -5209,17 +5116,21 @@ linearHypothesis(reg_part_start, vars_out_1, rep(0, length(vars_out_1)))
 Final model
 
 ```{r}
-"COMMENT> Endogonize partitipation rate
-BEHAVIORAL> part
-EQ> TSDELTALOG(part) =  beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(rw_ds) + beta_3*TSDELTALOG(TSLAG(rw_ds,1)) + beta_4*TSDELTALOG(TSLAG(rw_ds,2)) + beta_5*TSDELTALOG(TSLAG(rw_ds,3)) + beta_6*TSDELTA(ur_ds) + beta_7*log(TSLAG(part,1)) + beta_8*log(TSLAG(rw_ds,1)) + beta_9*TSLAG(ur_ds,1) + beta_10* d_2013q4
-COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7 beta_8 beta_9 beta_10
-STORE> coe(16)"
-```
-
-```{r}
-reg_part=dynlm(TSDELTALOG(part) ~ 0 + L(TSDELTALOG(part),2)+  L(TSDELTALOG(rw_ds),0:3) + L(TSDELTA(ur_ds),0)+ L(log(part),1) + L(log(komp_r2),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
+reg_part=dynlm(TSDELTALOG(part) ~ 0 + L(TSDELTALOG(part),c(2,4))+  L(TSDELTALOG(rw_ds),1) + L(TSDELTALOG(komp_r_obs),0:2) + L(TSDELTALOG(ur_ds),0)+ L(log(part),1) + L(log(komp_r_obs),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
 
 summary(reg_part)
+```
+
+
+
+
+```{r}
+"COMMENT> Endogonize partitipation rate
+BEHAVIORAL> part
+TSRANGE 2006 2 2020 1
+EQ> TSDELTALOG(part) =  beta_1*TSDELTALOG(TSLAG(part,2)) + beta_1*TSDELTALOG(TSLAG(part,4)) + beta_1*TSDELTALOG(TSLAG(komp_r_obs,1)) +  beta_3*TSDELTALOG(TSLAG(rw_ds,1))  + beta_7*(TSLAG(LOG(part,1)))  + beta_8*log(TSLAG(rw_ds,1)) + beta_9*TSLAG(komp_r,1) + beta_10*TSLAG(ur_ds,1) + beta_11* d_2013q4
+COEFF> beta_1 beta_2 beta_3 beta_4 beta_5 beta_7 beta_8 beta_9 beta_10 beta_11
+STORE> coe(16)"
 ```
 
 ## rw_ds
