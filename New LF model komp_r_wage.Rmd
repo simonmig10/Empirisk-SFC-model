@@ -72,6 +72,10 @@ d_2007q34=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
  dummy_start=c(2007,3), dummy_end = c(2007,4),
  basic_value = 0, dummy_value = 1, frequency = 4)
 
+d_2007q3=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
+ dummy_start=c(2007,3), dummy_end = c(2007,3),
+ basic_value = 0, dummy_value = 1, frequency = 4)
+
 d_2008q2=create_dummy_ts(start_basic = c(2005, 2), end_basic=c(2020,1),
  dummy_start=c(2008,2), dummy_end = c(2008,2),
  basic_value = 0, dummy_value = 1, frequency = 4)
@@ -1194,7 +1198,15 @@ y_ds= reg_29$residuals + mean(y)
 
 y_ds=ts(y_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
 
+## Wage_trim1 
 
+reg_30 = lm(wage_trim1~ sd1+ sd2 + sd3)
+
+wage_trim1_ds= reg_30$residuals + mean(wage_trim1)
+
+wage_trim1_ds=ts(wage_trim1_ds,start = c(2005,2), end = c(2020,1), frequency = 4 )
+
+plot(wage_trim1_ds)
 
 ```
 
@@ -1447,7 +1459,15 @@ summary(total_dp_reg)
 
 total_dp_obs=total_dp_reg$fitted.values*unemp*kuld
 
-komp_r_obs=total_dp_reg$fitted.values/wage_trim1
+estimated_dp_person
+
+komp_r_obs_model=total_dp_reg$fitted.values/wage_trim1
+komp_r_obs= adam_dp_person/wage_trim1
+komp_r_obs_ds= adam_dp_person/wage_trim1_ds
+
+plot(komp_r_obs)
+plot(adam_dp_person)
+plot(wage_trim1)
 
 ```
 
@@ -5097,9 +5117,9 @@ shapiro.test(res_reg_part)
 Use F-es to remove lags
 
 ```{r}
- komp_r_vars_1 <- str_c("L(TSDELTALOG(komp_r_obs), 0:4)", c(3,4))
- part_vars_1 <- str_c("L(TSDELTALOG(part), 1:4)", c(1,3))
- rw_ds_vars_1 <- str_c("L(TSDELTALOG(rw_ds), 0:4)", c(0,2,3,4))
+ komp_r_vars_1 <- str_c("L(TSDELTALOG(komp_r_obs), 0:4)", c(1,2,4))
+ part_vars_1 <- str_c("L(TSDELTALOG(part), 1:4)", c(1,3,4))
+ rw_ds_vars_1 <- str_c("L(TSDELTALOG(rw_ds), 0:4)", c(2,3,4))
  ur_ds_vars_1 <- str_c("L(TSDELTALOG(ur_ds), 0:4)", c(1,2,3,4))
 ```
 
@@ -5116,13 +5136,26 @@ linearHypothesis(reg_part_start, vars_out_1, rep(0, length(vars_out_1)))
 Final model
 
 ```{r}
-reg_part=dynlm(TSDELTALOG(part) ~ 0 + L(TSDELTALOG(part),c(2,4))+  L(TSDELTALOG(rw_ds),1) + L(TSDELTALOG(komp_r_obs),0:2) + L(TSDELTALOG(ur_ds),0)+ L(log(part),1) + L(log(komp_r_obs),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
+reg_part=dynlm(TSDELTALOG(part) ~ 1 + L(TSDELTALOG(part),2) +  L(TSDELTALOG(komp_r_obs),c(0,3))+  L(TSDELTALOG(rw_ds),0:1) + L(TSDELTALOG(ur_ds),0)+ L(log(part),1) + L(log(komp_r_obs),1) + L(log(rw_ds),1) + L(log(ur_ds),1) + d_2013q4)
 
 summary(reg_part)
 ```
 
 
+```{r}
+library(nlWaldTest)
 
+theta_rw_ds=reg_rw_ds3$coefficients[5]
+
+phi_rw_ds=reg_rw_ds3$coefficients[8]
+
+lr_estimate= -phi_rw_ds/theta_rw_ds
+
+nlWaldtest(reg_part, c("b[9]/b[8]=0"))
+
+# Ik signifikant
+
+```
 
 ```{r}
 "COMMENT> Endogonize partitipation rate
@@ -5136,7 +5169,7 @@ STORE> coe(16)"
 ## rw_ds
 
 ```{r}
-reg_rw_ds_start=dynlm(TSDELTALOG(rw_ds) ~ 1+ L(TSDELTA(rw_ds), 1:4) + L(TSDELTA(ur_ds), 0:4)+  L(TSDELTA(komp_r_obs), 0:4) + L(TSDELTA(prodk_ds), 0:4) + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r_obs,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)) + d_2009q4 + d_2011q1)
+reg_rw_ds_start=dynlm(TSDELTALOG(rw_ds) ~ 1+ L(TSDELTA(rw_ds), 1:4) + L(TSDELTA(ur_ds), 0:4)+  L(TSDELTA(komp_r_obs), 0:4) + L(TSDELTA(prodk_ds), 0:4) + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r_obs,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2))  + d_2011q1 + d_2007q3)
 
 summary(reg_rw_ds_start)
 
@@ -5152,9 +5185,9 @@ Use F-test to remove lags
 ```{r}
 
  rw_ds_vars_1 <- str_c("L(TSDELTA(rw_ds), 1:4)", c(4))
- ur_ds_vars_1 <- str_c("L(TSDELTA(ur_ds), 0:4)", c(2,3,4))
- komp_r_vars_1 <- str_c("L(TSDELTA(komp_r_obs), 0:4)", c(4))
- prodk_ds_vars_1 <- str_c("L(TSDELTA(prodk_ds), 0:4)", c(1,2,3,4))
+ ur_ds_vars_1 <- str_c("L(TSDELTA(ur_ds), 0:4)", c(3,4))
+ komp_r_vars_1 <- str_c("L(TSDELTA(komp_r_obs), 0:4)", c(1,2,3,4))
+ prodk_ds_vars_1 <- str_c("L(TSDELTA(prodk_ds), 0:4)", c(1,2,3))
  
 ```
 
@@ -5171,15 +5204,129 @@ linearHypothesis(reg_rw_ds_start, vars_out_1, rep(0, length(vars_out_1)))
 Final model
 
 ```{r}
-reg_rw_ds=dynlm(TSDELTALOG(rw_ds) ~ 0+ L(TSDELTA(rw_ds), 1:3) +  L(TSDELTA(komp_r_obs), 0:3) + L(TSDELTA(prodk_ds), 0) + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r_obs,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2))  + d_2011q1)
+reg_rw_ds=dynlm(TSDELTALOG(rw_ds) ~ 1+ L(TSDELTA(rw_ds), 2:3) + L(TSDELTA(ur_ds), 1:2)+  L(TSDELTA(komp_r_obs), 0) + L(TSDELTA(prodk_ds), c(0,4)) + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r_obs,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2))  + d_2011q1 + d_2007q3)
 
 
 summary(reg_rw_ds)
 
 ```
+
 ```{r}
 "EQ> TSDELTALOG(rw_ds) = p_521*TSDELTALOG(TSLAG(rw_ds,1)) + p_522*TSDELTALOG(TSLAG(rw_ds,2))+ p_523*TSDELTALOG(TSLAG(rw_ds,3)) + p_524*TSDELTALOG(komp_r) + p_525*TSDELTALOG(TSLAG(komp_r,1)) + p_526*TSDELTALOG(TSLAG(komp_r,2)) + p_527*TSDELTALOG(TSLAG(komp_r,3))+  p_528*TSDELTALOG(prodk_ds) + p_529*LOG(TSLAG(rw_ds,1)) + p_530*TSLAG(ur_ds,2) + p_531*LOG(TSLAG(prodk_ds,2)) + p_532*d_2011q1
 COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 p_528 p_529 p_530 p_531 p_532
+STORE> coe(13)"
+```
+
+
+## Rw_ds 2
+
+```{r}
+reg_rw_ds2_start=dynlm(TSDELTALOG(rw_ds) ~ 1+ L(TSDELTA(rw_ds), 1:4) + L(TSDELTA(ur_ds), 0:4)+  L(TSDELTA(obs_dp_q_test), 0:4) + L(TSDELTA(prodk_ds), 0:4) + log(TSLAG(rw_ds,1))+ log(TSLAG(obs_dp_q_test,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)) + d_2009q4 + d_2011q1)
+
+summary(reg_rw_ds2_start)
+
+```
+
+```{r}
+res_reg_rw_ds2=residuals(reg_rw_ds2_start)
+shapiro.test(res_reg_rw_ds2)
+```
+
+Use F-test to remove lags
+
+```{r}
+
+ rw_ds_vars_2 <- str_c("L(TSDELTA(rw_ds), 1:4)", c(1,2,3,4))
+ ur_ds_vars_2 <- str_c("L(TSDELTA(ur_ds), 0:4)", c(0,3,4))
+ komp_r_vars_2 <- str_c("L(TSDELTA(obs_dp_q_test), 0:4)", c(0,2,3,4))
+ prodk_ds_vars_2 <- str_c("L(TSDELTA(prodk_ds), 0:4)", c(1,2,3))
+ 
+```
+
+```{r}
+library(car)
+
+vars_out_2 <- c(komp_r_vars_2, rw_ds_vars_2,ur_ds_vars_2,prodk_ds_vars_2 )
+vars_out_2
+ 
+linearHypothesis(reg_rw_ds2_start, vars_out_2, rep(0, length(vars_out_2)))
+
+```
+
+Final model
+
+```{r}
+reg_rw_ds2=dynlm(TSDELTALOG(rw_ds) ~ 0 + L(TSDELTA(ur_ds), 1:2)+  L(TSDELTA(obs_dp_q_test), 1) + L(TSDELTA(prodk_ds), c(0,4)) + log(TSLAG(rw_ds,1))+ log(TSLAG(obs_dp_q_test,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)) + d_2009q4 + d_2011q1)
+
+
+summary(reg_rw_ds2)
+```
+
+
+## Rw_ds 3
+
+```{r}
+reg_rw_ds3_start=dynlm(TSDELTALOG(rw_ds) ~ 1+ L(TSDELTA(rw_ds), 1:4) + L(TSDELTA(ur_ds), 0:4)+  L(TSDELTA(adam_dp_person), 0:4) + L(TSDELTA(prodk_ds), 0:4) + log(TSLAG(rw_ds,1))+ log(TSLAG(adam_dp_person,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)) + d_2009q4 + d_2011q1)
+
+summary(reg_rw_ds3_start)
+
+```
+
+```{r}
+res_reg_rw_ds3=residuals(reg_rw_ds3_start)
+shapiro.test(res_reg_rw_ds3)
+```
+
+Use F-test to remove lags
+
+```{r}
+
+ rw_ds_vars_3 <- str_c("L(TSDELTA(rw_ds), 1:4)", c(1,2,3,4))
+ ur_ds_vars_3 <- str_c("L(TSDELTA(ur_ds), 0:4)", c(0,1,3,4))
+ komp_r_vars_3 <- str_c("L(TSDELTA(adam_dp_person), 0:4)", c(0,1,2,3,4))
+ prodk_ds_vars_3 <- str_c("L(TSDELTA(prodk_ds), 0:4)", c(1,2,3))
+ 
+```
+
+```{r}
+library(car)
+
+vars_out_3 <- c(komp_r_vars_3, rw_ds_vars_3,ur_ds_vars_3,prodk_ds_vars_3)
+vars_out_3
+ 
+linearHypothesis(reg_rw_ds3_start, vars_out_3, rep(0, length(vars_out_3)))
+
+```
+
+Final model
+
+```{r}
+reg_rw_ds3=dynlm(TSDELTALOG(rw_ds) ~ 1 + L(TSDELTA(ur_ds), 2) + L(TSDELTA(prodk_ds), c(0,4)) + log(TSLAG(rw_ds,1))+ log(TSLAG(adam_dp_person,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)) + d_2009q4 + d_2011q1)
+
+
+summary(reg_rw_ds3)
+```
+### lr estimate: 
+
+```{r}
+library(nlWaldTest)
+
+theta_rw_ds=reg_rw_ds3$coefficients[5]
+
+phi_rw_ds=reg_rw_ds3$coefficients[8]
+
+lr_estimate= -phi_rw_ds/theta_rw_ds
+
+nlWaldtest(reg_rw_ds3, c("b[8]/b[5]=0"))
+
+```
+
+
+```{r}
+"COMMENT> 
+BEHAVIORAL> rw_ds
+EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur_ds,2)) + p_523*TSDELTALOG(prodk_ds) + p_524*TSDELTALOG(TSLAG(prodk_ds),4) + p_525*LOG(TSLAG(rw_ds,1))+ p_526*LOG(TSLAG(komp_r,1)) + p_527*TSLAG(ur_ds,2) + p_528*LOG(TSLAG(prodk_ds,2)) + p_529*d_2009q4 + p_530*d_2011q1
+COEFF> phi p_521 p_523 p_524 p_525 p_526 p_527 p_528 p_529 p_530 
 STORE> coe(13)"
 ```
 
