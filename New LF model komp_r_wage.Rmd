@@ -1670,7 +1670,7 @@ COMMENT> tilføjet
 BEHAVIORAL> dp_person
 EQ>  dp_person = p_dp*max_dp
 COEFF> p_dp
-STORE> coe(16)
+STORE> coe(17)
 
 COMMENT> tilføjet
 IDENTITY> wage_trim
@@ -2680,8 +2680,8 @@ EQ> urterm = ur - urs
 COMMENT> 
 BEHAVIORAL> rw_ds
 
-EQ> TSDELTALOG(rw_ds) = phi + p_521*TSDELTA(TSLAG(ur,4)) + p_522*TSDELTALOG(prodk_ds) + p_523*LOG(TSLAG(rw_ds,1)) + p_524*TSLAG(ur_ds,2) + p_525*LOG(TSLAG(prodk_ds,2)) + p_526*d_2009q4 + p_527*d_2011q1
-COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 
+EQ> TSDELTALOG(rw_ds) = p_521*TSDELTALOG(TSLAG(rw_ds,1)) + p_522*TSDELTALOG(TSLAG(rw_ds,2))+ p_523*TSDELTALOG(TSLAG(rw_ds,3)) + p_524*TSDELTALOG(komp_r) + p_525*TSDELTALOG(TSLAG(komp_r,1)) + p_526*TSDELTALOG(TSLAG(komp_r,2)) + p_527*TSDELTALOG(TSLAG(komp_r,3))+  p_528*TSDELTALOG(prodk_ds) + p_529*LOG(TSLAG(rw_ds,1)) + p_530*TSLAG(ur_ds,2) + p_531*LOG(TSLAG(prodk_ds,2)) + p_532*d_2011q1
+COEFF> p_521 p_522 p_523 p_524 p_525 p_526 p_527 p_528 p_529 p_530 p_531 p_532
 STORE> coe(13)
 
 COMMENT> 
@@ -2814,9 +2814,9 @@ EQ> max_dp = max_dp_shock
 
 COMMENT> Endogonize partitipation rate
 BEHAVIORAL> part
-TSRANGE 2006 2 2020 1
-EQ> TSDELTALOG(part) =  beta_1*TSDELTA(TSLAG(part,2)) + beta_2*TSDELTALOG(rw_ds) + beta_3*TSDELTALOG(TSLAG(rw_ds,1)) + beta_4*TSDELTALOG(TSLAG(rw_ds,2)) + beta_5*TSDELTALOG(TSLAG(rw_ds,3))  + beta_7*(TSLAG(part,1)) + beta_8*log(TSLAG(rw_ds,1)) + beta_9*TSLAG(komp_r,1) + beta_10*TSLAG(ur_ds,1) + beta_11* d_2013q4
-COEFF> beta_1 beta_2 beta_3 beta_4 beta_5 beta_7 beta_8 beta_9 beta_10 beta_11
+TSRANGE 2006 3 2020 1
+EQ> TSDELTALOG(part) = beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(TSLAG(part,4)) + beta_3*TSDELTALOG(TSLAG(rw_ds,1)) + beta_4*TSDELTALOG(komp_r) + beta_5*TSDELTALOG(TSLAG(komp_r,1)) + beta_6*TSDELTALOG(TSLAG(komp_r,2))+ beta_7*TSDELTA(ur_ds) + beta_8*(TSLAG(LOG(part),1))  + beta_9*log(TSLAG(rw_ds,1)) + beta_10*TSLAG(komp_r,1) + beta_11*TSLAG(ur_ds,1) + beta_12* d_2013q4
+COEFF> beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7 beta_8 beta_9 beta_10 beta_11 beta_12
 STORE> coe(16)
 
 
@@ -4862,7 +4862,7 @@ grid()
 
 ## Scenario 1
 
-2% increase in government spending:
+
 
 ```{r}
 shock_g=g %>% window(start= c(2010,1))
@@ -5128,15 +5128,15 @@ summary(reg_part)
 "COMMENT> Endogonize partitipation rate
 BEHAVIORAL> part
 TSRANGE 2006 2 2020 1
-EQ> TSDELTALOG(part) =  beta_1*TSDELTALOG(TSLAG(part,2)) + beta_1*TSDELTALOG(TSLAG(part,4)) + beta_1*TSDELTALOG(TSLAG(komp_r_obs,1)) +  beta_3*TSDELTALOG(TSLAG(rw_ds,1))  + beta_7*(TSLAG(LOG(part,1)))  + beta_8*log(TSLAG(rw_ds,1)) + beta_9*TSLAG(komp_r,1) + beta_10*TSLAG(ur_ds,1) + beta_11* d_2013q4
-COEFF> beta_1 beta_2 beta_3 beta_4 beta_5 beta_7 beta_8 beta_9 beta_10 beta_11
+EQ> TSDELTALOG(part) =  beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(TSLAG(part,4)) + beta_3*TSDELTALOG(TSLAG(rw_ds,1)) + beta_4*TSDELTALOG(komp_r_obs) + beta_5*TSDELTALOG(TSLAG(komp_r_obs,1)) + beta_6*TSDELTALOG(TSLAG(komp_r_obs,2))+ beta_7*TSDELTALOG(ur_ds) + beta_8*(TSLAG(LOG(part,1)))  + beta_9*log(TSLAG(rw_ds,1)) + beta_10*TSLAG(komp_r_obs,1) + beta_11*TSLAG(ur_ds,1) + beta_12* d_2013q4
+COEFF> beta_1 beta_2 beta_3 beta_4 beta_5 beta_7 beta_8 beta_9 beta_10 beta_11 beta_12
 STORE> coe(16)"
 ```
 
 ## rw_ds
 
 ```{r}
-reg_rw_ds_start=dynlm(TSDELTALOG(rw_ds) ~ 0+ L(TSDELTA(rw_ds), 1:4) + L(TSDELTA(ur_ds), 0:4)+  L(TSDELTA(komp_r), 0:4) + L(TSDELTA(prodk_ds), 0:4) + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)) + d_2009q4 + d_2011q1)
+reg_rw_ds_start=dynlm(TSDELTALOG(rw_ds) ~ 1+ L(TSDELTA(rw_ds), 1:4) + L(TSDELTA(ur_ds), 0:4)+  L(TSDELTA(komp_r_obs), 0:4) + L(TSDELTA(prodk_ds), 0:4) + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r_obs,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)) + d_2009q4 + d_2011q1)
 
 summary(reg_rw_ds_start)
 
@@ -5151,10 +5151,10 @@ Use F-test to remove lags
 
 ```{r}
 
- rw_ds_vars_1 <- str_c("L(TSDELTA(rw_ds), 1:4)", c(1,2,3,4))
- ur_ds_vars_1 <- str_c("L(TSDELTA(ur_ds), 0:4)", c(0,2,3,4))
- komp_r_vars_1 <- str_c("L(TSDELTA(komp_r), 0:4)", c(0,1,2,3,4))
- prodk_ds_vars_1 <- str_c("L(TSDELTA(prodk_ds), 0:4)", c(1,2,3))
+ rw_ds_vars_1 <- str_c("L(TSDELTA(rw_ds), 1:4)", c(4))
+ ur_ds_vars_1 <- str_c("L(TSDELTA(ur_ds), 0:4)", c(2,3,4))
+ komp_r_vars_1 <- str_c("L(TSDELTA(komp_r_obs), 0:4)", c(4))
+ prodk_ds_vars_1 <- str_c("L(TSDELTA(prodk_ds), 0:4)", c(1,2,3,4))
  
 ```
 
@@ -5171,10 +5171,16 @@ linearHypothesis(reg_rw_ds_start, vars_out_1, rep(0, length(vars_out_1)))
 Final model
 
 ```{r}
-reg_rw_ds=dynlm(TSDELTALOG(rw_ds) ~ 0   + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2)))
+reg_rw_ds=dynlm(TSDELTALOG(rw_ds) ~ 0+ L(TSDELTA(rw_ds), 1:3) +  L(TSDELTA(komp_r_obs), 0:3) + L(TSDELTA(prodk_ds), 0) + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r_obs,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2))  + d_2011q1)
+
 
 summary(reg_rw_ds)
 
+```
+```{r}
+"EQ> TSDELTALOG(rw_ds) = p_521*TSDELTALOG(TSLAG(rw_ds,1)) + p_522*TSDELTALOG(TSLAG(rw_ds,2))+ p_523*TSDELTALOG(TSLAG(rw_ds,3)) + p_524*TSDELTALOG(komp_r) + p_525*TSDELTALOG(TSLAG(komp_r,1)) + p_526*TSDELTALOG(TSLAG(komp_r,2)) + p_527*TSDELTALOG(TSLAG(komp_r,3))+  p_528*TSDELTALOG(prodk_ds) + p_529*LOG(TSLAG(rw_ds,1)) + p_530*TSLAG(ur_ds,2) + p_531*LOG(TSLAG(prodk_ds,2)) + p_532*d_2011q1
+COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 p_528 p_529 p_530 p_531 p_532
+STORE> coe(13)"
 ```
 
 
