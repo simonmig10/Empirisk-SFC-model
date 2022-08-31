@@ -195,6 +195,9 @@ tax_rate2= ts(c(0.152767,0.152767,0.152767,0.152767,0.152767,0.152767,0.152767,0
 tax_rate1= ts(c(0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369,0.389369), start = c(2005, 2), end =  c(2020,1), frequency = 4)
 
 
+tax_rate11= ts(c(0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369), start = c(2005, 2), end =  c(2020,1), frequency = 4)
+
+
 
 zz= ts(c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1), start = c(2005, 2), end =  c(2020,1), frequency = 4)
 
@@ -1262,7 +1265,28 @@ reprate_bd_h = (mean(delta_bd_h)*stats::lag(bd_h_k,-1))/i_bd_h_k_ds # replacemen
 
 #New wage equations
 inflation= (pc/TSLAG(pc,4)) - 1
-wage_ds_t= wage_ds*(1+inflation)
+
+inflation_t= (pc/TSLAG(pc,4)) - 1
+inflation_t = ts(c(0,0,0, inflation_t), start = c(2005,3), frequency = 4 )
+
+
+wage_ds_t= sd1* wage_ds*(1+inflation_t) + sd2* TSLAG(wage_ds,1)*(1+TSLAG(inflation_t,1)) + sd3* TSLAG(wage_ds,2)*(1+TSLAG(inflation_t,2)) + sd4* TSLAG(wage_ds,3)*(1+TSLAG(inflation_t,3))
+
+inflation_tt= inflation_t
+
+
+# New price equations
+
+pg_adj = log(pg) - (0.840852289293*log(pc) - 0.0401650251402)
+
+p_bd_adj = log(p_bd) - (0.988897636487*log(pc) +
+0.0286611434831)
+
+p_equip_adj = log(p_equip) -( 0.304376220161*log(pc) +
+0.0160136953595 )
+
+px_adj= log(px) - (0.638216896739*log(pc) - 0.012650117362)
+
 ```
 
 
@@ -1326,11 +1350,17 @@ propinc_r_nf = int_r_nf + div_r_nf + ins_r_nf + res_r_nf
 
 
 g_shock= g
+pf_shock= pf
 prodk_ds_shock = prodk_ds
+pm_ds_shock= pm_ds
+tax_rate1_shock= tax_rate1
+
+iloan_shock= iloan
+idep_shock= idep
+ibd_shock= ibd
+iboa_shock= iboa
 
 ```
-
-
 
 
 
@@ -1341,6 +1371,35 @@ prodk_ds_shock = prodk_ds
 ```{r}
 
 S_model.txt="MODEL
+
+
+COMMENT> Pricing Nexus
+
+
+COMMENT> 
+IDENTITY> pg
+EQ> LOG(pg) = 0.840852289293*LOG(pc) - 0.0401650251402 +
+pg_adj
+
+ 
+COMMENT> 
+IDENTITY> p_bd
+EQ> LOG(p_bd) = 0.988897636487*LOG(pc) + 0.0286611434831 +
+p_bd_adj
+
+
+
+COMMENT> 
+IDENTITY> p_equip
+EQ> LOG(p_equip) = 0.304376220161*LOG(pc) + 0.0160136953595
++ p_equip_adj
+
+
+COMMENT> 
+IDENTITY> px
+EQ> LOG(px) = 0.638216896739*LOG(pc) - 0.012650117362 +
+px_adj
+
 
 COMMENT> Households 
 
@@ -1721,8 +1780,8 @@ EQ> rer = pc*xr/pf
 COMMENT> 
 BEHAVIORAL> xk_ds
 TSRANGE 2006 3 2020 1
-EQ> TSDELTALOG(xk_ds) =  p_651 + p_652*TSDELTALOG(TSLAG(gdp_tp,4)) + p_653*TSDELTALOG(rer) + p_654*LOG(TSLAG(xk_ds,1)) + p_655*LOG(TSLAG(gdp_tp,1)) + p_657*d_2008q2
-COEFF> p_651 p_652 p_653 p_654 p_655 p_657
+EQ> TSDELTALOG(xk_ds) =  p_652*TSDELTALOG(TSLAG(gdp_tp,4)) + p_653*TSDELTALOG(rer) + p_654*LOG(TSLAG(xk_ds,1)) + p_655*LOG(TSLAG(gdp_tp,1)) + p_656*LOG(TSLAG(rer,2)) + p_657*d_2008q2 + p_658*d_2018q1 + p_659*d_2019q3 + p_660* time
+COEFF>  p_652 p_653 p_654 p_655 p_656 p_657 p_658 p_659 p_660
 STORE> coe(8)
 
 COMMENT> 
@@ -2532,11 +2591,22 @@ EQ> wage = wage_ds  + (alpha_50 + alpha_51*SD1 + alpha_52*SD2 + alpha_53*SD3) - 
 
 COMMENT> 
 IDENTITY> wage_ds_t
-EQ> wage_ds_t = wage_ds*(1+inflation)
+EQ> wage_ds_t= SD1* wage_ds*(1+inflation_t) + SD2* TSLAG(wage_ds,1)*(1+TSLAG(inflation_t,1)) + SD3* TSLAG(wage_ds,2)*(1+TSLAG(inflation_t,2)) + SD4* TSLAG(wage_ds,3)*(1+TSLAG(inflation_t,3))
 
 COMMENT> 
 IDENTITY> inflation
 EQ> inflation = (pc/TSLAG(pc,4)) - 1
+
+
+COMMENT> Capital Stock with switches
+IDENTITY> inflation_t
+EQ> inflation_t = inflation_tt
+IF> inflation_tt <= 0
+IDENTITY> inflation_t
+EQ> inflation_t = inflation
+IF> inflation_tt > 0
+
+
 
 COMMENT>  
 IDENTITY> wageindex
@@ -2661,6 +2731,34 @@ COMMENT> Lavet for at kunne støde til g
 IDENTITY> g
 EQ> g = g_shock
 
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> pf
+EQ> pf = pf_shock
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> pm_ds
+EQ> pm_ds = pm_ds_shock
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> iloan
+EQ> iloan = iloan_shock
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> idep
+EQ> idep = idep_shock
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> ibd
+EQ> ibd = ibd_shock
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> iboa
+EQ> iboa = iboa_shock
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> tax_rate1
+EQ> tax_rate1 = tax_rate1_shock
+
 END"
 ```
 
@@ -2685,7 +2783,19 @@ ratio_in_eq_h= (div_r_h+eq_h_rvx)/TSLAG(eq_h)
 
 # I think I should create the timeseries for the coeff. 
 
-S_modelData=list(  
+S_modelData=list( 
+  
+  
+  ## Price adjustments
+  pg_adj = TIMESERIES(c(pg_adj),   
+                       START=c(2005,2),FREQ=4),
+  p_bd_adj = TIMESERIES(c(p_bd_adj),   
+                       START=c(2005,2),FREQ=4),
+  p_equip_adj = TIMESERIES(c(p_equip_adj),   
+                     START=c(2005,3),FREQ=4),
+  px_adj = TIMESERIES(c(px_adj),   
+                        START=c(2005,2),FREQ=4),
+  
   ## Households
   
   
@@ -3287,6 +3397,10 @@ S_modelData=list(
                        START=c(2006,2),FREQ=4),
    inflation = TIMESERIES(c(inflation),   
                        START=c(2006,2),FREQ=4),
+  inflation_t = TIMESERIES(c(inflation_t),   
+                       START=c(2005,3),FREQ=4),
+   inflation_tt = TIMESERIES(c(inflation_tt),   
+                       START=c(2005,3),FREQ=4),
   pm_ds = TIMESERIES(c(pm_ds),   
                      START=c(2005,2),FREQ=4),
   mk_ds = TIMESERIES(c(mk_ds),   
@@ -3316,6 +3430,21 @@ S_modelData=list(
                         START=c(2005,2),FREQ=4),
   g_shock = TIMESERIES(c(g_shock),   
                         START=c(2005,2),FREQ=4),
+   pf_shock = TIMESERIES(c(pf_shock),   
+                        START=c(2005,2),FREQ=4),
+  pm_ds_shock = TIMESERIES(c(pm_ds_shock),   
+                        START=c(2005,2),FREQ=4),
+  iloan_shock = TIMESERIES(c(iloan_shock),   
+                        START=c(2005,2),FREQ=4),
+  idep_shock = TIMESERIES(c(idep_shock),   
+                        START=c(2005,2),FREQ=4),
+   ibd_shock = TIMESERIES(c(ibd_shock),   
+                        START=c(2005,2),FREQ=4),
+  iboa_shock = TIMESERIES(c(iboa_shock),   
+                        START=c(2005,2),FREQ=4),
+   tax_rate1_shock = TIMESERIES(c(tax_rate1_shock),   
+                        START=c(2005,2),FREQ=4),
+  
   ## Dummies
   
   d_2006q1 = TIMESERIES(c(d_2006q1),   
@@ -3666,7 +3795,8 @@ S_modelData=list(
   SD3 = TIMESERIES(c(sd3),   
                     START=c(2005,2),FREQ=4),
   
-  
+  SD4 = TIMESERIES(c(sd4),   
+                    START=c(2005,2),FREQ=4),
   ## globaldemand1
   
   oecd = TIMESERIES(c(oecd),   
@@ -4285,7 +4415,7 @@ ur_ds_00 = S_model$simulation$ur_ds
 ```{r}
 
 ### Gengivelse
-plot(yk_ds_00, ylim= c(430000, 540000), col= "green"); lines(yk_ds, col = "blue"); 
+plot(wage_ds_00, col= "green"); lines(wage_ds, col = "blue"); 
 legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid() 
 
@@ -4323,10 +4453,12 @@ increase in public expenditure from 2010
 
 ## Scenario 1
 
-2% increase in government spending:
+
 
 ```{r}
 shock_g=g %>% window(start= c(2010,1))
+shock_pf=pf %>% window(start= c(2014,2))
+shock_pm_ds=pm_ds %>% window(start= c(2014,2))
 ```
 
 
@@ -4336,7 +4468,8 @@ shock_g=g %>% window(start= c(2010,1))
 # Define add-factor list (defining shock)
 constantAdjList <- list(
   
- g = TIMESERIES(shock_g*0.02 ,START=c(2010,1),  FREQ='Q')
+ pf = TIMESERIES(shock_pf*0.1 ,START=c(2014,2),  FREQ='Q'),
+ pm_ds = TIMESERIES(shock_pm_ds*0.1 ,START=c(2014,2),  FREQ='Q')
 
 )
 
@@ -4345,7 +4478,7 @@ constantAdjList <- list(
 
 ```{r}
 # Simulate the model (following shock)
-Shock_g <- SIMULATE(S_model
+Shock_1 <- SIMULATE(S_model
                     ,simType='DYNAMIC'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
@@ -4359,13 +4492,13 @@ Shock_g <- SIMULATE(S_model
 ```{r}
 ###Gengivelse af stød til model
 
-yk_ds_01 = Shock_g$simulation$yk_ds
-emp_01 = Shock_g$simulation$emp
-wage_ds_01 = Shock_g$simulation$wage_ds
-ur_ds_01 = Shock_g$simulation$ur_ds
-pc_ds_01 = Shock_g$simulation$pc_ds
-yd_hk_ds_01 = Shock_g$simulation$yd_hk_ds
-pconk_ds_01 = Shock_g$simulation$pconk_ds
+yk_ds_01 = Shock_1$simulation$yk_ds
+emp_01 = Shock_1$simulation$emp
+wage_ds_01 = Shock_1$simulation$wage_ds
+ur_ds_01 = Shock_1$simulation$ur_ds
+pc_ds_01 = Shock_1$simulation$pc_ds
+yd_hk_ds_01 = Shock_1$simulation$yd_hk_ds
+pconk_ds_01 = Shock_1$simulation$pconk_ds
 
 
 
@@ -4411,6 +4544,135 @@ grid()
 ```
 
 
+
+## Scenario 2
+
+
+
+```{r}
+shock_iloan=iloan %>% window(start= c(2014,4))
+shock_idep=idep %>% window(start= c(2014,4))
+shock_ibd=ibd %>% window(start= c(2014,4))
+shock_iboa=iboa %>% window(start= c(2014,4))
+```
+
+
+
+
+```{r}
+# Define add-factor list (defining shock)
+constantAdjList_1 <- list(
+  
+ pf = TIMESERIES(shock_pf*0.1 ,START=c(2014,2),  FREQ='Q'),
+ pm_ds = TIMESERIES(shock_pm_ds*0.1 ,START=c(2014,2),  FREQ='Q'),
+ idep = TIMESERIES(shock_idep+ 0.03 ,START=c(2014,4),  FREQ='Q'),
+ ibd = TIMESERIES(shock_ibd+ 0.03 ,START=c(2014,4),  FREQ='Q'),
+ iboa = TIMESERIES(shock_iboa+ 0.03 ,START=c(2014,4),  FREQ='Q'),
+  iloan = TIMESERIES(shock_iloan+ 0.025 ,START=c(2014,4),  FREQ='Q')
+
+)
+
+```
+
+
+```{r}
+# Simulate the model (following shock)
+Shock_2 <- SIMULATE(S_model
+                    ,simType='DYNAMIC'
+                    ,TSRANGE=c(2006,3,2020,1)
+                    ,simConvergence=0.00001
+                    ,simIterLimit=100
+                    ,ConstantAdjustment=constantAdjList_1
+                    )
+```
+
+
+
+```{r}
+###Gengivelse af stød til model
+
+yk_ds_02 = Shock_2$simulation$yk_ds
+emp_02 = Shock_2$simulation$emp
+wage_ds_02 = Shock_2$simulation$wage_ds
+ur_ds_02 = Shock_2$simulation$ur_ds
+pc_ds_02 = Shock_2$simulation$pc_ds
+yd_hk_ds_02 = Shock_2$simulation$yd_hk_ds
+pconk_ds_02 = Shock_2$simulation$pconk_ds
+
+
+
+```
+
+
+
+
+```{r}
+
+
+
+plot(yk_ds_02, col= "red"); lines(yk_ds_01, col = "blue"); lines(yk_ds_00, col = "green");
+legend("top",legend=c("Baseline", "Scenario 1", "Scenario 2"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red", "green")); 
+grid()
+
+```
+
+
+
+## Scenario 3
+
+
+
+```{r}
+shock_tax_rate1=tax_rate11 %>% window(start= c(2014,4))
+```
+
+
+
+
+```{r}
+# Define add-factor list (defining shock)
+constantAdjList_2 <- list(
+  
+ pf = TIMESERIES(shock_pf*0.1 ,START=c(2014,2),  FREQ='Q'),
+ pm_ds = TIMESERIES(shock_pm_ds*0.1 ,START=c(2014,2),  FREQ='Q'),
+ idep = TIMESERIES(shock_idep+ 0.03 ,START=c(2014,4),  FREQ='Q'),
+ ibd = TIMESERIES(shock_ibd+ 0.03 ,START=c(2014,4),  FREQ='Q'),
+ iboa = TIMESERIES(shock_iboa+ 0.03 ,START=c(2014,4),  FREQ='Q'),
+  iloan = TIMESERIES(shock_iloan+ 0.025 ,START=c(2014,4),  FREQ='Q'),
+ tax_rate1 = TIMESERIES(shock_tax_rate1 ,START=c(2014,4),  FREQ='Q')
+
+)
+
+```
+
+
+```{r}
+# Simulate the model (following shock)
+Shock_3 <- SIMULATE(S_model
+                    ,simType='RESCHECK'
+                    ,TSRANGE=c(2006,3,2020,1)
+                    ,simConvergence=0.00001
+                    ,simIterLimit=100
+                    ,ConstantAdjustment=constantAdjList_2
+                    )
+```
+
+
+
+```{r}
+###Gengivelse af stød til model
+
+yk_ds_03 = Shock_3$simulation$yk_ds
+emp_03 = Shock_3$simulation$emp
+wage_ds_03 = Shock_3$simulation$wage_ds
+ur_ds_03 = Shock_3$simulation$ur_ds
+pc_ds_03 = Shock_3$simulation$pc_ds
+yd_hk_ds_03 = Shock_3$simulation$yd_hk_ds
+pconk_ds_03 = Shock_3$simulation$pconk_ds
+
+plot(pconk_ds_03-pconk_ds)
+
+```
 
 
 
