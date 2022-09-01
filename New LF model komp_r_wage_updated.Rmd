@@ -1502,8 +1502,9 @@ komp_r_obs= adam_dp_person/wage_trim1
 komp_r_obs_ds= adam_dp_person/wage_trim1_ds
 
 plot(komp_r_obs)
+plot(komp_r_obs_ds); lines(komp_r_obs, col= "red")
 plot(adam_dp_person)
-plot(wage_trim1)
+plot(wage_trim1_ds);lines(wage_trim1, col= "red")
 
 ```
 
