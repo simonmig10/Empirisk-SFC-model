@@ -5302,7 +5302,7 @@ linearHypothesis(reg_wage_ds_start, vars_out_1, rep(0, length(vars_out_1)))
 Final model
 
 ```{r}
-reg_wage_ds=dynlm(TSDELTALOG(wage_ds) ~ 1 + TSDELTA(TSLAG(ur,4)) + TSDELTALOG(prod_ds)+  log(TSLAG(wage_ds,1))  + log(TSLAG(wage_ds_t,1))  + log(TSLAG(prod_ds,1))+ test_dummy)
+reg_wage_ds=dynlm(TSDELTALOG(wage_ds) ~ 1 + TSDELTA(TSLAG(ur,4)) + TSDELTALOG(prod_ds)+  log(TSLAG(wage_ds,1))  + log(TSLAG(wage_ds_t,1))  + log(TSLAG(prod_ds,1))+ d_2009q1 + d_2009q2)
 
 summary(reg_wage_ds)
 
