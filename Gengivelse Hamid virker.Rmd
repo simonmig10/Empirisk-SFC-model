@@ -3,6 +3,7 @@ title: "Model LF"
 author: "Simon"
 date: "11/7/2022"
 output:
+  word_document: default
   pdf_document: default
   html_document: default
 ---
@@ -4679,7 +4680,6 @@ pc_ds_02 = Shock_2$simulation$pc_ds
 yd_hk_ds_02 = Shock_2$simulation$yd_hk_ds
 pconk_ds_02 = Shock_2$simulation$pconk_ds
 
-plot(pconk_ds_02)
 
 ```
 
@@ -4698,7 +4698,76 @@ grid()
 
 
 
-## Scenario 3
+## Scenario 4
+
+
+
+
+```{r}
+# Define add-factor list (defining shock)
+constantAdjList_3 <- list(
+  
+  
+   shock_1_model = TIMESERIES(shock_1_model_shock+1 ,START=c(2014,2),  FREQ='Q'),
+  shock_3_model = TIMESERIES(shock_3_model_shock+1 ,START=c(2014,4),  FREQ='Q')
+ 
+  
+
+)
+
+
+
+```
+
+
+```{r}
+# Simulate the model (following shock)
+Shock_4 <- SIMULATE(S_model
+                    ,simType='DYNAMIC'
+                    ,TSRANGE=c(2006,3,2020,1)
+                    ,simConvergence=0.00001
+                    ,simIterLimit=100
+                    ,ConstantAdjustment=constantAdjList_3
+                    )
+```
+
+
+
+```{r}
+###Gengivelse af stød til model
+
+yk_ds_04 = Shock_4$simulation$yk_ds
+emp_04 = Shock_4$simulation$emp
+wage_ds_04 = Shock_4$simulation$wage_ds
+ur_ds_04 = Shock_4$simulation$ur_ds
+pc_ds_04 = Shock_4$simulation$pc_ds
+yd_hk_ds_04 = Shock_4$simulation$yd_hk_ds
+pconk_ds_04 = Shock_4$simulation$pconk_ds
+yd1_h_04 = Shock_4$simulation$yd1_h
+yh1_04 = Shock_4$simulation$yh1
+
+```
+
+
+```{r}
+plot(yk_ds_02/yk_ds_00, col= "red"); lines(yk_ds_03/yk_ds_00, col = "blue");lines(yk_ds_04/yk_ds_00, col = "green");
+legend("top",legend=c("Import price shock and interest rate shock", "Import price shock, interest rate shock and tax shock", "Import price shock and tax shock"),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue", "green")); 
+grid()
+
+```
+
+
+```{r}
+
+plot(yk_ds_00, col= "red"); lines(yk_ds_01, col = "blue"); lines(yk_ds_02, col = "green"); lines(yk_ds_03, col = "orange");
+legend("top",legend=c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3" ),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue", "green", "orange")); 
+grid()
+
+```
+
+
+
+
 
 
 
@@ -4721,7 +4790,7 @@ constantAdjList_2 <- list(
   shock_2_model = TIMESERIES(shock_2_model_shock+1 ,START=c(2014,4),  FREQ='Q'),
   shock_3_model = TIMESERIES(shock_3_model_shock+1 ,START=c(2014,4),  FREQ='Q')
  
- 
+  
 
 )
 
@@ -4772,9 +4841,9 @@ iloan_03 = Shock_3$simulation$iloan
 
 
 plot(tax_rate1_03)
-plot(pf_03)
-plot(pm_ds_03)
-plot(idep_03)
+plot(pf_03 - pf)
+plot(pm_ds_03 - pm_ds)
+plot(idep_03 - idep)
 plot(iboa_03 - iboa_00)
 plot(iloan_03- iloan_00)
 
@@ -4783,12 +4852,17 @@ plot(iloan_03- iloan_00)
 
 
 ```{r}
-
-
-
-plot(pconk_ds_00, col= "red"); lines(pconk_ds_01, col = "blue"); lines(pconk_ds_02, col = "green"); lines(pconk_ds_03, col = "orange");
-legend("top",legend=c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3" ),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue", "green", "orange")); 
+plot(yk_ds_02, col= "red"); lines(yk_ds_03, col = "blue");
+legend("top",legend=c("Import price shock and interest rate shock", "Import price shock, interest rate shock and tax shock"),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue")); 
 grid()
 
+```
+
+
+```{r}
+
+plot(yk_ds_00, col= "red"); lines(yk_ds_01, col = "blue"); lines(yk_ds_02, col = "green"); lines(yk_ds_03, col = "orange");
+legend("top",legend=c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3" ),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue", "green", "orange")); 
+grid()
 
 ```
