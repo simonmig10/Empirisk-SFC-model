@@ -18,8 +18,8 @@ library(bimets)
 ```{r}
 AAMK <- read_excel("AAMK.xlsx")
 globaldemand1 <- read_excel("globaldemand1.xlsx")
-
-
+w_h_r1 <- read_excel("w_h_r1.xlsx")
+w_h_r1= ts(w_h_r1$w_h_r1, start = c(2004,1), frequency = 4)
 
 names(AAMK) <- tolower(names(AAMK))
 names(globaldemand1) <- tolower(names(globaldemand1))
@@ -34,6 +34,7 @@ attach(globaldemand1)
 
 ```{r}
 wage = w_h_r/emp
+wage1= w_h_r1/emp
 wageindex = wage/wage[22] #element from 2010Q3
 ```
 
