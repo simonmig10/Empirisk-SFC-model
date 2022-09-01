@@ -4452,7 +4452,7 @@ S_model=ESTIMATE(S_model
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
-                    ,simType='DYNAMIC'
+                    ,simType='RESCHECK'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
