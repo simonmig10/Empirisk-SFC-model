@@ -2795,8 +2795,8 @@ EQ> mkp = pc_ds / (wage_ds/prodk_ds + pm_ds)
 COMMENT> 
 BEHAVIORAL> wage_ds
 TSRANGE 2006 3 2020 1
-EQ> TSDELTALOG(wage_ds) = p_520 + p_522* TSDELTA(TSLAG(ur,4)) + p_523* TSDELTALOG(prod_ds) + p_524* LOG(TSLAG(wage_ds,1)) + p_525* LOG(TSLAG(wage_ds_t,1)) + p_526* LOG(TSLAG(prod_ds,1)) + p_527 * (d_2009q1 + d_2009q2)
-COEFF> p_520 p_522 p_523 p_524 p_525 p_526 p_527
+EQ> TSDELTALOG(wage_ds) = p_520 + p_522* TSDELTA(TSLAG(ur,4)) + p_523* TSDELTALOG(prod_ds) + p_524* LOG(TSLAG(wage_ds,1)) + p_525* LOG(TSLAG(wage_ds_t,1)) + p_526* LOG(TSLAG(prod_ds,1)) + p_528*LOG(TSLAG(max_dp,1)) + p_527 * (d_2009q1 + d_2009q2)
+COEFF> p_520 p_522 p_523 p_524 p_525 p_526 p_528 p_527
 STORE> coe(20)
 
 COMMENT> 
@@ -5303,6 +5303,9 @@ Final model
 
 ```{r}
 reg_wage_ds=dynlm(TSDELTALOG(wage_ds) ~ 1 + TSDELTA(TSLAG(ur,4)) + TSDELTALOG(prod_ds)+  log(TSLAG(wage_ds,1))  + log(TSLAG(wage_ds_t,1))  + log(TSLAG(prod_ds,1))+ d_2009q1 + d_2009q2)
+
+### Når jeg bare inkludere den som lr i modellen er den signifikant!
+
 
 summary(reg_wage_ds)
 
