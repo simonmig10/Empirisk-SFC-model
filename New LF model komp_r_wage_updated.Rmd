@@ -20,7 +20,7 @@ library(tidyverse)
 # Import data
 
 ```{r}
-AAMK <- read_excel("AAMK Hamid.xlsx")
+AAMK <- read_excel("AAMK.xlsx")
 globaldemand1 <- read_excel("globaldemand1.xlsx")
 
 
@@ -2795,8 +2795,8 @@ EQ> mkp = pc_ds / (wage_ds/prodk_ds + pm_ds)
 COMMENT> 
 BEHAVIORAL> wage_ds
 TSRANGE 2006 3 2020 1
-EQ> TSDELTALOG(wage_ds) = p_520 + p_522* TSDELTA(TSLAG(ur,4)) + p_523* TSDELTALOG(prod_ds) + p_524* LOG(TSLAG(wage_ds,1)) + p_525* LOG(TSLAG(wage_ds_t,1)) + p_526* LOG(TSLAG(prod_ds,1)) + p_527* (d_2009q1 + d_2009q2)
-COEFF> p_520 p_522 p_523 p_524 p_525 p_526 p_527 
+EQ> TSDELTALOG(wage_ds) = p_520 + p_522* TSDELTA(TSLAG(ur,4)) + p_523* TSDELTALOG(prod_ds) + p_524* LOG(TSLAG(wage_ds,1)) + p_525* LOG(TSLAG(wage_ds_t,1)) + p_526* LOG(TSLAG(prod_ds,1)) + p_528*LOG(TSLAG(max_dp,1)) + p_527 * (d_2009q1 + d_2009q2)
+COEFF> p_520 p_522 p_523 p_524 p_525 p_526 p_528 p_527
 STORE> coe(20)
 
 COMMENT> 
@@ -5265,45 +5265,49 @@ STORE> coe(20)"
 
 
 ```{r}
-reg_wage_ds_start=dynlm(TSDELTALOG(wage_ds) ~ 1+ L(TSDELTA(wage_ds), 1:4) + L(TSDELTA(ur), 0:4)+  L(LOG(wage_ds_t), 1) + L(TSDELTA(prod_ds), 0:4) + log(TSLAG(wage_ds,1))+ log(TSLAG(komp_r_obs,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2))  + d_2011q1 + d_2007q3)
+reg_wage_ds_start=dynlm(TSDELTALOG(wage_ds) ~ 1+ L(TSDELTA(wage_ds), 1:4) + L(TSDELTA(ur), 0:4)+ L(TSDELTALOG(prod_ds), 0:4)+ L(TSDELTALOG(obs_dp_q_test), 0:4)+  L(log(wage_ds_t), 1)  + log(TSLAG(wage_ds,1))+ log(TSLAG(obs_dp_q_test,1))  + log(TSLAG(prod_ds,1)) +  test_dummy)
 
-summary(reg_rw_ds_start)
+summary(reg_wage_ds_start)
+
+test_dummy= d_2009q1 + d_2009q2 
 
 ```
 
 ```{r}
-res_reg_rw_ds=residuals(reg_rw_ds_start)
-shapiro.test(res_reg_rw_ds)
+res_reg_wage_ds=residuals(reg_wage_ds_start)
+shapiro.test(res_reg_wage_ds)
 ```
 
 Use F-test to remove lags
 
 ```{r}
 
- rw_ds_vars_1 <- str_c("L(TSDELTA(rw_ds), 1:4)", c(4))
- ur_ds_vars_1 <- str_c("L(TSDELTA(ur_ds), 0:4)", c(3,4))
- komp_r_vars_1 <- str_c("L(TSDELTA(komp_r_obs), 0:4)", c(1,2,3,4))
- prodk_ds_vars_1 <- str_c("L(TSDELTA(prodk_ds), 0:4)", c(1,2,3))
+ wage_ds_vars_1 <- str_c("L(TSDELTA(wage_ds), 1:4)", c(1,2,3,4))
+ ur_ds_vars_1 <- str_c("L(TSDELTA(ur), 0:4)", c(0,2,3,4))
+ komp_r_vars_1 <- str_c("L(TSDELTALOG(obs_dp_q_test), 0:4)", c(2,3,4))
+ prodk_ds_vars_1 <- str_c("L(TSDELTALOG(prod_ds), 0:4)", c(1,2,3))
  
 ```
 
 ```{r}
 library(car)
 
-vars_out_1 <- c(komp_r_vars_1, rw_ds_vars_1,ur_ds_vars_1,prodk_ds_vars_1 )
+vars_out_1 <- c(komp_r_vars_1, wage_ds_vars_1,ur_ds_vars_1,prodk_ds_vars_1 )
 vars_out_1
  
-linearHypothesis(reg_rw_ds_start, vars_out_1, rep(0, length(vars_out_1)))
+linearHypothesis(reg_wage_ds_start, vars_out_1, rep(0, length(vars_out_1)))
 
 ```
 
 Final model
 
 ```{r}
-reg_rw_ds=dynlm(TSDELTALOG(rw_ds) ~ 1+ L(TSDELTA(rw_ds), 2:3) + L(TSDELTA(ur_ds), 1:2)+  L(TSDELTA(komp_r_obs), 0) + L(TSDELTA(prodk_ds), c(0,4)) + log(TSLAG(rw_ds,1))+ log(TSLAG(komp_r_obs,1)) + TSLAG(ur_ds,2) + log(TSLAG(prodk_ds,2))  + d_2011q1 + d_2007q3)
+reg_wage_ds=dynlm(TSDELTALOG(wage_ds) ~ 1 + TSDELTA(TSLAG(ur,4)) + TSDELTALOG(prod_ds)+  log(TSLAG(wage_ds,1))  + log(TSLAG(wage_ds_t,1))  + log(TSLAG(prod_ds,1))+ d_2009q1 + d_2009q2)
+
+### Når jeg bare inkludere den som lr i modellen er den signifikant!
 
 
-summary(reg_rw_ds)
+summary(reg_wage_ds)
 
 ```
 
@@ -5315,7 +5319,7 @@ STORE> coe(13)"
 
 
 
-### lr estimate: 
+### lr estimate:
 
 ```{r}
 library(nlWaldTest)
