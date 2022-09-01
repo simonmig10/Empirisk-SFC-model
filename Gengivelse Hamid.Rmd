@@ -1353,12 +1353,13 @@ g_shock= g
 pf_shock= pf
 prodk_ds_shock = prodk_ds
 pm_ds_shock= pm_ds
-tax_rate1_shock= tax_rate1
-
+tax_rate1_shock= ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
+tax_rate1_shock_shock= tax_rate1_shock
 iloan_shock= iloan
 idep_shock= idep
 ibd_shock= ibd
 iboa_shock= iboa
+
 
 ```
 
@@ -2755,9 +2756,18 @@ COMMENT> Lavet for at kunne støde til g
 IDENTITY> iboa
 EQ> iboa = iboa_shock
 
-COMMENT> Lavet for at kunne støde til g 
+COMMENT> Capital Stock with switches
 IDENTITY> tax_rate1
-EQ> tax_rate1 = tax_rate1_shock
+EQ> tax_rate1 = tax_rate1*1
+IF> tax_rate1_shock <= 0
+IDENTITY> tax_rate1
+EQ> tax_rate1 = tax_rate11
+IF> tax_rate1_shock > 0
+
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> tax_rate1_shock
+EQ> tax_rate1_shock = tax_rate1_shock*1
 
 END"
 ```
@@ -4359,7 +4369,14 @@ S_modelData=list(
   eq_h_ratio  = TIMESERIES(c(eq_h_ratio ),   
                            START=c(2005,3),FREQ=4),
   ratio_in_eq_h  = TIMESERIES(c(ratio_in_eq_h ),   
+                           START=c(2005,3),FREQ=4),
+  
+  ## Test
+  tax_rate11  = TIMESERIES(c(tax_rate11 ),   
+                           START=c(2005,3),FREQ=4),
+  tax_rate1_shock   = TIMESERIES(c(ratio_in_eq_h ),   
                            START=c(2005,3),FREQ=4)
+  
 )
 ```
 
@@ -4406,7 +4423,12 @@ pc_ds_00 = S_model$simulation$pc_ds
 yd_hk_ds_00 = S_model$simulation$yd_hk_ds 
 pconk_ds_00 = S_model$simulation$pconk_ds 
 ur_ds_00 = S_model$simulation$ur_ds
+tax_rate1_00 = S_model$simulation$tax_rate1
+iloan_00 = S_model$simulation$iloan
 
+
+yd1_h_00 = S_model$simulation$yd1_h
+plot(tax_rate1_00)
 ```
 
 
@@ -4565,10 +4587,10 @@ constantAdjList_1 <- list(
   
  pf = TIMESERIES(shock_pf*0.1 ,START=c(2014,2),  FREQ='Q'),
  pm_ds = TIMESERIES(shock_pm_ds*0.1 ,START=c(2014,2),  FREQ='Q'),
- idep = TIMESERIES(shock_idep+ 0.03 ,START=c(2014,4),  FREQ='Q'),
- ibd = TIMESERIES(shock_ibd+ 0.03 ,START=c(2014,4),  FREQ='Q'),
- iboa = TIMESERIES(shock_iboa+ 0.03 ,START=c(2014,4),  FREQ='Q'),
-  iloan = TIMESERIES(shock_iloan+ 0.025 ,START=c(2014,4),  FREQ='Q')
+ idep = TIMESERIES(shock_idep+ 0.02 ,START=c(2014,4),  FREQ='Q'),
+ ibd = TIMESERIES(shock_ibd+ 0.02 ,START=c(2014,4),  FREQ='Q'),
+ iboa = TIMESERIES(shock_iboa+ 0.02 ,START=c(2014,4),  FREQ='Q'),
+  iloan = TIMESERIES(shock_iloan+ 0.02 ,START=c(2014,4),  FREQ='Q')
 
 )
 
@@ -4599,7 +4621,7 @@ pc_ds_02 = Shock_2$simulation$pc_ds
 yd_hk_ds_02 = Shock_2$simulation$yd_hk_ds
 pconk_ds_02 = Shock_2$simulation$pconk_ds
 
-
+plot(pconk_ds_02)
 
 ```
 
@@ -4623,8 +4645,9 @@ grid()
 
 
 ```{r}
-shock_tax_rate1=tax_rate11 %>% window(start= c(2014,4))
+shock_tax_rate1_shock=tax_rate1_shock %>% window(start= c(2014,4))
 ```
+
 
 
 
@@ -4633,15 +4656,18 @@ shock_tax_rate1=tax_rate11 %>% window(start= c(2014,4))
 # Define add-factor list (defining shock)
 constantAdjList_2 <- list(
   
- pf = TIMESERIES(shock_pf*0.1 ,START=c(2014,2),  FREQ='Q'),
+  
+  pf = TIMESERIES(shock_pf*0.1 ,START=c(2014,2),  FREQ='Q'),
  pm_ds = TIMESERIES(shock_pm_ds*0.1 ,START=c(2014,2),  FREQ='Q'),
- idep = TIMESERIES(shock_idep+ 0.03 ,START=c(2014,4),  FREQ='Q'),
- ibd = TIMESERIES(shock_ibd+ 0.03 ,START=c(2014,4),  FREQ='Q'),
- iboa = TIMESERIES(shock_iboa+ 0.03 ,START=c(2014,4),  FREQ='Q'),
-  iloan = TIMESERIES(shock_iloan+ 0.025 ,START=c(2014,4),  FREQ='Q'),
- tax_rate1 = TIMESERIES(shock_tax_rate1 ,START=c(2014,4),  FREQ='Q')
+ idep = TIMESERIES(shock_idep+ 0.02 ,START=c(2014,4),  FREQ='Q'),
+ ibd = TIMESERIES(shock_ibd+ 0.02 ,START=c(2014,4),  FREQ='Q'),
+ iboa = TIMESERIES(shock_iboa+ 0.02 ,START=c(2014,4),  FREQ='Q'),
+  iloan = TIMESERIES(shock_iloan+ 0.02 ,START=c(2014,4),  FREQ='Q'),
+ tax_rate1_shock = TIMESERIES(shock_tax_rate1_shock +1 ,START=c(2014,4),  FREQ='Q')
 
 )
+
+
 
 ```
 
@@ -4649,7 +4675,7 @@ constantAdjList_2 <- list(
 ```{r}
 # Simulate the model (following shock)
 Shock_3 <- SIMULATE(S_model
-                    ,simType='RESCHECK'
+                    ,simType='DYNAMIC'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
@@ -4669,10 +4695,44 @@ ur_ds_03 = Shock_3$simulation$ur_ds
 pc_ds_03 = Shock_3$simulation$pc_ds
 yd_hk_ds_03 = Shock_3$simulation$yd_hk_ds
 pconk_ds_03 = Shock_3$simulation$pconk_ds
+yd1_h_03 = Shock_3$simulation$yd1_h
+yh1_03 = Shock_3$simulation$yh1
 
-plot(pconk_ds_03-pconk_ds)
+
+
+#Shocks
+
+tax_rate1_03 = Shock_3$simulation$tax_rate1
+pf_03 = Shock_3$simulation$pf
+pm_ds_03 = Shock_3$simulation$pm_ds
+idep_03 = Shock_3$simulation$idep
+ibd_03 = Shock_3$simulation$ibd
+iboa_03 = Shock_3$simulation$iboa
+iloan_03 = Shock_3$simulation$iloan
+
+
+
+
+plot(tax_rate1_03)
+plot(pf_03)
+plot(pm_ds_03)
+plot(idep_03)
+plot(ibd_03)
+plot(iboa_03)
+plot(iloan_03- iloan_00)
+
 
 ```
 
 
+```{r}
 
+
+
+plot(pconk_ds, col= "red"); lines(pconk_ds_01, col = "blue"); lines(pconk_ds_02, col = "green"); lines(pconk_ds_03, col = "orange");
+legend("top",legend=c("Baseline", "Scenario 1", "Scenario 2"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red", "green")); 
+grid()
+
+plot(pconk_ds_03)
+
+```
