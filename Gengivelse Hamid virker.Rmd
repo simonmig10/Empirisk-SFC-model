@@ -4750,7 +4750,7 @@ yh1_04 = Shock_4$simulation$yh1
 
 
 ```{r}
-plot(yk_ds_02/yk_ds_00, col= "red"); lines(yk_ds_03/yk_ds_00, col = "blue");lines(yk_ds_04/yk_ds_00, col = "green");
+plot(yk_ds_01/yk_ds_00, col= "red"); lines(yk_ds_02/yk_ds_00, col = "blue");lines(yk_ds_04/yk_ds_00, col = "green");
 legend("top",legend=c("Import price shock and interest rate shock", "Import price shock, interest rate shock and tax shock", "Import price shock and tax shock"),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue", "green")); 
 grid()
 

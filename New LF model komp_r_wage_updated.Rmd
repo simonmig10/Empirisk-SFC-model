@@ -1305,7 +1305,7 @@ shock_3_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 
 # New variables for LF model
 
-## Komp_r
+## Wage_trim
 
 As some of the variables are yearly and stock variables we devide them by 4 
 
@@ -1316,92 +1316,9 @@ tydd_q= tydd/4
 
 
 ```{r, fig.width=10, fig.height=7}
-## komp_r
-dp_tot= sben_h_r*ratio_dag
-nben_h_un = round(dp_tot)
-nben_h_rest= nben_h - nben_h_un
-dp_person = nben_h_un/(unemp*0.75)
-w_h_r_trim = w_h_r + d8_h
-wage_trim = w_h_r_trim/emp
-komp_r = dp_person/ wage_trim
 
-plot(komp_r)
-
-
-## komp_r1
-dp_tot= sben_h_r*ratio_dag
-nben_h_un = round(dp_tot)
-nben_h_rest= nben_h - nben_h_un
-dp_person1 = nben_h_un/(unemp*emp_ratio)
-w_h_r_trim = w_h_r
-wage_trim = w_h_r_trim/emp
-komp_r1 = dp_person1/ wage_trim
-
-plot(komp_r1)
-
-
-## komp_r2
-dp_tot2= sben_h_r*ratio_dag2
-nben_h_un2 = round(dp_tot2)
-nben_h_rest2= nben_h - nben_h_un2
-dp_person2 = nben_h_un2/(unemp*emp_ratio)
-w_h_r_trim = w_h_r 
-wage_trim = w_h_r_trim/emp
-komp_r2 = dp_person2/ wage_trim
-
-plot(komp_r2)
-
-
-## komp_r3
-dp_tot2= sben_h_r*ratio_dag2
-nben_h_un2 = round(dp_tot2)
-nben_h_rest2= nben_h - nben_h_un2
-dp_person2 = nben_h_un2/(unemp*emp_ratio)
 w_h_r_trim1 = w_h_r - abm
 wage_trim1 = w_h_r_trim1/emp
-komp_r3 = dp_person2/ wage_trim1
-
-plot(komp_r3)
-
-
-
-## komp_r5 Bruger "kuld", "uld" og "tyd" fra ADAM
-
-nben_h_rest5= nben_h - tydd_q
-dp_person5 = tydd_q/(ul* kuld)
-w_h_r_trim1 = w_h_r - abm
-wage_trim1 = w_h_r_trim1/emp
-komp_r5 = dp_person5/ wage_trim1
-
-plot(komp_r5)
-
-
-## komp_r6 Bruger "kuld" og "tyd" fra ADAM
-
-nben_h_rest6= nben_h - tydd_q
-dp_person6 = tydd_q/(unemp* kuld)
-w_h_r_trim1 = w_h_r - abm
-wage_trim1 = w_h_r_trim1/emp
-komp_r6 = dp_person6/ wage_trim1
-
-plot(komp_r6)
-
-
-## komp_r7 bruger "kuld"
-dp_tot7= sben_h_r*ratio_dag
-nben_h_un7 = round(dp_tot7)
-nben_h_rest7= nben_h - nben_h_un7
-dp_person7 = nben_h_un7/(unemp*kuld)
-w_h_r_trim1 = w_h_r - abm
-wage_trim1 = w_h_r_trim1/emp
-komp_r7 = dp_person7/ wage_trim1
-
-plot(komp_r7)
-
-
-
-plot(komp_r, col= "red", ylim= c(0.2,0.9)); lines(komp_r1, col = "blue");lines(komp_r2, col = "green");lines(komp_r3, col = "pink");lines(komp_r5, col = "black");lines(komp_r6, col = "orange");lines(komp_r7, col = rgb(0.4,1,1));legend("top",legend=c("kompr", "kompr1", "kompr2", "kompr3", "kompr5", "kompr6","kompr7"),lty=c(1,1,1,1,1,1,1),lwd=c(2),bty="n", col = c("red", "blue","green","pink","black","orange",rgb(0.4,1,1)));grid()
-
 ## Deseasonalize
 
 reg_30 = lm(wage_trim1~ sd1+ sd2 + sd3)
@@ -1456,30 +1373,25 @@ adam_dp_person= (tyd/uld)/4
 
 
 ```{r}
-## Måske brug IV-regression
-total_dp_reg=lm(adam_dp_person ~ 0 +obs_dp_q_test)
-summary(total_dp_reg)
+## Måske brug IV-regression men passer nok ikke data godt så. 
+total_dp_reg=lm(adam_dp_person ~ 0 +max_dp_quarter) 
 
-total_dp_obs=total_dp_reg$fitted.values*unemp*kuld
-
-
-
-komp_r_obs_model=total_dp_reg$fitted.values/wage_trim1
-komp_r_obs= adam_dp_person/wage_trim1
+mean_dp_regul= 0.9507*obs_dp_q
+total_dp_regul=mean_dp_regul*unemp*kuld
+komp_r_obs=mean_dp_regul/wage_trim1
 komp_r_obs_ds= adam_dp_person/wage_trim1_ds
+nben_h_rest_obs= nben_h - total_dp_obs
 
 plot(komp_r_obs)
 plot(komp_r_obs_ds); lines(komp_r_obs, col= "red")
-plot(adam_dp_person)
 plot(wage_trim1_ds);lines(wage_trim1, col= "red")
-
 ```
 
 
 ```{r}
-total_dp_wage= wage_dp_q_test*total_dp_reg$coefficients[1]*unemp*kuld
-komp_r_wage=wage_dp_q_test*total_dp_reg$coefficients[1]/wage_trim1
-nben_h_rest_obs= nben_h - total_dp_obs
+mean_dp_wage= 0.9507*wage_dp_q
+total_dp_wage= mean_dp_wage*unemp*kuld
+komp_r_wage=mean_dp_wage/wage_trim1
 ```
 
 
@@ -2892,6 +2804,7 @@ IDENTITY> pf
 EQ> pf = pf_shock
 IF> shock_1_model > 0
 
+
 COMMENT> Capital Stock with switches
 IDENTITY> pm_ds
 EQ> pm_ds = pm_ds*1
@@ -2975,7 +2888,7 @@ ratio_in_eq_h= (div_r_h+eq_h_rvx)/TSLAG(eq_h)
 
 # I think I should create the timeseries for the coeff. 
 
-S_modelData=list(  
+S_modelData=list(
   
   ## Price adjustments
   pg_adj = TIMESERIES(c(pg_adj),   
@@ -5160,20 +5073,14 @@ pconk_ds_02 = Shock_2$simulation$pconk_ds
 
 
 
-```{r}
-
-
-
-plot(yk_ds_02, col= "red"); lines(yk_ds_01, col = "blue"); lines(yk_ds_00, col = "green");
-legend("top",legend=c("Baseline", "Scenario 1", "Scenario 2"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red", "green")); 
-grid()
-
-```
-
-
 
 ## Scenario 4
 
+```{r}
+# Test
+
+shock_3_model_shock=shock_3_model %>% window(start= c(2014,4))
+```
 
 
 
@@ -5224,20 +5131,13 @@ yh1_04 = Shock_4$simulation$yh1
 
 
 ```{r}
-plot(yk_ds_02/yk_ds_00, col= "red"); lines(yk_ds_03/yk_ds_00, col = "blue");lines(yk_ds_04/yk_ds_00, col = "green");
+plot(yk_ds_01/yk_ds_00, col= "red"); lines(yk_ds_02/yk_ds_00, col = "blue");lines(yk_ds_04/yk_ds_00, col = "green");
 legend("top",legend=c("Import price shock and interest rate shock", "Import price shock, interest rate shock and tax shock", "Import price shock and tax shock"),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue", "green")); 
 grid()
 
 ```
 
 
-```{r}
-
-plot(yk_ds_00, col= "red"); lines(yk_ds_01, col = "blue"); lines(yk_ds_02, col = "green"); lines(yk_ds_03, col = "orange");
-legend("top",legend=c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3" ),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue", "green", "orange")); 
-grid()
-
-```
 
 
 

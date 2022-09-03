@@ -194,9 +194,7 @@ wage_max_dp= ts(c(42511,
                start = 2005, frequency = 1)
 
 
-plot(wage_max_dp)
 
-plot(wage_max_dp - obs_max_dp)
 
 
 wage_dp_q= ts(c(wage_max_dp[1],wage_max_dp[1],wage_max_dp[1],wage_max_dp[2],wage_max_dp[2],wage_max_dp[2],wage_max_dp[2],wage_max_dp[3],wage_max_dp[3],wage_max_dp[3],wage_max_dp[3],wage_max_dp[4],wage_max_dp[4],wage_max_dp[4],wage_max_dp[4],wage_max_dp[5],wage_max_dp[5],wage_max_dp[5],wage_max_dp[5],wage_max_dp[6],wage_max_dp[6],wage_max_dp[6],wage_max_dp[6],wage_max_dp[7],wage_max_dp[7],wage_max_dp[7],wage_max_dp[7],wage_max_dp[8],wage_max_dp[8],wage_max_dp[8],wage_max_dp[8],wage_max_dp[9],wage_max_dp[9],wage_max_dp[9],wage_max_dp[9],wage_max_dp[10],wage_max_dp[10],wage_max_dp[10],wage_max_dp[10],wage_max_dp[11],wage_max_dp[11],wage_max_dp[11],wage_max_dp[11],wage_max_dp[12],wage_max_dp[12],wage_max_dp[12],wage_max_dp[12],wage_max_dp[13],wage_max_dp[13],wage_max_dp[13],wage_max_dp[13],wage_max_dp[14],wage_max_dp[14],wage_max_dp[14],wage_max_dp[14],wage_max_dp[15],wage_max_dp[15],wage_max_dp[15],wage_max_dp[15],wage_max_dp[16]), start = c(2005,2), frequency = 4)
@@ -213,13 +211,13 @@ wage_trim1 = w_h_r_trim1/emp
 # Komp_r regulering
 ```{r}
 
-obs_dp_q_test=obs_dp_q/1000
+obs_dp_q=obs_dp_q/1000
 adam_dp_person= (tyd/uld)/4
 
 ## Måske brug IV-regression
 total_dp_reg=lm(adam_dp_person ~ 0 +max_dp_quarter)# coeff=0.9507
 
-mean_dp_regul= 0.9507*obs_dp_q_test
+mean_dp_regul= 0.9507*obs_dp_q
 
 total_dp_regul=mean_dp_regul*unemp*kuld
 
@@ -229,8 +227,8 @@ komp_r_obs=mean_dp_regul/wage_trim1
 
 # Komp_r wage
 ```{r}
-wage_dp_q_test= wage_dp_q/1000
-mean_dp_wage= wage_dp_q_test*0.9507
+wage_dp_q= wage_dp_q/1000
+mean_dp_wage= wage_dp_q*0.9507
 total_dp_wage= mean_dp_wage*unemp*kuld
 komp_r_wage=mean_dp_wage/wage_trim1
 ```
@@ -250,7 +248,7 @@ wage_dp_q_test #Maximal dagpenge med lønvækst
 
 
 ```{r}
-data_dp= data.frame(cbind(obs_dp_q_test,data_dp_q, wage_dp_q_test,tilpas_pr_q,stat_tilpas_q,stat_reg_q))
+data_dp= data.frame(cbind(obs_dp_q,max_dp_quarter, wage_dp_q,tilpas_pr_q,stat_tilpas_q,stat_reg_q))
 
 ##Lav til Excel
 
