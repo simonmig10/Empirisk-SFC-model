@@ -1,0 +1,261 @@
+---
+title: "Udregning af komp_r"
+author: "Simon"
+date: "29/8/2022"
+output: html_document
+---
+
+```{r}
+rm(list = ls())
+
+library(tstools)
+library(readxl)
+library(tidyverse)
+library(bimets)
+```
+
+
+```{r}
+AAMK <- read_excel("AAMK.xlsx")
+globaldemand1 <- read_excel("globaldemand1.xlsx")
+w_h_r1 <- read_excel("w_h_r1.xlsx")
+emp1= ts(w_h_r1$emp1, start = c(2003,1), frequency = 4)
+w_h_r1= ts(w_h_r1$w_h_r1, start = c(2003,1), frequency = 4)
+
+names(AAMK) <- tolower(names(AAMK))
+names(globaldemand1) <- tolower(names(globaldemand1))
+
+AAMK=lapply(AAMK, function(t) ts(t, start=c(2005, 2), end=c(2020, 1),frequency=4))
+globaldemand1=lapply(globaldemand1, function(t) ts(t, start=c(2005, 2), end=c(2020, 1),frequency=4))
+
+attach(AAMK)
+attach(globaldemand1)
+```
+
+
+```{r}
+wage = w_h_r/emp
+wage1= w_h_r1/emp1
+wageindex = wage/wage[22] #element from 2010Q3
+wageindex1 = wage1/wage1[31]
+```
+
+
+```{r}
+
+library(magrittr)
+library(tidyverse)
+
+#Yearly change in wage: (as max dagpenge kun ændres årligt?)
+
+wage_growth=TSDELTA(wageindex,4)
+
+wage_growth_1q=as.data.frame(as.numeric(wage_growth)[c(1,4,8,12,16,20,24,28,32,36,40,44,48,52,56)]) # Jeg bruger kvartal 2 fra 2006 som udviklling i 2006
+
+wage_growth_1q %<>% 
+  rename(Q1='as.numeric(wage_growth)[c(1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56)]')
+
+
+```
+
+```{r}
+
+#Yearly change in wage: (as max dagpenge kun ændres årligt?)
+
+wage_growth1=TSDELTA(wageindex1,4)
+
+wage_growth1_1q=as.data.frame(as.numeric(wage_growth1)[c(1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65)]) # Jeg bruger kvartal 2 fra 2006 som udviklling i 2006
+
+wage_growth1_1q %<>% 
+  rename(Q1='as.numeric(wage_growth1)[c(1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65)]')
+
+
+```
+
+
+
+# Reel data på dagpenge
+
+```{r}
+#max dagpeng emed start i 2004
+max_dp_month= c(641*21.667, 654*21.667, 667*21.667, 683*21.667, 703*21.667, 15708, 16293, 16597, 17073, 801*21.667, 815*21.667, 827*21.667, 18113, 18403, 18633, 18866,19083)
+max_dp_q= max_dp_month*3
+
+data_dp_q= ts(c(max_dp_q[2],max_dp_q[2],max_dp_q[2],max_dp_q[3],max_dp_q[3],max_dp_q[3],max_dp_q[3],max_dp_q[4],max_dp_q[4],max_dp_q[4],max_dp_q[4],max_dp_q[5],max_dp_q[5],max_dp_q[5],max_dp_q[5],max_dp_q[6],max_dp_q[6],max_dp_q[6],max_dp_q[6],max_dp_q[7],max_dp_q[7],max_dp_q[7],max_dp_q[7],max_dp_q[8],max_dp_q[8],max_dp_q[8],max_dp_q[8],max_dp_q[9],max_dp_q[9],max_dp_q[9],max_dp_q[9],max_dp_q[10],max_dp_q[10],max_dp_q[10],max_dp_q[10],max_dp_q[11],max_dp_q[11],max_dp_q[11],max_dp_q[11],max_dp_q[12],max_dp_q[12],max_dp_q[12],max_dp_q[12],max_dp_q[13],max_dp_q[13],max_dp_q[13],max_dp_q[13],max_dp_q[14],max_dp_q[14],max_dp_q[14],max_dp_q[14],max_dp_q[15],max_dp_q[15],max_dp_q[15],max_dp_q[15],max_dp_q[16],max_dp_q[16],max_dp_q[16],max_dp_q[16],max_dp_q[17]), start = c(2005,2), frequency = 4)
+
+max_dp_quarter=ts(data_dp_q/1000, start= c(2005,2), frequency = 4)
+
+max_dp_growth=TSDELTA(max_dp_quarter,4)/TSLAG(max_dp_quarter,4)
+```
+
+
+
+De nævner selv at den løn stigning der regnes med er fratrukket arbejdsgiveradministrerede pensionsordninger 
+
+
+```{r}
+
+# DEn reele statsregulerings procent inklusiv den reele statstilpasningsprocent
+stats_reg_ny= c(0.023, 0.027,0.029,0.031,0.037,0.019,0.029,0.016,0.018,0.015,0.011, 0.016, 0.0125, 0.0125, 0.0115)
+
+stats_reg_ny_growth= cumsum(stats_reg_ny)/c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)
+
+
+## Tilpasnings og statstilpasningsprocent
+
+tilpas_pr= wage_growth1_1q %>% 
+  mutate(tilpas= Q1-0.02) %>%
+  select(tilpas)
+
+tilpas_pr= ts(round(tilpas_pr,4), start =c(2006,1), end = 2020,1, frequency = 1 )
+
+tilpas_pr_q= ts(c(tilpas_pr[1],tilpas_pr[1],tilpas_pr[1],tilpas_pr[1],tilpas_pr[2],tilpas_pr[2],tilpas_pr[2],tilpas_pr[2],tilpas_pr[3],tilpas_pr[3],tilpas_pr[3],tilpas_pr[3],tilpas_pr[4],tilpas_pr[4],tilpas_pr[4],tilpas_pr[4],tilpas_pr[5],tilpas_pr[5],tilpas_pr[5],tilpas_pr[5],tilpas_pr[6],tilpas_pr[6],tilpas_pr[6],tilpas_pr[6],tilpas_pr[7],tilpas_pr[7],tilpas_pr[7],tilpas_pr[7],tilpas_pr[8],tilpas_pr[8],tilpas_pr[8],tilpas_pr[8],tilpas_pr[9],tilpas_pr[9],tilpas_pr[9],tilpas_pr[9],tilpas_pr[10],tilpas_pr[10],tilpas_pr[10],tilpas_pr[10],tilpas_pr[11],tilpas_pr[11],tilpas_pr[11],tilpas_pr[11],tilpas_pr[12],tilpas_pr[12],tilpas_pr[12],tilpas_pr[12],tilpas_pr[13],tilpas_pr[13],tilpas_pr[13],tilpas_pr[13],tilpas_pr[14],tilpas_pr[14],tilpas_pr[14],tilpas_pr[14],tilpas_pr[15]), start = c(2006,1), frequency = 4)
+
+### Statstilpasningsprocent
+
+stat_tilpas= wage_growth1_1q %>% 
+  mutate(tilpas= Q1-0.02) %>%
+  mutate(stats_tilpas= ifelse(tilpas  >=0 & tilpas <=0.003, 0, ifelse(tilpas > 0.003 , tilpas-0.003,tilpas))) %>%
+  select(stats_tilpas)
+
+stat_tilpas= ts(round(stat_tilpas, 4), start =c(2006,1), end = 2020,1, frequency = 1 )
+  
+stat_tilpas_q= ts(c(stat_tilpas[1],stat_tilpas[1],stat_tilpas[1],stat_tilpas[1],stat_tilpas[2],stat_tilpas[2],stat_tilpas[2],stat_tilpas[2],stat_tilpas[3],stat_tilpas[3],stat_tilpas[3],stat_tilpas[3],stat_tilpas[4],stat_tilpas[4],stat_tilpas[4],stat_tilpas[4],stat_tilpas[5],stat_tilpas[5],stat_tilpas[5],stat_tilpas[5],stat_tilpas[6],stat_tilpas[6],stat_tilpas[6],stat_tilpas[6],stat_tilpas[7],stat_tilpas[7],stat_tilpas[7],stat_tilpas[7],stat_tilpas[8],stat_tilpas[8],stat_tilpas[8],stat_tilpas[8],stat_tilpas[9],stat_tilpas[9],stat_tilpas[9],stat_tilpas[9],stat_tilpas[10],stat_tilpas[10],stat_tilpas[10],stat_tilpas[10],stat_tilpas[11],stat_tilpas[11],stat_tilpas[11],stat_tilpas[11],stat_tilpas[12],stat_tilpas[12],stat_tilpas[12],stat_tilpas[12],stat_tilpas[13],stat_tilpas[13],stat_tilpas[13],stat_tilpas[13],stat_tilpas[14],stat_tilpas[14],stat_tilpas[14],stat_tilpas[14],stat_tilpas[15]), start = c(2006,1), frequency = 4)
+
+
+### Statsregulerings procent inklusiv fradrag
+
+stats_regulering=c(0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.014, 0.016, 0.0125, 0.0125, 0.0095) # Det ser ud til at den i 2020 er 1.7 fratrukket fradrag bliver det 0.95 rundet ned 0.9
+
+stat_reg= ts(stats_regulering, start =c(2006,1), end = 2020,1, frequency = 1 )
+  
+stat_reg_q= ts(c(stats_regulering[1],stats_regulering[1],stats_regulering[1],stats_regulering[1],stats_regulering[2],stats_regulering[2],stats_regulering[2],stats_regulering[2],stats_regulering[3],stats_regulering[3],stats_regulering[3],stats_regulering[3],stats_regulering[4],stats_regulering[4],stats_regulering[4],stats_regulering[4],stats_regulering[5],stats_regulering[5],stats_regulering[5],stats_regulering[5],stats_regulering[6],stats_regulering[6],stats_regulering[6],stats_regulering[6],stats_regulering[7],stats_regulering[7],stats_regulering[7],stats_regulering[7],stats_regulering[8],stats_regulering[8],stats_regulering[8],stats_regulering[8],stats_regulering[9],stats_regulering[9],stats_regulering[9],stats_regulering[9],stats_regulering[10],stats_regulering[10],stats_regulering[10],stats_regulering[10],stats_regulering[11],stats_regulering[11],stats_regulering[11],stats_regulering[11],stats_regulering[12],stats_regulering[12],stats_regulering[12],stats_regulering[12],stats_regulering[13],stats_regulering[13],stats_regulering[13],stats_regulering[13],stats_regulering[14],stats_regulering[14],stats_regulering[14],stats_regulering[14],stats_regulering[15]), start = c(2006,1), frequency = 4)
+
+
+full_reg_year= as.data.frame(stat_tilpas+stats_regulering)
+
+full_reg_year %>% 
+  mutate(growth= round(cumsum(x)/c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),4))
+
+
+
+## Udregning af maximum dp ved brug af observerede statsreguleringsprocenter. 
+obs_max_dp= ts(c(42511,
+                 42511*1.0274,
+                 42511*(1.0263^2),
+                 42511*(1.0292^3),
+                 42511*(1.032^4),
+                 42511*(1.0341^5),
+                 42511*(1.0334^6),
+                 42511*(1.0333^7),
+                 42511*(1.0316^8),
+                 42511*(1.0301^9),
+                 42511*(1.029^10),
+                 42511*(1.0291^11),
+                 42511*(1.0261^12),
+                 42511*(1.0238^13),
+                 42511*(1.0246^14),
+                 42511*(1.0232^15)),
+               start = 2005, frequency = 1)
+
+
+
+
+obs_dp_q= ts(c(obs_max_dp[1],obs_max_dp[1],obs_max_dp[1],obs_max_dp[2],obs_max_dp[2],obs_max_dp[2],obs_max_dp[2],obs_max_dp[3],obs_max_dp[3],obs_max_dp[3],obs_max_dp[3],obs_max_dp[4],obs_max_dp[4],obs_max_dp[4],obs_max_dp[4],obs_max_dp[5],obs_max_dp[5],obs_max_dp[5],obs_max_dp[5],obs_max_dp[6],obs_max_dp[6],obs_max_dp[6],obs_max_dp[6],obs_max_dp[7],obs_max_dp[7],obs_max_dp[7],obs_max_dp[7],obs_max_dp[8],obs_max_dp[8],obs_max_dp[8],obs_max_dp[8],obs_max_dp[9],obs_max_dp[9],obs_max_dp[9],obs_max_dp[9],obs_max_dp[10],obs_max_dp[10],obs_max_dp[10],obs_max_dp[10],obs_max_dp[11],obs_max_dp[11],obs_max_dp[11],obs_max_dp[11],obs_max_dp[12],obs_max_dp[12],obs_max_dp[12],obs_max_dp[12],obs_max_dp[13],obs_max_dp[13],obs_max_dp[13],obs_max_dp[13],obs_max_dp[14],obs_max_dp[14],obs_max_dp[14],obs_max_dp[14],obs_max_dp[15],obs_max_dp[15],obs_max_dp[15],obs_max_dp[15],obs_max_dp[16]), start = c(2005,2), frequency = 4)
+
+```
+
+
+
+```{r}
+
+## Dagpenge hvis de havde fulgt lønudviklingen 1 til 1 med start i 2007
+
+wage_growth_1q %>%
+  mutate(sum= cumsum(Q1))%>%
+  mutate(sum_mean= round(sum/c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),4))
+
+wage_max_dp= ts(c(42511,
+                 42511*1.039,
+                 42511*(1.041^2),
+                 42511*(1.043^3), 
+                 42511*(1.040^4), 
+                 42511*(1.039^5), 
+                 42511*(1.036^6), 
+                 42511*(1.034^7),
+                 42511*(1.032^8),
+                 42511*(1.033^9), 
+                 42511*(1.029^10),
+                 42511*(1.027^11),
+                 42511*(1.028^12),
+                 42511*(1.027^13),
+                 42511*(1.027^14),
+                42511*(1.028^15)),
+               start = 2005, frequency = 1)
+
+
+plot(wage_max_dp)
+
+plot(wage_max_dp - obs_max_dp)
+
+
+wage_dp_q= ts(c(wage_max_dp[1],wage_max_dp[1],wage_max_dp[1],wage_max_dp[2],wage_max_dp[2],wage_max_dp[2],wage_max_dp[2],wage_max_dp[3],wage_max_dp[3],wage_max_dp[3],wage_max_dp[3],wage_max_dp[4],wage_max_dp[4],wage_max_dp[4],wage_max_dp[4],wage_max_dp[5],wage_max_dp[5],wage_max_dp[5],wage_max_dp[5],wage_max_dp[6],wage_max_dp[6],wage_max_dp[6],wage_max_dp[6],wage_max_dp[7],wage_max_dp[7],wage_max_dp[7],wage_max_dp[7],wage_max_dp[8],wage_max_dp[8],wage_max_dp[8],wage_max_dp[8],wage_max_dp[9],wage_max_dp[9],wage_max_dp[9],wage_max_dp[9],wage_max_dp[10],wage_max_dp[10],wage_max_dp[10],wage_max_dp[10],wage_max_dp[11],wage_max_dp[11],wage_max_dp[11],wage_max_dp[11],wage_max_dp[12],wage_max_dp[12],wage_max_dp[12],wage_max_dp[12],wage_max_dp[13],wage_max_dp[13],wage_max_dp[13],wage_max_dp[13],wage_max_dp[14],wage_max_dp[14],wage_max_dp[14],wage_max_dp[14],wage_max_dp[15],wage_max_dp[15],wage_max_dp[15],wage_max_dp[15],wage_max_dp[16]), start = c(2005,2), frequency = 4)
+
+```
+
+### Udregning af dagpenge total
+
+```{r}
+w_h_r_trim1 = w_h_r - abm
+wage_trim1 = w_h_r_trim1/emp
+```
+
+# Komp_r regulering
+```{r}
+
+obs_dp_q_test=obs_dp_q/1000
+adam_dp_person= (tyd/uld)/4
+
+## Måske brug IV-regression
+total_dp_reg=lm(adam_dp_person ~ 0 +max_dp_quarter)# coeff=0.9507
+
+mean_dp_regul= 0.9507*obs_dp_q_test
+
+total_dp_regul=mean_dp_regul*unemp*kuld
+
+komp_r_obs=mean_dp_regul/wage_trim1
+
+```
+
+# Komp_r wage
+```{r}
+wage_dp_q_test= wage_dp_q/1000
+mean_dp_wage= wage_dp_q_test*0.9507
+total_dp_wage= mean_dp_wage*unemp*kuld
+komp_r_wage=mean_dp_wage/wage_trim1
+```
+
+# overblik 
+
+```{r}
+data_dp_q # Reel observeret maximal dagpenge sats
+tilpas_pr_q# Tilpasningsprocent udregnet med wageindex i model 
+stat_tilpas_q# Statstilpasningsprocent udregnet med data fra model
+stat_reg_q# Statsregulerings procenten fratrukket fradrag
+
+obs_dp_q_test #Maximal dagpenge med politiks regulering
+wage_dp_q_test #Maximal dagpenge med lønvækst
+
+```
+
+
+```{r}
+data_dp= data.frame(cbind(obs_dp_q_test,data_dp_q, wage_dp_q_test,tilpas_pr_q,stat_tilpas_q,stat_reg_q))
+
+##Lav til Excel
+
+library(writexl)
+
+write_xlsx(data_dp,"udregnet dagpenge.xlsx")
+```
+
