@@ -1299,6 +1299,7 @@ iboa_shock= iboa + 0.03
 tax_rate1_shock= ts(c(0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369), start = c(2005, 2), end =  c(2020,1), frequency = 4)
 
 #### Shock variables 
+shock_max_dp_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_g_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_1_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_2_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
@@ -1421,6 +1422,18 @@ COMMENT> Max_dp
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> max_dp
 EQ> max_dp = TSLAG(max_dp,4)+ (stat_reg+stat_tilpas)*TSLAG(max_dp,4)
+IF> shock_max_dp_model <= 0
+IDENTITY> max_dp
+EQ> max_dp = TSLAG(max_dp,4)+ ((wage - TSLAG(wage,4))/TSLAG(wage,4))*TSLAG(max_dp,4)
+IF> shock_max_dp_model >= 0
+
+COMMENT> Capital Stock with switches
+IDENTITY> tax_rate1
+EQ> tax_rate1 = tax_rate1*1
+IF> shock_3_model <= 0
+IDENTITY> tax_rate1
+EQ> tax_rate1 = tax_rate1_shock
+IF> shock_3_model > 0
 
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> stat_tilpas
@@ -2908,6 +2921,10 @@ EQ> shock_1_model = shock_1_model*1
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> shock_g_model
 EQ> shock_g_model = shock_g_model*1
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> shock_max_dp_model
+EQ> shock_max_dp_model = shock_max_dp_model*1
 
 
 END"
@@ -4531,6 +4548,8 @@ S_modelData=list(
   
    shock_g_model  = TIMESERIES(c(shock_g_model ),   
                            START=c(2005,2),FREQ=4),
+  shock_max_dp_model  = TIMESERIES(c(shock_max_dp_model ),   
+                           START=c(2005,2),FREQ=4),
 
   shock_1_model  = TIMESERIES(c(shock_1_model ),   
                            START=c(2005,2),FREQ=4),
@@ -5000,6 +5019,97 @@ grid()
 # Shocks
 
 
+## Scenario 4 max_dp
+
+
+
+```{r}
+shock_max_dp_model_shock=shock_max_dp_model %>% window(start= c(2014,2))
+```
+
+
+
+
+```{r}
+# Define add-factor list (defining shock)
+constantAdjList <- list(
+  
+ shock_max_dp_model = TIMESERIES(shock_max_dp_model_shock+1 ,START=c(2014,2),  FREQ='Q')
+ 
+)
+
+```
+
+
+```{r}
+# Simulate the model (following shock)
+Shock_4 <- SIMULATE(S_model
+                    ,simType='DYNAMIC'
+                    ,TSRANGE=c(2008,2,2020,1)
+                    ,simConvergence=0.00001
+                    ,simIterLimit=100
+                    ,ConstantAdjustment=constantAdjList
+                    )
+```
+
+
+
+```{r}
+###Gengivelse af stød til model
+
+max_dp_04 = Shock_4$simulation$max_dp
+
+```
+
+```{r}
+plot(max_dp_04, col= "red"); lines(max_dp_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+```
+
+
+
+```{r}
+
+plot(komp_r_03, col= "red"); lines(komp_r_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+plot(yk_ds_03, col= "red"); lines(yk_ds_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(ur_ds_03, col= "red"); lines(ur_ds_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(wage_ds_03, col= "red"); lines(wage_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(pconk_ds_03, col= "red"); lines(pconk_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+plot(pc_ds_03, col= "red"); lines(pc_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(yd_hk_ds_03, col= "red"); lines(yd_hk_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+# The last one doesnt fit the working paper, but fits the model used for this replication
+
+```
+
+
+
+
 ## Scenario 3 g
 
 
@@ -5090,8 +5200,6 @@ grid()
 # The last one doesnt fit the working paper, but fits the model used for this replication
 
 ```
-
-
 
 
 
