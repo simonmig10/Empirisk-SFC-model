@@ -5139,7 +5139,7 @@ constantAdjList <- list(
 # Simulate the model (following shock)
 Shock_3 <- SIMULATE(S_model
                     ,simType='DYNAMIC'
-                    ,TSRANGE=c(2006,3,2020,1)
+                    ,TSRANGE=c(2007,1,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
                     ,ConstantAdjustment=constantAdjList
@@ -5160,6 +5160,7 @@ yd_hk_ds_03 = Shock_3$simulation$yd_hk_ds
 pconk_ds_03 = Shock_3$simulation$pconk_ds
 
 komp_r_03 = Shock_3$simulation$komp_r
+max_dp_03 = Shock_3$simulation$max_dp
 
 ```
 
@@ -5201,6 +5202,12 @@ legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col
 grid()
 
 # The last one doesnt fit the working paper, but fits the model used for this replication
+
+
+plot(max_dp_03, col= "red"); lines(max_dp_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
 
 ```
 
