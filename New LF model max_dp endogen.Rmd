@@ -1424,23 +1424,19 @@ EQ> max_dp = TSLAG(max_dp,4)+ (stat_reg+stat_tilpas)*TSLAG(max_dp,4)
 
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> stat_tilpas
-EQ> stat_tilpas = tilpas_pr
-IF> tilpas_pr < 0
+EQ> stat_tilpas = SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3)
+IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) < 0
 IDENTITY> stat_tilpas
 EQ> stat_tilpas = 0
-IF> tilpas_pr >=0 & tilpas_pr <=0.003
+IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) >=0 & SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) <=0.003
 IDENTITY> stat_tilpas
-EQ> stat_tilpas = tilpas_pr - 0.003
-IF> tilpas_pr >=0.003
+EQ> stat_tilpas = SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) - 0.003
+IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) >=0.003
 
 
-COMMENT> Capital Stock with switches
-IDENTITY> tax_rate1
-EQ> tax_rate1 = tax_rate1*1
-IF> shock_3_model <= 0
-IDENTITY> tax_rate1
-EQ> tax_rate1 = tax_rate1_shock
-IF> shock_3_model > 0
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> tilpas_pr
+EQ> tilpas_pr = TSDELTA(TSLAG(wage,8),4)/TSLAG(wage,12) - 0.02
 
 
 COMMENT> Pricing Nexus
@@ -4582,7 +4578,7 @@ S_model=ESTIMATE(S_model
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
                     ,simType='DYNAMIC'
-                    ,TSRANGE=c(2006,3,2020,1)
+                    ,TSRANGE=c(2008,2,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
                    )
@@ -4594,6 +4590,8 @@ wage_trim_00 = S_model$simulation$wage_trim
 dp_person_00 = S_model$simulation$dp_person
 max_dp_00 = S_model$simulation$max_dp
 stat_tilpas_00 = S_model$simulation$stat_tilpas
+
+tilpas_pr_00 = S_model$simulation$tilpas_pr
 
 part_00 = S_model$simulation$part
 lf_00 = S_model$simulation$lf
