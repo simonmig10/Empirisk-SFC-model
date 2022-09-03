@@ -664,6 +664,7 @@ Labour market
 #empl = N/1000
 #empl_ds = Nadj/1000
  wage = w_h_r/emp
+wage1= w_h_r1/emp1
 # wage = w_h_rk_ds /(empl_ds)
  Nu=(w_row_r - w_row_p)/wage
  Nf = Nu + emp
@@ -3590,8 +3591,8 @@ S_modelData=list(
   
   rw_ds = TIMESERIES(c(rw_ds),   
                      START=c(2005,2),FREQ=4),
-  wage = TIMESERIES(c(wage),   
-                    START=c(2005,2),FREQ=4),
+  wage = TIMESERIES(c(wage1),   
+                    START=c(2003,1),FREQ=4),
   
   wageindex = TIMESERIES(c(wageindex),   
                          START=c(2005,2),FREQ=4),
@@ -4597,7 +4598,7 @@ S_model=ESTIMATE(S_model
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
                     ,simType='DYNAMIC'
-                    ,TSRANGE=c(2008,2,2020,1)
+                    ,TSRANGE=c(2007,1,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
                    )
@@ -4609,6 +4610,8 @@ wage_trim_00 = S_model$simulation$wage_trim
 dp_person_00 = S_model$simulation$dp_person
 max_dp_00 = S_model$simulation$max_dp
 stat_tilpas_00 = S_model$simulation$stat_tilpas
+
+stat_reg_00= S_model$simulation$stat_tilpas
 
 tilpas_pr_00 = S_model$simulation$tilpas_pr
 
