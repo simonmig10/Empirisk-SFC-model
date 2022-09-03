@@ -1278,9 +1278,9 @@ propinc_r_nf = int_r_nf + div_r_nf + ins_r_nf + res_r_nf
 
 ```{r}
 ## Creating the new shock variables
-g_shock= g
+g_shock= g*1.02
 prodk_ds_shock = prodk_ds
-max_dp_shock= obs_dp_q_test
+max_dp_shock= obs_dp_q
 
 ## Shock_1
 pf_shock= pf+pf*0.1
@@ -1297,7 +1297,7 @@ iboa_shock= iboa + 0.03
 tax_rate1_shock= ts(c(0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369), start = c(2005, 2), end =  c(2020,1), frequency = 4)
 
 #### Shock variables 
-
+shock_g_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_1_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_2_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_3_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
@@ -1377,14 +1377,11 @@ adam_dp_person= (tyd/uld)/4
 total_dp_reg=lm(adam_dp_person ~ 0 +max_dp_quarter) 
 
 mean_dp_regul= 0.9507*obs_dp_q
-total_dp_regul=mean_dp_regul*unemp*kuld
+nben_h_un_obs=mean_dp_regul*unemp*kuld
 komp_r_obs=mean_dp_regul/wage_trim1
-komp_r_obs_ds= adam_dp_person/wage_trim1_ds
-nben_h_rest_obs= nben_h - total_dp_obs
+nben_h_rest_obs= nben_h - nben_h_un_obs
 
 plot(komp_r_obs)
-plot(komp_r_obs_ds); lines(komp_r_obs, col= "red")
-plot(wage_trim1_ds);lines(wage_trim1, col= "red")
 ```
 
 
@@ -1392,6 +1389,8 @@ plot(wage_trim1_ds);lines(wage_trim1, col= "red")
 mean_dp_wage= 0.9507*wage_dp_q
 total_dp_wage= mean_dp_wage*unemp*kuld
 komp_r_wage=mean_dp_wage/wage_trim1
+
+
 ```
 
 
@@ -1627,10 +1626,9 @@ IDENTITY> nben_h_un
 EQ>  nben_h_un = dp_person*unemp*kuld
 
 COMMENT> tilføjet
-BEHAVIORAL> dp_person
-EQ>  dp_person = p_dp*max_dp
-COEFF> p_dp
-STORE> coe(17)
+IDENTITY> dp_person
+EQ>  dp_person = 0.9507*max_dp
+
 
 COMMENT> tilføjet
 IDENTITY> wage_trim
@@ -2780,13 +2778,6 @@ COMMENT>
 IDENTITY> check_sec
 EQ> check_sec = sec_h + sec_f_a + sec_f_d + sec_nf + sec_g + sec_row
 
-COMMENT> Lavet for at kunne støde til g 
-IDENTITY> g
-EQ> g = g_shock
-
-COMMENT> Lavet for at kunne støde til g 
-IDENTITY> max_dp
-EQ> max_dp = max_dp_shock
 
 COMMENT> Endogonize partitipation rate
 BEHAVIORAL> part
@@ -2795,6 +2786,18 @@ EQ> TSDELTALOG(part) = beta_0 + beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELT
 COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7 beta_8 beta_9
 STORE> coe(16)
 
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> max_dp
+EQ> max_dp = max_dp_shock
+
+COMMENT> Capital Stock with switches
+IDENTITY> g
+EQ> g = g*1
+IF> shock_g_model <= 0
+IDENTITY> g
+EQ> g = g_shock
+IF> shock_g_model > 0
 
 COMMENT> Capital Stock with switches
 IDENTITY> pf
@@ -2865,6 +2868,10 @@ EQ> shock_2_model = shock_2_model*1
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> shock_1_model
 EQ> shock_1_model = shock_1_model*1
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> shock_g_model
+EQ> shock_g_model = shock_g_model*1
 
 
 END"
@@ -3536,7 +3543,7 @@ S_modelData=list(
   
    nben_h_rest = TIMESERIES(c(nben_h_rest_obs),   
                        START=c(2005,2),FREQ=4),
-  nben_h_un = TIMESERIES(c(total_dp_obs),   
+  nben_h_un = TIMESERIES(c(nben_h_un_obs),   
                         START=c(2005,2),FREQ=4),
   komp_r = TIMESERIES(c(komp_r_obs),   
                         START=c(2005,2),FREQ=4),
@@ -3547,9 +3554,9 @@ S_modelData=list(
   
   wage_trim = TIMESERIES(c(wage_trim1),   
                         START=c(2005,2),FREQ=4),
-   dp_person = TIMESERIES(c(adam_dp_person),   
+   dp_person = TIMESERIES(c(mean_dp_regul),   
                         START=c(2005,2),FREQ=4),
-  max_dp = TIMESERIES(c(obs_dp_q_test),   
+  max_dp = TIMESERIES(c(obs_dp_q),   
                         START=c(2005,2),FREQ=4),
   kuld = TIMESERIES(c(kuld),   
                         START=c(2005,2),FREQ=4),
@@ -4476,14 +4483,19 @@ S_modelData=list(
   d_2009q2  = TIMESERIES(c(d_2009q2),   
                            START=c(2005,3),FREQ=4),
   ## Test
+  
+   shock_g_model  = TIMESERIES(c(shock_g_model ),   
+                           START=c(2005,2),FREQ=4),
 
   shock_1_model  = TIMESERIES(c(shock_1_model ),   
-                           START=c(2005,3),FREQ=4),
+                           START=c(2005,2),FREQ=4),
   shock_2_model  = TIMESERIES(c(shock_2_model ),   
-                           START=c(2005,3),FREQ=4),
+                           START=c(2005,2),FREQ=4),
   shock_3_model  = TIMESERIES(c(shock_3_model ),   
-                           START=c(2005,3),FREQ=4),
+                           START=c(2005,2),FREQ=4),
    pf_shock = TIMESERIES(c(pf_shock),   
+                        START=c(2005,2),FREQ=4),
+  g_shock = TIMESERIES(c(g_shock),   
                         START=c(2005,2),FREQ=4),
   pm_ds_shock = TIMESERIES(c(pm_ds_shock),   
                         START=c(2005,2),FREQ=4),
@@ -4529,6 +4541,10 @@ S_model <- SIMULATE(S_model
 
 
 ```{r, echo=FALSE}
+wage_trim_00 = S_model$simulation$wage_trim
+dp_person_00 = S_model$simulation$dp_person
+max_dp_00 = S_model$simulation$max_dp
+
 part_00 = S_model$simulation$part
 lf_00 = S_model$simulation$lf
 pconk_ds_00 = S_model$simulation$pconk_ds
@@ -4880,6 +4896,23 @@ npropinc_h_00 = S_model$simulation$npropinc_h
 
 
 ```{r}
+plot(wage_trim_00, col= "green"); lines(wage_trim1, col = "blue"); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
+grid()
+
+plot(dp_person_00, col= "green"); lines(mean_dp_regul, col = "blue"); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
+grid()
+
+
+plot(komp_r_00, col= "green"); lines(komp_r_obs, col = "blue"); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
+grid()
+
+```
+
+
+```{r}
 
 ### Gengivelse
 plot(yk_ds_00, ylim= c(430000, 540000), col= "green"); lines(yk_ds, col = "blue"); 
@@ -4913,18 +4946,105 @@ grid()
 
 # Shocks
 
+
+## Scenario 3 g
+
+
+
+```{r}
+shock_g_model_shock=shock_g_model %>% window(start= c(2014,2))
+```
+
+
+
+
+```{r}
+# Define add-factor list (defining shock)
+constantAdjList <- list(
+  
+ shock_g_model = TIMESERIES(shock_g_model_shock+1 ,START=c(2014,2),  FREQ='Q')
+ 
+)
+
+```
+
+
+```{r}
+# Simulate the model (following shock)
+Shock_3 <- SIMULATE(S_model
+                    ,simType='DYNAMIC'
+                    ,TSRANGE=c(2006,3,2020,1)
+                    ,simConvergence=0.00001
+                    ,simIterLimit=100
+                    ,ConstantAdjustment=constantAdjList
+                    )
+```
+
+
+
+```{r}
+###Gengivelse af stød til model
+
+yk_ds_03 = Shock_3$simulation$yk_ds
+emp_03 = Shock_3$simulation$emp
+wage_ds_03 = Shock_3$simulation$wage_ds
+ur_ds_03 = Shock_3$simulation$ur_ds
+pc_ds_03 = Shock_3$simulation$pc_ds
+yd_hk_ds_03 = Shock_3$simulation$yd_hk_ds
+pconk_ds_03 = Shock_3$simulation$pconk_ds
+
+komp_r_03 = Shock_3$simulation$komp_r
+
+```
+
+
+
+
+```{r}
+
+plot(komp_r_03, col= "red"); lines(komp_r_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+plot(yk_ds_03, col= "red"); lines(yk_ds_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(ur_ds_03, col= "red"); lines(ur_ds_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(wage_ds_03, col= "red"); lines(wage_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(pconk_ds_03, col= "red"); lines(pconk_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+plot(pc_ds_03, col= "red"); lines(pc_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(yd_hk_ds_03, col= "red"); lines(yd_hk_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+# The last one doesnt fit the working paper, but fits the model used for this replication
+
+```
+
+
+
 ## Scenario 1
 
 
 
 ```{r}
-shock_g=g %>% window(start= c(2010,1))
-shock_pf=pf %>% window(start= c(2014,2))
-shock_pm_ds=pm_ds %>% window(start= c(2014,2))
-
-
-# TEst
-
 shock_1_model_shock=shock_1_model %>% window(start= c(2014,2))
 ```
 
