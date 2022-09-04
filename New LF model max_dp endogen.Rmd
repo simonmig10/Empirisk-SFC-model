@@ -1360,11 +1360,11 @@ De nævner selv at den løn stigning der regnes med er fratrukket arbejdsgiverad
 ```{r}
 #Udregninger af maximal dagpenge beløb er lavet i "udregning af dagpenge"
 
-komp_r_ny = obs_dp_q_test/ wage_trim1
+komp_r_ny = obs_dp_q/ wage_trim1
 plot(komp_r_ny)
 
 
-komp_r_ny1 = wage_dp_q_test/ wage_trim1
+komp_r_ny1 = wage_dp_q/ wage_trim1
 plot(komp_r_ny1)
 ```
 
@@ -1423,10 +1423,21 @@ COMMENT> Max_dp
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> max_dp
 EQ> max_dp = TSLAG(max_dp,4)+ (stat_reg+stat_tilpas)*TSLAG(max_dp,4)
-IF> shock_max_dp_model <= 0
+IF> shock_max_dp_model <= 0 & SD1 >= 1
+IDENTITY> max_dp
+EQ> max_dp = TSLAG(max_dp,1)
+IF>  SD2 >= 1
+IDENTITY> max_dp
+EQ> max_dp = TSLAG(max_dp,2)
+IF>  SD3 >= 1
+IDENTITY> max_dp
+EQ> max_dp = TSLAG(max_dp,3)
+IF>  SD4 >= 1
 IDENTITY> max_dp
 EQ> max_dp = TSLAG(max_dp,4)+ ((wage - TSLAG(wage,4))/TSLAG(wage,4))*TSLAG(max_dp,4)
-IF> shock_max_dp_model >= 0
+IF> shock_max_dp_model > 0 & SD1 >= 1
+
+
 
 COMMENT> Capital Stock with switches
 IDENTITY> tax_rate1
@@ -4964,6 +4975,7 @@ check_sec_00 = S_model$simulation$check_sec
 npropinc_h_00 = S_model$simulation$npropinc_h
 ```
 
+# Tjek
 
 ```{r}
 plot(wage_trim_00, col= "green"); lines(wage_trim1, col = "blue"); 
@@ -5048,7 +5060,7 @@ constantAdjList <- list(
 # Simulate the model (following shock)
 Shock_4 <- SIMULATE(S_model
                     ,simType='DYNAMIC'
-                    ,TSRANGE=c(2008,2,2020,1)
+                    ,TSRANGE=c(2007,1,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
                     ,ConstantAdjustment=constantAdjList
@@ -5062,55 +5074,23 @@ Shock_4 <- SIMULATE(S_model
 
 max_dp_04 = Shock_4$simulation$max_dp
 
+wage_04 = Shock_4$simulation$wage
+
+
+
+
 ```
 
 ```{r}
 plot(max_dp_04, col= "red"); lines(max_dp_00, col = "blue"); 
 legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
 grid()
+
+
+plot(wage_00, col= "red"); lines(wage, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
 ```
-
-
-
-```{r}
-
-plot(komp_r_03, col= "red"); lines(komp_r_00, col = "blue"); 
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-plot(yk_ds_03, col= "red"); lines(yk_ds_00, col = "blue"); 
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-
-plot(ur_ds_03, col= "red"); lines(ur_ds_00, col = "blue"); 
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-
-plot(wage_ds_03, col= "red"); lines(wage_ds_00, col = "blue");
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-
-plot(pconk_ds_03, col= "red"); lines(pconk_ds_00, col = "blue");
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-plot(pc_ds_03, col= "red"); lines(pc_ds_00, col = "blue");
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-
-plot(yd_hk_ds_03, col= "red"); lines(yd_hk_ds_00, col = "blue");
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-# The last one doesnt fit the working paper, but fits the model used for this replication
-
-```
-
-
 
 
 ## Scenario 3 g
@@ -5126,7 +5106,7 @@ shock_g_model_shock=shock_g_model %>% window(start= c(2014,2))
 
 ```{r}
 # Define add-factor list (defining shock)
-constantAdjList <- list(
+constantAdjList3 <- list(
   
  shock_g_model = TIMESERIES(shock_g_model_shock+1 ,START=c(2014,2),  FREQ='Q')
  
@@ -5142,7 +5122,7 @@ Shock_3 <- SIMULATE(S_model
                     ,TSRANGE=c(2007,1,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
-                    ,ConstantAdjustment=constantAdjList
+                    ,ConstantAdjustment=constantAdjList3
                     )
 ```
 
