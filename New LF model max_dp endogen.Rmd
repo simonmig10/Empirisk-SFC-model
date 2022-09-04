@@ -5155,7 +5155,7 @@ plot(komp_r_03, col= "red"); lines(komp_r_00, col = "blue");
 legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
 grid()
 
-plot(yk_ds_03, col= "red"); lines(yk_ds_00, col = "blue"); 
+plot(yk_ds_03, col= "red", main= "Yk_ds"); lines(yk_ds_00, col = "blue"); 
 legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
 grid()
 
