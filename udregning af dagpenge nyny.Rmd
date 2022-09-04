@@ -40,7 +40,7 @@ emp= window(emp1, start= c(2005,1), frequency=4)
 
 abm1= w_h_r1*0.08
 wage = w_h_r/emp
-wage1= (w_h_r1-abm1)/emp1
+wage1= (w_h_r1)/emp1
 ```
 
 
@@ -209,7 +209,7 @@ wage_dp_q= ts(c(wage_max_dp[1],wage_max_dp[1],wage_max_dp[1],wage_max_dp[2],wage
 ### Udregning af dagpenge total
 
 ```{r}
-w_h_r_trim1 = w_h_r - abm
+w_h_r_trim1 = w_h_r 
 wage_trim1 = w_h_r_trim1/emp
 ```
 
@@ -246,8 +246,8 @@ tilpas_pr_q# Tilpasningsprocent udregnet med wageindex i model
 stat_tilpas_q# Statstilpasningsprocent udregnet med data fra model
 stat_reg_q# Statsregulerings procenten fratrukket fradrag
 
-obs_dp_q_test #Maximal dagpenge med politiks regulering
-wage_dp_q_test #Maximal dagpenge med lønvækst
+obs_dp_q #Maximal dagpenge med politiks regulering
+wage_dp_q #Maximal dagpenge med lønvækst
 
 ```
 

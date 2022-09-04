@@ -22,7 +22,9 @@ library(tidyverse)
 ```{r}
 AAMK <- read_excel("AAMK.xlsx")
 globaldemand1 <- read_excel("globaldemand1.xlsx")
-
+w_h_r1 <- read_excel("w_h_r1.xlsx")
+emp1= ts(w_h_r1$emp1, start = c(2003,1), frequency = 4)
+w_h_r1= ts(w_h_r1$w_h_r1, start = c(2003,1), frequency = 4)
 
 names(AAMK) <- tolower(names(AAMK))
 names(globaldemand1) <- tolower(names(globaldemand1))
@@ -662,6 +664,7 @@ Labour market
 #empl = N/1000
 #empl_ds = Nadj/1000
  wage = w_h_r/emp
+wage1= w_h_r1/emp1
 # wage = w_h_rk_ds /(empl_ds)
  Nu=(w_row_r - w_row_p)/wage
  Nf = Nu + emp
@@ -1297,6 +1300,7 @@ iboa_shock= iboa + 0.03
 tax_rate1_shock= ts(c(0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369), start = c(2005, 2), end =  c(2020,1), frequency = 4)
 
 #### Shock variables 
+shock_max_dp_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_g_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_1_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_2_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
@@ -1389,14 +1393,1557 @@ plot(komp_r_obs)
 mean_dp_wage= 0.9507*wage_dp_q
 total_dp_wage= mean_dp_wage*unemp*kuld
 komp_r_wage=mean_dp_wage/wage_trim1
-
-
 ```
 
 
-# Txt. for model
 
-## model
+
+```{r}
+tilpas_pr = window(tilpas_pr_q, start= c(2006,1))
+stat_tilpas = window(stat_tilpas_q, start= c(2006,1))
+stat_reg = window(stat_reg_q, start= c(2006,1))
+```
+
+
+```{r}
+max_dp_test= TSLAG(obs_dp_q,4) +(stat_reg_q+stat_tilpas_q) * TSLAG(obs_dp_q,4) 
+```
+
+
+
+# Model endogen
+
+```{r}
+
+S_model.txt="MODEL
+
+COMMENT> Max_dp
+
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> max_dp
+EQ> max_dp = TSLAG(max_dp,4)+ (stat_reg+stat_tilpas)*TSLAG(max_dp,4)
+IF> shock_max_dp_model <= 0 & SD1 >= 1
+IDENTITY> max_dp
+EQ> max_dp = TSLAG(max_dp,1)
+IF>  SD2 >= 1
+IDENTITY> max_dp
+EQ> max_dp = TSLAG(max_dp,2)
+IF>  SD3 >= 1
+IDENTITY> max_dp
+EQ> max_dp = TSLAG(max_dp,3)
+IF>  SD4 >= 1
+IDENTITY> max_dp
+EQ> max_dp = TSLAG(max_dp,4)+ ((wage - TSLAG(wage,4))/TSLAG(wage,4))*TSLAG(max_dp,4)
+IF> shock_max_dp_model > 0 & SD1 >= 1
+
+
+
+COMMENT> Capital Stock with switches
+IDENTITY> tax_rate1
+EQ> tax_rate1 = tax_rate1*1
+IF> shock_3_model <= 0
+IDENTITY> tax_rate1
+EQ> tax_rate1 = tax_rate1_shock
+IF> shock_3_model > 0
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> stat_tilpas
+EQ> stat_tilpas = SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3)
+IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) < 0
+IDENTITY> stat_tilpas
+EQ> stat_tilpas = 0
+IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) >=0 & SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) <=0.003
+IDENTITY> stat_tilpas
+EQ> stat_tilpas = SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) - 0.003
+IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) >=0.003
+
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> tilpas_pr
+EQ> tilpas_pr = TSDELTA(TSLAG(wage,8),4)/TSLAG(wage,12) - 0.02
+
+
+COMMENT> Pricing Nexus
+
+
+COMMENT> 
+IDENTITY> pg
+EQ> LOG(pg) = 0.840852289293*LOG(pc) - 0.0401650251402 +
+pg_adj
+
+ 
+COMMENT> 
+IDENTITY> p_bd
+EQ> LOG(p_bd) = 0.988897636487*LOG(pc) + 0.0286611434831 +
+p_bd_adj
+
+
+
+COMMENT> 
+IDENTITY> p_equip
+EQ> LOG(p_equip) = 0.304376220161*LOG(pc) + 0.0160136953595
++ p_equip_adj
+
+
+COMMENT> 
+IDENTITY> px
+EQ> LOG(px) = 0.638216896739*LOG(pc) - 0.012650117362 +
+px_adj
+
+COMMENT> Households 
+
+COMMENT> 
+IDENTITY> int_r_h
+EQ> int_r_h = TSLAG(idep,1)*TSLAG(iba_h,1)  + TSLAG(ibd,1)*TSLAG(sec_h,1)  + int_r_h_adj   
+
+COMMENT> 
+IDENTITY> int_p_h
+EQ> int_p_h =  - TSLAG(iloan,1)*TSLAG(l_h,1)  + int_p_h_adj
+
+COMMENT> 
+IDENTITY> div_h
+EQ> div_h = d_20124*((TSLAG(eq_h_nf,1) + TSLAG(eq_h_f,1))*TSLAG(divd,1) + TSLAG(eq_h_row,1)*TSLAG(diva,1)) + (1-d_20124)*(TSLAG(eq_h,1)*TSLAG(divd,1)) +  div_h_adj
+
+
+COMMENT> 
+IDENTITY> aa_check
+EQ> aa_check = TSLAG(eq_h_f,1)*TSLAG(divd,1)
+
+
+COMMENT> 
+IDENTITY> insu_h
+EQ> insu_h = TSLAG(ins_h,1)*TSLAG(insu,1) + ins_h_adj
+
+COMMENT>  property income H
+IDENTITY> propinc_r_h
+EQ> propinc_r_h = int_r_h + div_h + insu_h + res_r_h 
+
+COMMENT> ' property expenditure H
+IDENTITY> propinc_p_h
+EQ> propinc_p_h = int_p_h + res_p_h 
+
+COMMENT> 
+IDENTITY> npropinc_h
+EQ> npropinc_h = propinc_r_h - propinc_p_h
+
+COMMENT> Gross income H
+IDENTITY> yh_h
+EQ> yh_h = w_h_r + b2_h_r + (npropinc_h ) 
+
+COMMENT> 
+IDENTITY> yh2a
+EQ> yh2a = propinc_r_h + b2_h_r
+
+COMMENT> 
+IDENTITY> yh2b
+EQ> yh2b = - propinc_p_h
+
+COMMENT> 
+IDENTITY> yh1
+EQ> yh1 = w_h_r +  nsben_h + oth_h
+
+COMMENT> 
+IDENTITY> w_h_r
+EQ> w_h_r = wage * emp
+
+COMMENT> ' property income part of the disposable income (capitalists)
+IDENTITY> yd2a_h
+EQ> yd2a_h =(1 - tax_rate2)*(yh2a) 
+
+COMMENT> 
+IDENTITY> yd2b_h
+EQ> yd2b_h = (1 - tax_rate2)*(yh2b)
+
+COMMENT> age and benefits part of the disposable income (workers) / tax_h_adj is added here because of the relative size versus yh2
+IDENTITY> yd1_h
+EQ> yd1_h =(1 - tax_rate1)*(yh1) - tax_h_adj
+
+COMMENT> 
+IDENTITY> tax_h
+EQ> tax_h = -(tax_rate2*(yh2a+yh2b) +  tax_rate1*yh1 +  tax_h_adj)
+
+COMMENT> 
+IDENTITY> yd1_hk
+EQ> yd1_hk = yd1_h/pc
+
+COMMENT> 
+IDENTITY> yd2a_hk
+EQ> yd2a_hk = yd2a_h/pc
+
+COMMENT> 
+IDENTITY> yd2b_hk
+EQ> yd2b_hk = yd2b_h/pc
+
+COMMENT> Disposable income
+IDENTITY> yd_h
+EQ> yd_h = yd1_h + yd2a_h + yd2b_h
+
+COMMENT> 
+IDENTITY> nsben_h
+EQ> nsben_h = nben_h - d8_h
+
+COMMENT> Disposable income (redundant for now)
+IDENTITY> yd_h1
+EQ> yd_h1 = yh_h + tax_h + nben_h
+
+COMMENT> 
+IDENTITY> yd_hk
+EQ> yd_hk = yd1_hk + yd2a_hk + yd2b_hk
+
+COMMENT> 
+IDENTITY> yd_hk_ds
+EQ> yd_hk_ds = yd1_hk_ds + yd2a_hk_ds + yd2b_hk
+
+COMMENT> 
+IDENTITY> yd1_hk_ds
+EQ> yd1_hk_ds = yd1_hk - (alpha_100 + alpha_101*SD1 + alpha_102*SD2 + alpha_103*SD3) + mean_yd1_hk
+
+
+COMMENT> 
+IDENTITY> yd2a_hk_ds
+EQ> yd2a_hk_ds  = yd2a_hk  - (alpha_110 + alpha_111*SD1 + alpha_112*SD2 + alpha_113*SD3) + mean_yd2a_hk
+
+COMMENT> Savings H
+IDENTITY> s_h
+EQ> s_h = yd_h - pcon + d8_h
+
+COMMENT> Sectoral balance
+IDENTITY> nl_h
+EQ> nl_h = s_h - i_h - np_h + ctr_h 
+
+
+
+COMMENT> 
+BEHAVIORAL> pconk_ds
+TSRANGE 2006 2 2020 1
+EQ> TSDELTALOG(pconk_ds) = C_1 + C_2*TSLAG(LOG(pconk_ds),1) + C_3*TSLAG(LOG(yd1_hk_ds),1) + C_4*LOG(TSLAG(yd2a_hk_ds,1) + TSLAG(yd2b_hk,1)) + C_5*TSLAG(LOG(fnw_hk),2) + C_6*TSDELTALOG(TSLAG(pconk_ds,2)) + C_7*TSDELTALOG(TSLAG(pconk_ds,3)) + C_8*TSDELTALOG(yd1_hk_ds)  + C_9*TSDELTALOG(yd2a_hk_ds + yd2b_hk) + C_10*d_2008q4 + C_11*d_2018q2 + C_12*d_2020q1 + C_13* time
+COEFF> C_1 C_2 C_3 C_4 C_5 C_6 C_7 C_8 C_9 C_10 C_11 C_12 C_13
+STORE> coe(1)
+
+
+COMMENT> 
+IDENTITY> pconk
+EQ> pconk = pconk_ds + alpha_00 + alpha_01*SD1 + alpha_02*SD2 + alpha_03*SD3 - mean_pconk
+
+COMMENT> nominal private consumption
+IDENTITY> pcon
+EQ> pcon = pconk*pc
+
+
+COMMENT>  
+BEHAVIORAL> i_bd_h_k_ds
+TSRANGE 2006 3 2020 1
+EQ> LOG(i_bd_h_k_ds) = P_620 + 
+P_621*TSDELTALOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2))+ 
+P_622*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(bd_h_k,4))+ 
+P_623*TSDELTALOG(TSLAG(p_bd,1)/TSLAG(pi_1,1)) + 
+P_624*TSDELTALOG(TSLAG(p_bd,2)/TSLAG(pi_1,2)) + 
+P_625*TSDELTALOG(TSLAG(yd_hk_ds,2)/TSLAG(bd_h_k,3))+ 
+P_626*TSDELTALOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + 
+P_627*LOG(TSLAG(i_bd_h_k_ds,1)/TSLAG(bd_h_k,2)) + 
+P_628*LOG(TSLAG(yd_hk_ds,1)/TSLAG(bd_h_k,2)) + 
+P_629*LOG(TSLAG(p_bd,1)/TSLAG(pi_1,1)) +
+P_630*LOG(TSLAG(-l_h,1)/TSLAG(bd_h,2)) + 
+P_631*d_2006q4 + 
+P_632*d_2014q4 + 
+alpha_1*LOG(TSLAG(bd_h_k,1)) + 
+alpha_2* TSLAG(LOG(i_bd_h_k_ds),1) + 
+alpha_3* TSLAG(-LOG(bd_h_k),2)
+COEFF> P_620 P_621 P_622 P_623 P_624 P_625 P_626 P_627 P_628 P_629 P_630 P_631 P_632 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
+STORE> coe(2)
+
+COMMENT> 
+IDENTITY> i_bd_h_k
+EQ> i_bd_h_k = i_bd_h_k_ds + (alpha_10 + alpha_11*SD1 + alpha_12*SD2 + alpha_13*SD3) - mean_i_bd_h_k
+
+COMMENT> 
+BEHAVIORAL> i_equip_h_k_ds
+TSRANGE 2006 2 2020 1
+EQ> LOG(i_equip_h_k_ds) = p_636 + p_637 * TSDELTALOG(TSLAG(i_equip_h_k_ds,1)/TSLAG(equip_h_k,2)) + p_638 * TSDELTALOG(TSLAG(i_equip_h_k_ds,2)/TSLAG(equip_h_k,3)) + p_639*TSDELTALOG(yd_hk_ds/TSLAG(equip_h_k,1)) + p_640*dummy_4 + alpha_1* TSLAG(LOG(i_equip_h_k_ds),1) + alpha_2* TSLAG(LOG(equip_h_k),1) + alpha_3* TSLAG(-LOG(equip_h_k),2)
+COEFF> p_636 p_637 p_638 p_639 p_640 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1 
+STORE> coe(3)
+
+COMMENT> 
+IDENTITY> i_equip_h_k
+EQ>  i_equip_h_k = i_equip_h_k_ds + alpha_20 + alpha_21*SD1 + alpha_22*SD2 + alpha_23*SD3 - mean_i_equip_h_k
+
+
+COMMENT> tilføjet
+IDENTITY> nben_h
+EQ>  nben_h = nben_h_rest + nben_h_un
+
+
+COMMENT> tilføjet
+IDENTITY> komp_r
+EQ>  komp_r = (dp_person/wage_trim)
+
+
+COMMENT> tilføjet
+IDENTITY> nben_h_un
+EQ>  nben_h_un = dp_person*unemp*kuld
+
+COMMENT> tilføjet
+IDENTITY> dp_person
+EQ>  dp_person = 0.9507*max_dp
+
+
+COMMENT> tilføjet
+IDENTITY> wage_trim
+EQ>  wage_trim = w_h_r_trim/emp
+
+COMMENT> tilføjet
+IDENTITY> w_h_r_trim
+EQ>  w_h_r_trim = w_h_r
+
+
+COMMENT> tilføjet
+BEHAVIORAL> nben_h_rest
+TSRANGE 2005 4 2020 1
+EQ> TSDELTALOG(nben_h_rest) = P_671 + P_672*TSDELTALOG(zaland_jesper) + P_673*TSDELTA(unemp) + P_674*TSDELTA(TSLAG(unemp,1)) +   P_675*LOG(TSLAG(nben_h_rest,1)) + P_676*TSLAG(unemp,1) + P_677*LOG(TSLAG(zaland_jesper,1)) 
+COEFF> P_671 P_672 P_673 P_674 P_675 P_676 P_677 
+STORE> coe(4)
+
+
+
+COMMENT> Financial side
+
+
+COMMENT> 
+IDENTITY> l_h_tr
+EQ> l_h_tr= l_h_tr_ratio * (-yd_hk_ds*pc)
+
+COMMENT> Mangler stadig at få tilpasset til ik diff
+BEHAVIORAL> l_h_tr_ratio
+TSRANGE 2006 2 2020 1
+EQ> TSDELTA(l_h_tr_ratio) = p_646 
++ p_641*TSDELTA(TSLAG(l_h_tr_ratio,2))
++ p_642*TSDELTA(iloan) 
++ p_643*TSDELTALOG(TSLAG(i_bd_h_k_ds,3)/TSLAG(yd_hk_ds,3)) 
++ p_644* TSLAG(l_h_tr_ratio,1) 
++ p_645*LOG(TSLAG(-l_h,2)/TSLAG(yd_hk_ds,2)*TSLAG(pc,2)) 
++ p_647*d_2007q34 
++ p_648*time
+COEFF> p_646 p_641 p_642 p_643 p_644 p_645 p_647 p_648
+STORE>  coe(5)
+
+COMMENT> 
+IDENTITY> iba_h
+EQ> iba_h= TSLAG(iba_h,1) + iba_h_tr + iba_h_rvx
+
+COMMENT> For the time being we take sec_h_tr as exogenous. It is assumed that households' holdings of securities are entirely issued by the government.
+IDENTITY> sec_h
+EQ> sec_h= TSLAG(sec_h,1) + sec_h_tr + sec_h_rvx
+
+COMMENT> 
+IDENTITY> sec_h_tr_g
+EQ> sec_h_tr_g=sec_h_tr
+
+COMMENT> 
+IDENTITY> l_h
+EQ> l_h= TSLAG(l_h,1) + l_h_tr + l_h_rvx
+
+COMMENT> 
+IDENTITY> eq_h
+EQ> eq_h= eq_h_ratio*(TSLAG(eq_h,1) +TSLAG(sec_h,1)+  TSLAG(iba_h,1)) + eq_h_rvx
+
+COMMENT> 
+BEHAVIORAL> eq_h_ratio
+TSRANGE 2006 1 2020 1
+EQ> TSDELTA(eq_h_ratio) =  p_770  
++ p_771* TSDELTA(TSLAG(ibd,1))
++ p_772* TSDELTA(TSLAG(ratio_in_eq_h,1))
++ p_773* TSLAG(eq_h_ratio,1)
++ p_774* TSLAG(ibd,1) 
++ p_775* TSLAG(ratio_in_eq_h,2)
+COEFF> p_770 p_771 p_772 p_773 p_774 p_775
+STORE> coe(6)
+
+COMMENT> 
+IDENTITY> eq_h_tr
+EQ> eq_h_tr = TSDELTA(eq_h) - eq_h_rvx
+
+COMMENT> 
+IDENTITY> iba_h_tr
+EQ> iba_h_tr = nl_h - l_h_tr - eq_h_tr  - sec_h_tr - ins_h_tr + nl_h_adj
+
+COMMENT> 
+IDENTITY> eq_h_nf
+EQ> eq_h_nf = d_20124*alpha_nf *eq_h
+
+COMMENT> 
+IDENTITY> eq_h_f
+EQ> eq_h_f = d_20124*alpha_f *eq_h
+
+
+COMMENT> 
+IDENTITY> eq_h_row
+EQ> eq_h_row = d_20124*alpha_row*eq_h
+
+COMMENT> 
+IDENTITY> eq_h_nf_tr
+EQ> eq_h_nf_tr = TSDELTA(eq_h_nf) - eq_h_nf_rvx
+
+COMMENT> 
+IDENTITY> eq_h_f_tr
+EQ> eq_h_f_tr = TSDELTA(eq_h_f) - eq_h_f_rvx
+
+COMMENT> 
+IDENTITY> eq_h_row_tr
+EQ> eq_h_row_tr = TSDELTA(eq_h_row) - eq_h_row_rvx
+
+COMMENT> 
+IDENTITY> eq_h_test
+EQ> eq_h_test = eq_h - (eq_h_nf + eq_h_f + eq_h_row)
+
+COMMENT> 
+IDENTITY> ins_h
+EQ> ins_h= TSLAG(ins_h,1) + ins_h_tr + ins_h_rvx
+
+COMMENT> 
+IDENTITY> ins_h_tr
+EQ> ins_h_tr = d8_h + ins_h_tr_excl_d8
+
+COMMENT> 
+BEHAVIORAL> d8_h
+TSRANGE 2005 4 2020 1
+EQ> TSDELTALOG(d8_h) = p_701*TSDELTALOG(TSLAG(d8_h,1)) + p_702*TSDELTALOG(w_h_r) + p_703*TSDELTALOG(TSLAG(old_age_ratio,1)) + p_704*LOG(TSLAG(d8_h,1)) + p_705*LOG(TSLAG(w_h_r,1)) + p_706*LOG(TSLAG(old_age_ratio,1)) + p_707*d_2014q3
+COEFF> p_701 p_702 p_703 p_704 p_705 p_706 p_707
+STORE> coe(7)
+
+COMMENT> 
+IDENTITY> lev_h
+EQ> lev_h = l_h/yd_h
+
+COMMENT> NET WEALTH AND FINANCIAL NET WEALTH
+
+COMMENT> 
+IDENTITY> fa_h
+EQ> fa_h = iba_h + sec_h + eq_h + ins_h
+
+COMMENT> 
+IDENTITY> fnw_h
+EQ> fnw_h = fa_h  + l_h
+
+COMMENT> 
+IDENTITY> fnw_hk
+EQ> fnw_hk = fnw_h/pc
+
+COMMENT> Capital Account
+
+COMMENT>gross fixed capital formation (buildings and dwellings)
+IDENTITY> i_bd_h
+EQ> i_bd_h = i_bd_h_k * p_bd
+
+COMMENT> gross fixed capital formation (equipment)
+IDENTITY> i_equip_h
+EQ> i_equip_h = i_equip_h_k * p_equip
+
+COMMENT> Real net stock of buildings and dwellings
+IDENTITY> bd_h_k
+EQ> TSDELTA(bd_h_k) = i_bd_h_k - TSLAG(bd_h_k,1) * delta_bd_h
+
+COMMENT>  Real net stock of equipment
+IDENTITY> equip_h_k
+EQ> TSDELTA(equip_h_k) = i_equip_h_k - TSLAG(equip_h_k,1) * delta_equip_h
+
+COMMENT> Nominal net stock of buildings and dwellings
+IDENTITY> bd_h
+EQ> TSDELTA(bd_h) = i_bd_h + TSLAG(bd_h_k,1) * (1-delta_bd_h)*TSDELTA(p_bd) - TSLAG(bd_h_k,1) * delta_bd_h * p_bd
+
+COMMENT> Nominal net stock of equipment
+IDENTITY> equip_h
+EQ> TSDELTA(equip_h) = i_equip_h + TSLAG(equip_h_k,1) * (1-delta_equip_h)*TSDELTA(p_equip) - TSLAG(equip_h_k,1) * delta_equip_h * p_equip
+
+
+COMMENT> NON-FINANCIAL SECTOR
+
+COMMENT> Real side
+
+COMMENT> 
+IDENTITY> y
+EQ> y = pcon + g + i + x - m
+
+COMMENT> real sales
+IDENTITY> yk
+EQ> yk = pconk + ik + gk + xk - mk
+
+
+COMMENT> real sales
+IDENTITY> yk_ds
+EQ> yk_ds = yk - (alpha_90 + alpha_91*SD1 + alpha_92* SD2 + alpha_93*SD3)+ mean_yk
+
+COMMENT> 
+IDENTITY> sk
+EQ> sk= pconk + ik + gk + xk
+
+COMMENT> real government consumption
+IDENTITY> gk
+EQ> gk = g/pg
+
+COMMENT> nominal export
+IDENTITY> x
+EQ> x = xk*px
+
+COMMENT> 
+IDENTITY> rer
+EQ> rer = pc*xr/pf
+
+COMMENT> 
+BEHAVIORAL> xk_ds
+TSRANGE 2006 3 2020 1
+EQ> TSDELTALOG(xk_ds) =  p_652*TSDELTALOG(TSLAG(gdp_tp,4)) + p_653*TSDELTALOG(rer) + p_654*LOG(TSLAG(xk_ds,1)) + p_655*LOG(TSLAG(gdp_tp,1)) + p_656*LOG(TSLAG(rer,2)) + p_657*d_2008q2 + p_658*d_2018q1 + p_659*d_2019q3 + p_660* time
+COEFF>  p_652 p_653 p_654 p_655 p_656 p_657 p_658 p_659 p_660
+STORE> coe(8)
+
+COMMENT> 
+IDENTITY> xk
+EQ> xk = xk_ds + alpha_80 + alpha_81*SD1 + alpha_82*SD2 + alpha_83*SD3 - mean_xk
+
+COMMENT> nominal import
+IDENTITY> m
+EQ> m = mk*pm
+
+COMMENT> 
+BEHAVIORAL> mk_ds
+TSRANGE 2006 2 2020 1
+EQ> TSDELTALOG(mk_ds) = p_661 + p_662*TSDELTALOG(TSLAG(mk_ds,2)) + p_663*TSDELTALOG(TSLAG(rer,1)) + p_664*TSDELTALOG(TSLAG(rer,3)) + p_665*TSDELTALOG(yk_ds) + p_666*LOG(TSLAG(mk_ds,1)) + p_667*LOG(TSLAG(yk_ds,1)) + p_668*d_2009q1 + p_669*d_2009q4
+COEFF> p_661 p_662 p_663 p_664 p_665 p_666 p_667 p_668 p_669
+STORE> coe(9)
+
+COMMENT> 
+IDENTITY> mk
+EQ> mk = mk_ds + alpha_70 + alpha_71*SD1 + alpha_72*SD2 + alpha_73*SD3 - mean_mk
+
+COMMENT> GDP deflator
+IDENTITY> py
+EQ> py = y/yk
+
+COMMENT> nominal sales
+IDENTITY> s
+EQ> s = pcon + g + i + x
+
+COMMENT> wage bill paid by NFC
+IDENTITY> w_nf
+EQ> w_nf = w_h_r +  (w_row_r - w_row_p)
+
+COMMENT> Gross operating surplus received by the NFC
+IDENTITY> b2_nf_r
+EQ> b2_nf_r = b2 - (b2_h_r + b2_f_r + b2_g_r)
+
+COMMENT> 
+IDENTITY> yf
+EQ> yf = y-((p_tax+p_tax_row)-(p_sub+p_sub_row))
+
+COMMENT> 
+IDENTITY> b2
+EQ> b2 = yf - w_nf
+
+COMMENT> wage share
+IDENTITY> ws
+EQ> ws = w_nf/yf  * zz
+
+COMMENT> profit share
+IDENTITY> ps
+EQ> ps = 1 - ws
+
+COMMENT> Rate of capacity utilization
+IDENTITY> u
+EQ> u=yk/(bd_nfc_k+equip_nfc_k)
+
+COMMENT> Profit rate
+IDENTITY> prate
+EQ> prate=s_nf/(TSLAG(bd_nfc,1)+TSLAG(equip_nfc,1))
+
+COMMENT> Profit rate
+IDENTITY> prate_ds
+EQ> prate_ds = prate - (alpha_120 + alpha_121*SD1 + alpha_122*SD2 + alpha_123*SD3) + mean_prate
+
+COMMENT> Profit rate
+IDENTITY> ps_ds 
+EQ> ps_ds  = ps - (alpha_130 + alpha_131*SD1 + alpha_132*SD2 + alpha_133*SD3) + mean_ps
+
+COMMENT> 
+IDENTITY> tobinq
+EQ> tobinq = (eq_nf_l) / (equip_nfc + bd_nfc)
+
+COMMENT> Er fixet
+BEHAVIORAL> i_bd_nfc_k_ds
+TSRANGE 2006 1 2020 1
+EQ> LOG(i_bd_nfc_k_ds) = p_800 + 
+p_801*TSDELTALOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + 
+p_802*TSDELTALOG(ps_ds) + 
+p_803*TSDELTALOG(u_ds) + 
+p_804* LOG(TSLAG(i_bd_nfc_k_ds,1)/TSLAG(bd_nfc_k,2)) + 
+p_805 * LOG(TSLAG(ps_ds,1)) + 
+p_806 * LOG(TSLAG(u_ds,1)) + 
+p_807 * TSDELTALOG(tobinq) +
+p_808 * LOG(TSLAG(tobinq,1)) +
+alpha_1*TSLAG(LOG(i_bd_nfc_k_ds),1) + 
+alpha_2*TSLAG(LOG(bd_nfc_k),1) + 
+alpha_3*TSLAG(-LOG(bd_nfc_k),2)
+COEFF> p_800 p_801 p_802 p_803 p_804 p_805 p_806 p_807 p_808 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
+STORE> coe(10)
+
+COMMENT> 
+IDENTITY> i_bd_nfc_k
+EQ> i_bd_nfc_k = i_bd_nfc_k_ds + (alpha_30 + alpha_31*SD1 + alpha_32*SD2 + alpha_33*SD3) - mean_i_bd_nfc_k
+
+COMMENT> 
+IDENTITY> i_equip_nfc_k
+EQ> i_equip_nfc_k = i_equip_nfc_k_ds + (alpha_40 + alpha_41*SD1 + alpha_42*SD2 + alpha_43*SD3) - mean_i_equip_nfc_k
+
+COMMENT> 
+IDENTITY> ik
+EQ> ik =  i_equip_h_k + i_equip_nfc_k  +  i_equip_g_k + i_equip_fc_k +  i_bd_h_k + i_bd_nfc_k  +  i_bd_g_k  + i_bd_fc_k + i_adj_h_k + i_adj_nfc_k + i_adj_fc_k + i_adj_g_k
+
+COMMENT> 
+IDENTITY> i_h
+EQ> i_h = i_equip_h_k*p_equip +  i_bd_h_k*p_bd  + i_adj_h_k*p_equip
+
+COMMENT> 
+IDENTITY> i_nf
+EQ> i_nf = i_equip_nfc_k*p_equip +  i_bd_nfc_k*p_bd  + i_adj_nfc_k*p_equip
+
+COMMENT> 
+IDENTITY> i_f
+EQ> i_f = i_equip_fc_k*p_equip +  i_bd_fc_k*p_bd  + i_adj_fc_k*p_equip 
+
+COMMENT> 
+IDENTITY> i_g
+EQ> i_g = i_equip_g_k*p_equip +  i_bd_g_k*p_bd  + i_adj_g_k*p_equip
+
+COMMENT> 
+IDENTITY> i
+EQ> i = i_nf + i_f + i_g + i_h 
+
+COMMENT> 
+BEHAVIORAL> i_equip_nfc_k_ds
+TSRANGE 2006 1 2020 1
+EQ> LOG(i_equip_nfc_k_ds) = p_807 + p_808 * TSDELTALOG(TSLAG(i_equip_nfc_k_ds,1)/TSLAG(equip_nfc_k,2)) + p_809 * TSDELTALOG(ps_ds) + p_810 * TSDELTALOG(u_ds) + p_811 *  LOG(TSLAG(i_equip_nfc_k_ds,1)/TSLAG(equip_nfc_k,2)) + p_812 * LOG(TSLAG(ps_ds,1)) + p_813 * LOG(TSLAG(u_ds,1)) + p_814 * dummy_10 + p_815 * dummy_11 + p_890*TSDELTALOG(tobinq) + p_891*LOG(TSLAG(tobinq,1)) + alpha_1*TSLAG(LOG(i_equip_nfc_k_ds),1) + alpha_2*TSLAG(LOG(equip_nfc_k),1) + alpha_3*TSLAG(-LOG(equip_nfc_k),2)
+COEFF> p_807 p_808 p_809 p_810 p_811 p_812 p_813 p_814 p_815 p_890 p_891 alpha_1 alpha_2 alpha_3
+RESTRICT> alpha_1 = 1
+alpha_2 = 1
+alpha_3 = 1
+STORE> coe(11)
+
+COMMENT> 
+IDENTITY> int_nf
+EQ> int_nf = (TSLAG(idep,1)*TSLAG(iba_nf,1) + TSLAG(ibd,1)*TSLAG(sec_nf,1) + TSLAG(iloan,1)*TSLAG(l_nf,1)) 
+
+COMMENT> 
+IDENTITY> div_nf
+EQ> div_nf =d_20124*(((TSLAG(eq_nf_a_nf,1) + TSLAG(eq_nf_a_f,1) - TSLAG(eq_nf_l_nf,1) + TSLAG(eq_h_nf,1)+ TSLAG(eq_row_a_nf,1) + TSLAG(eq_f_a_nf,1) + TSLAG(eq_g_nf,1)))* TSLAG(divd,1) + TSLAG(eq_nf_a_row,1)*TSLAG(diva,1)) + (1-d_20124)*(TSLAG(neq_nf,1)*TSLAG(divd,1)) + div_nf_adj
+
+COMMENT> 
+IDENTITY> insu_nf
+EQ> insu_nf =  TSLAG(ins_nf,1)*TSLAG(insu,1) 
+
+COMMENT> 
+IDENTITY> npropinc_nf
+EQ> npropinc_nf = int_nf + int_nf_adj + div_nf + insu_nf + ins_nf_adj + (res_r_nf ) - (res_p_nf) 
+
+COMMENT> gross income NFC Ændret yil den anden i modellen 
+IDENTITY> yh_nf
+EQ> yh_nf = y + b2_nf_r - b2 - (p_tax + p_tax_row) + (p_sub+p_sub_row) - w_nf + (propinc_r_nf - propinc_p_nf) 
+
+COMMENT> savings NFC TAX_NF is negative
+IDENTITY> s_nf
+EQ> s_nf = yh_nf + tax_nf + oth_nf 
+
+COMMENT> 
+IDENTITY> tax_nf
+EQ> tax_nf = -tax_rate_nf*y 
+
+COMMENT> Sectoral balance NFC
+IDENTITY> nl_nf
+EQ> nl_nf = s_nf - i_nf - np_nf + ctr_nf
+
+
+COMMENT> Financial side
+
+COMMENT> Change in stocks
+
+COMMENT> iba
+IDENTITY> iba_nf
+EQ> iba_nf = TSLAG(iba_nf,1) + iba_nf_tr + iba_nf_rvx 
+
+COMMENT> 
+IDENTITY> iba_nf_tr
+EQ> iba_nf_tr = nl_nf + nl_nf_adj - neq_nf_tr - l_nf_tr - sec_nf_tr - ins_nf_tr
+
+COMMENT> SEC . For the time being, we take sec_nf_tr as exogenous.
+IDENTITY> sec_nf
+EQ> sec_nf = TSLAG(sec_nf,1) + sec_nf_tr + sec_nf_rvx
+
+COMMENT>  Loans
+IDENTITY> l_nf
+EQ> l_nf = TSLAG(l_nf,1) + l_nf_tr + l_nf_rvx
+
+COMMENT> CHANGE in STOCKS OF EQUITIES:
+
+COMMENT> Equities held as assets by NFC
+IDENTITY> eq_nf_a
+EQ> eq_nf_a = (1-d_20124)*(TSLAG(eq_nf_a,1) + eq_nf_a_tr + eq_nf_a_rvx)  + d_20124*eq_nf_ax 
+
+
+COMMENT> 
+IDENTITY> eq_nf_a_nf
+EQ> eq_nf_a_nf = d_20124 * (TSLAG(eq_nf_a_nf,1) + eq_nf_a_nf_tr + eq_nf_a_nf_rv)
+
+COMMENT> equiteies NFC-NFC asset is obviously equal to equities NFC-NFC liability
+IDENTITY> eq_nf_l_nf
+EQ> eq_nf_l_nf = eq_nf_a_nf
+
+COMMENT> this is the data for quities as assets for NFC viz-a-viz counter parties, e.g., NFC purchase equities from NFC, FC, and RoW
+IDENTITY> eq_nf_ax
+EQ> eq_nf_ax =  eq_nf_a_nf + eq_nf_a_f + eq_nf_a_row
+
+COMMENT> 
+IDENTITY> eq_nf_a_f
+EQ> eq_nf_a_f = d_20124 * (TSLAG(eq_nf_a_f,1) + eq_nf_a_f_tr + eq_nf_a_f_rv)
+
+COMMENT> 
+IDENTITY> eq_nf_a_row
+EQ> eq_nf_a_row = d_20124 * (TSLAG(eq_nf_a_row,1) + eq_nf_a_row_tr + eq_nf_a_row_rv)
+
+COMMENT> total gross liabilities of equities on firms balance sheet is defined as the sum of NFC-NFC asset + the sum of NFC equities held by other sectors
+IDENTITY> eq_nf_l
+EQ> eq_nf_l = (1- d_20124)*(TSLAG(eq_nf_l,1) + eq_nf_l_tr + eq_nf_l_rvx)   +  d_20124*eq_nf_lx
+
+
+COMMENT> total gross liabilities of equities on firms balance sheet is defined as the sum of NFC-NFC asset + the sum of NFC equities held by other sectors
+IDENTITY> eq_nf_lx
+EQ> eq_nf_lx =   eq_nf_a_nf + eq_h_nf + eq_row_a_nf + eq_f_a_nf + eq_g_nf
+
+
+COMMENT> 
+IDENTITY> neq_nf
+EQ> neq_nf =d_20123*(-alpha_neq_nf * i_nf) + d_20124*( (eq_nf_a_f+ eq_nf_a_row)-(eq_f_a_nf + eq_g_nf + eq_h_nf + eq_row_a_nf))
+
+COMMENT> 
+IDENTITY> neq_nf_tr
+EQ> neq_nf_tr = TSDELTA(neq_nf)-(neq_nf_rvx)
+
+
+COMMENT>Some consistency check eqs:
+
+
+
+COMMENT> this variable should be zero after 2012 and onwards as it captures the difference between equities as assets for nfc (aggregate) data minus equities as assets for NFC held at difference sectors after 2012. In short, after 2012, we can identify the counter parties where NFC are holding stocks.
+IDENTITY> eq_nf_a_test
+EQ> eq_nf_a_test = eq_nf_a - eq_nf_ax
+
+COMMENT> this variable should be zero after 2012 and onwards as it captures the difference between equities as liabilities for nfc (aggregate) data minus equities as liabilities for NFC held at difference sectors after 2012. 
+IDENTITY> eq_nf_l_test
+EQ> eq_nf_l_test = eq_nf_l - eq_nf_lx 
+
+COMMENT> insurance NFC
+IDENTITY> ins_nf
+EQ> ins_nf = TSLAG(ins_nf,1) + ins_nf_tr + ins_nf_rvx 
+
+COMMENT> FINANCIAL NET WEALTH
+
+COMMENT> net financial wealth
+IDENTITY> fnw_nf
+EQ> fnw_nf = iba_nf + eq_nf_a - eq_nf_l + sec_nf +l_nf + ins_nf 
+
+COMMENT> 
+IDENTITY> fnw_nfk
+EQ> fnw_nfk = fnw_nf/pc
+
+COMMENT> Capital Account
+
+
+COMMENT> gross fixed capital formation (buildings and dwellings)
+IDENTITY> i_bd_nfc
+EQ> i_bd_nfc = i_bd_nfc_k * p_bd
+
+COMMENT> 
+IDENTITY> i_equip_nfc
+EQ> i_equip_nfc = i_equip_nfc_k * p_equip 
+
+COMMENT>  Real net stock of buildings and dwellings
+IDENTITY> bd_nfc_k
+EQ> TSDELTA(bd_nfc_k) = i_bd_nfc_k - TSLAG(bd_nfc_k,1) * delta_bd_nfc
+
+COMMENT> Real net stock of equipment
+IDENTITY> equip_nfc_k
+EQ> TSDELTA(equip_nfc_k) = i_equip_nfc_k - TSLAG(equip_nfc_k,1) * delta_equip_nfc 
+
+COMMENT> Nominal net stock of buildings and dwellings
+IDENTITY> bd_nfc
+EQ> TSDELTA(bd_nfc) = i_bd_nfc + TSLAG(bd_nfc_k,1) * (1-delta_bd_nfc)*TSDELTA(p_bd) - TSLAG(bd_nfc_k,1) * delta_bd_nfc * p_bd 
+
+COMMENT> Nominal net stock of equipment
+IDENTITY> equip_nfc
+EQ> TSDELTA(equip_nfc) = i_equip_nfc + TSLAG(equip_nfc_k,1) * (1-delta_equip_nfc)*TSDELTA(p_equip) - TSLAG(equip_nfc_k,1) * delta_equip_nfc * p_equip 
+
+COMMENT> FINANCIAL CORP
+
+COMMENT> Real side
+
+COMMENT> 
+IDENTITY> int_f
+EQ> int_f = (TSLAG(idep,1)*TSLAG(iba_f,1) + TSLAG(iloan,1)*TSLAG(l_f,1) + TSLAG(ibd,1)*TSLAG(sec_f_d,1) + TSLAG(iboa,1)*TSLAG(sec_f_a,1)) 
+
+COMMENT> 
+IDENTITY> div_f
+EQ> div_f = d_20124 *(((TSLAG(eq_f_a_f,1) + TSLAG(eq_nf_a_nf,1)) - (TSLAG(eq_f_l_f,1) + TSLAG(eq_h_f ,1)+ TSLAG(eq_row_a_f,1) + TSLAG(eq_nf_a_f,1) + TSLAG(eq_g_f,1)))* TSLAG(divd,1) + TSLAG(eq_f_a_row,1)*TSLAG(diva,1)) + (1-d_20124)*((TSLAG(neq_f,1)*TSLAG(divd,1))) +  div_f_adj 
+
+COMMENT> 
+IDENTITY> insu_f
+EQ> insu_f = TSLAG(ins_f,1)*TSLAG(insu,1)
+
+COMMENT> 
+IDENTITY> propinc_r_f
+EQ> propinc_r_f = int_r_f + div_r_f + ins_r_f + res_r_f
+
+COMMENT> 
+IDENTITY> propinc_p_f
+EQ> propinc_p_f = int_p_f + div_p_f + ins_p_f + res_p_f
+
+COMMENT> 
+IDENTITY> npropinc_f
+EQ> npropinc_f = int_f + int_f_adj +  div_f + insu_f + ins_f_adj + (res_r_f) - (res_p_f)
+
+COMMENT> 
+IDENTITY> yh_f
+EQ> yh_f = b2_f_r + (npropinc_f)
+
+COMMENT> 
+IDENTITY> yd_f
+EQ> yd_f = yh_f + tax_f + nben_f + oth_f
+
+COMMENT> This is based on the fact that d8_h = d8_f in the data.
+IDENTITY> d8_f
+EQ> d8_f = d8_h
+
+COMMENT> 
+IDENTITY> nben_f
+EQ> nben_f = d8_f 
+
+COMMENT> Savings F
+IDENTITY> s_f
+EQ> s_f = yd_f - d8_f
+
+COMMENT> Sectoral balance F
+IDENTITY> nl_f
+EQ> nl_f = s_f - i_f - np_f + ctr_f
+
+COMMENT> FInancial side
+
+COMMENT> Change in stocks of ibas
+
+COMMENT> 
+IDENTITY> iba_f
+EQ>  iba_f = TSLAG(iba_f,1) + iba_f_tr + iba_f_rvx
+
+COMMENT> 
+IDENTITY> iba_f_tr
+EQ> iba_f_tr = -(iba_nf_tr + iba_h_tr + iba_g_tr + iba_row_tr)
+
+COMMENT> Change in stocks of equities:
+
+COMMENT> 
+IDENTITY> eq_f_a
+EQ> eq_f_a = (1-d_20124)*(TSLAG(eq_f_a,1) + eq_f_a_tr + eq_f_a_rvx)  + d_20124*eq_f_ax
+
+COMMENT> 
+IDENTITY> eq_f_a_nf
+EQ> eq_f_a_nf = d_20124 * (TSLAG(eq_f_a_nf,1) + eq_f_a_nf_tr + eq_f_a_nf_rv)
+
+COMMENT> 
+IDENTITY> eq_f_a_f
+EQ> eq_f_a_f = d_20124 * (TSLAG(eq_f_a_f,1) + eq_f_a_f_tr + eq_f_a_f_rv)
+
+COMMENT> 
+IDENTITY> eq_f_l_f
+EQ> eq_f_l_f = eq_f_a_f 
+
+COMMENT> 
+IDENTITY> eq_f_a_row
+EQ> eq_f_a_row = d_20124 * (TSLAG(eq_f_a_row,1) + eq_f_a_row_tr + eq_f_a_row_rv)
+
+COMMENT> this is the data for quities as assets for NFC viz-a-viz counter parties, e.g., NFC purchase equities from NFC, FC, and RoW
+IDENTITY> eq_f_ax
+EQ> eq_f_ax =  eq_f_a_nf + eq_f_a_f + eq_f_a_row
+
+COMMENT> 
+IDENTITY> eq_f_l
+EQ> eq_f_l = (1- d_20124)*(TSLAG(eq_f_l,1) + eq_f_l_tr + eq_f_l_rvx)   +  d_20124*eq_f_lx 
+
+COMMENT> 
+IDENTITY> eq_f_lx
+EQ> eq_f_lx =   eq_nf_a_f + eq_h_f + eq_row_a_f + eq_f_a_f + eq_g_f 
+
+COMMENT> 
+IDENTITY> neq_f
+EQ> neq_f = eq_f_a - eq_f_l
+
+COMMENT> 
+IDENTITY> neq_f_tr
+EQ> neq_f_tr = TSDELTA(neq_f) - neq_f_rvx
+
+COMMENT> 
+IDENTITY> eq_f_l_test
+EQ> eq_f_l_test = eq_f_l - (eq_f_l_f + eq_h_f + eq_row_a_f + eq_nf_a_f + eq_g_f)
+
+COMMENT> Change in stocks of securities
+
+COMMENT> 
+IDENTITY> sec_f_d
+EQ> sec_f_d = TSLAG(sec_f_d,1) + sec_f_d_tr + sec_f_d_rvx
+
+COMMENT> 
+IDENTITY> sec_f_d_tr
+EQ> sec_f_d_tr =  nl_f + nl_f_adj - iba_f_tr - ins_f_tr - l_f_tr - neq_f_tr - sec_f_a_tr
+
+COMMENT> 
+IDENTITY> sec_f_d_tr_nf
+EQ> sec_f_d_tr_nf=-sec_nf_tr
+
+COMMENT> 
+IDENTITY> sec_f_d_tr_g
+EQ> sec_f_d_tr_g=sec_f_d_tr-sec_f_d_tr_nf
+
+COMMENT> 
+IDENTITY> sec_f_a
+EQ> sec_f_a = TSLAG(sec_f_a,1) + sec_f_a_tr + sec_f_a_rvx
+
+COMMENT> 
+IDENTITY> sec_f_a_tr
+EQ> sec_f_a_tr=-sec_row_tr
+
+COMMENT> 
+IDENTITY> l_f
+EQ> l_f = -(l_h + l_nf + l_g + l_row)
+
+COMMENT> 
+IDENTITY> l_f_tr
+EQ> l_f_tr = TSDELTA(l_f) -l_f_rvx
+
+COMMENT> 
+IDENTITY> ins_f
+EQ> ins_f = -(ins_h + ins_row + ins_nf + ins_g)
+
+COMMENT> 
+IDENTITY> ins_f_tr
+EQ> ins_f_tr = TSDELTA(ins_f) - ins_f_rvx
+
+COMMENT> 'WEALTH
+
+COMMENT> 
+IDENTITY> fnw_f
+EQ> fnw_f = iba_f + sec_f_a + sec_f_d +l_f + eq_f_a - eq_f_l + ins_f
+
+COMMENT> 
+IDENTITY> fnw_fk
+EQ> fnw_fk = fnw_f/pc
+
+COMMENT> Capital Account
+
+COMMENT> gross fixed capital formation (buildings and dwellings)
+IDENTITY> i_bd_fc
+EQ> i_bd_fc = i_bd_fc_k * p_bd
+
+COMMENT> gross fixed capital formation (equipment)
+IDENTITY> i_equip_fc
+EQ> i_equip_fc = i_equip_fc_k * p_equip
+
+COMMENT> 
+IDENTITY> bd_fc_k
+EQ> TSDELTA(bd_fc_k) = i_bd_fc_k - TSLAG(bd_fc_k,1) * delta_bd_fc
+
+COMMENT> 
+IDENTITY> equip_fc_k
+EQ> TSDELTA(equip_fc_k) = i_equip_fc_k - TSLAG(equip_fc_k,1) * delta_equip_fc
+
+COMMENT> 
+IDENTITY> bd_fc
+EQ> TSDELTA(bd_fc) = i_bd_fc + TSLAG(bd_fc_k,1) * (1-delta_bd_fc)*TSDELTA(p_bd) - TSLAG(bd_fc_k,1) * delta_bd_fc * p_bd
+
+COMMENT> 
+IDENTITY> equip_fc
+EQ> TSDELTA(equip_fc) = i_equip_fc + TSLAG(equip_fc_k,1) * (1-delta_equip_fc)*TSDELTA(p_equip) - TSLAG(equip_fc_k,1) * delta_equip_fc * p_equip
+
+COMMENT> GOVT 
+
+COMMENT> Real side 
+
+COMMENT> 
+IDENTITY> int_g
+EQ> int_g = (TSLAG(idep,1)*TSLAG(iba_g,1) + TSLAG(iloan,1)*TSLAG(l_g,1) + TSLAG(ibd,1)*TSLAG(sec_g,1))
+
+COMMENT> 
+IDENTITY> div_g
+EQ> div_g = d_20124 * ( (TSLAG(eq_g_nf,1) + TSLAG(eq_g_f,1))*TSLAG(divd,1) + TSLAG(eq_g_row,1)*TSLAG(diva,1) ) + (1-d_20124) * ((TSLAG(eq_g,1)*TSLAG(divd,1))) + div_g_adj
+
+COMMENT> 
+IDENTITY> insu_g
+EQ> insu_g = TSLAG(ins_g,1)*TSLAG(insu,1)
+
+COMMENT> 
+IDENTITY> propinc_r_g
+EQ> propinc_r_g = int_r_g + div_r_g + res_r_g
+
+COMMENT> 
+IDENTITY> propinc_p_g
+EQ> propinc_p_g = int_p_g + res_p_g
+
+COMMENT> 
+IDENTITY> npropinc_g
+EQ> npropinc_g = int_g + int_g_adj + div_g + insu_g + ins_g_adj + (res_r_g) - ( res_p_g)
+
+COMMENT> 
+IDENTITY> yh_g
+EQ> yh_g = b2_g_r + p_tax - p_sub + (npropinc_g)
+
+COMMENT> 
+IDENTITY> yd_g
+EQ> yd_g = yh_g + tax_g + nben_g + oth_g
+
+COMMENT> 
+IDENTITY> nben_g
+EQ> nben_g = - (nben_row + nsben_h + nben_f)
+
+COMMENT> 
+IDENTITY> tax_g
+EQ> tax_g = -(tax_h + tax_nf + tax_f + tax_row)
+
+COMMENT> 
+IDENTITY> s_g
+EQ> s_g = yd_g - g
+
+COMMENT> 
+IDENTITY> nl_g
+EQ> nl_g = s_g - i_g - np_g + ctr_g
+
+COMMENT> Financial side
+
+COMMENT> Change in stocks ' we need to have an accomodating asset
+
+COMMENT> 
+IDENTITY> iba_g
+EQ> iba_g= TSLAG(iba_g,1) + iba_g_tr + iba_g_rvx
+
+COMMENT> 
+IDENTITY> eq_g
+EQ> eq_g = (1-d_20124)*(TSLAG(eq_g,1) + eq_g_tr + eq_g_rvx) + d_20124*eq_g_ax
+
+COMMENT> 
+IDENTITY> eq_g_nf
+EQ> eq_g_nf = d_20124 * (TSLAG(eq_g_nf,1) + eq_g_nf_tr + eq_g_nf_rv)
+
+COMMENT> 
+IDENTITY> eq_g_f
+EQ> eq_g_f = d_20124 * (TSLAG(eq_g_f,1) + eq_g_f_tr + eq_g_f_rv)
+
+COMMENT> 
+IDENTITY> eq_g_row
+EQ> eq_g_row = d_20124 * (TSLAG(eq_g_row,1) + eq_g_row_tr + eq_g_row_rv)
+
+COMMENT> 
+IDENTITY> eq_g_ax
+EQ> eq_g_ax =  eq_g_row + eq_g_f + eq_g_nf
+
+COMMENT> 
+IDENTITY> eq_g_test
+EQ> eq_g_test = eq_g - (eq_g_nf + eq_g_f + eq_g_row)
+
+COMMENT> 
+IDENTITY> sec_g
+EQ> sec_g = TSLAG(sec_g,1) + sec_g_tr + sec_g_rvx
+
+COMMENT> 
+IDENTITY> sec_g_tr
+EQ> sec_g_tr = nl_g + nl_g_adj - iba_g_tr - l_g_tr - eq_g_tr - ins_g_tr
+
+COMMENT> SKAL REDDUNDANT EQ MED HER???? redundant = (sec_g_tr_0+(sec_h_tr_g_0+sec_f_d_tr_g_0))  'Redundant equation
+
+COMMENT> 
+IDENTITY> l_g
+EQ> l_g = TSLAG(l_g,1) + l_g_tr + l_g_rvx
+
+COMMENT> 
+IDENTITY> ins_g
+EQ> ins_g = TSLAG(ins_g,1) + ins_g_tr + ins_g_rvx
+
+COMMENT> WEALTH
+
+COMMENT> 
+IDENTITY> fnw_g
+EQ> fnw_g = iba_g + eq_g + sec_g +l_g + ins_g
+
+COMMENT> 
+IDENTITY> fnw_gk
+EQ> fnw_gk = fnw_g/pc
+
+COMMENT> Capital Account
+
+COMMENT> gross fixed capital formation (buildings and dwellings)
+IDENTITY> i_bd_g
+EQ> i_bd_g = i_bd_g_k * p_bd
+
+COMMENT> gross fixed capital formation (equipment)
+IDENTITY> i_equip_g
+EQ> i_equip_g = i_equip_g_k * p_equip
+
+COMMENT> Real net stock of buildings and dwellings
+IDENTITY> bd_g_k
+EQ> TSDELTA(bd_g_k) = i_bd_g_k - TSLAG(bd_g_k,1) * delta_bd_g
+
+COMMENT> 
+IDENTITY> equip_g_k
+EQ> TSDELTA(equip_g_k) = i_equip_g_k - TSLAG(equip_g_k,1) * delta_equip_g
+
+COMMENT> 
+IDENTITY> bd_g
+EQ> TSDELTA(bd_g) = i_bd_g + TSLAG(bd_g_k,1) * (1-delta_bd_g)*TSDELTA(p_bd) - TSLAG(bd_g_k,1) * delta_bd_g * p_bd 
+
+COMMENT> 
+IDENTITY> equip_g
+EQ> TSDELTA(equip_g) = i_equip_g + TSLAG(equip_g_k,1) * (1-delta_equip_g)*TSDELTA(p_equip) - TSLAG(equip_g_k,1) * delta_equip_g * p_equip
+
+COMMENT> REST OF THE WORLD
+
+COMMENT> Real side
+
+COMMENT> 
+IDENTITY> int_row
+EQ> int_row = (TSLAG(idep,1)*TSLAG(iba_row,1) + TSLAG(iboa,1)*TSLAG(sec_row,1) + TSLAG(iloan,1)*TSLAG(l_row,1))
+
+COMMENT> 
+IDENTITY> div_row
+EQ> div_row = d_20124*(  (TSLAG(eq_row_a_nf,1) + TSLAG(eq_row_a_f,1))*TSLAG(divd,1) - ((TSLAG(eq_nf_a_row,1)+TSLAG(eq_f_a_row,1)+TSLAG(eq_g_row,1)+TSLAG(eq_h_row,1))*TSLAG(diva,1))) + (1-d_20124) * ((TSLAG(neq_row,1)*TSLAG(divd,1))) + div_row_adj 
+
+COMMENT> 
+IDENTITY> insu_row
+EQ> insu_row = TSLAG(ins_row,1)*TSLAG(insu,1)
+
+COMMENT> 
+IDENTITY> propinc_r_row
+EQ> propinc_r_row = int_r_row + div_r_row + ins_r_row + res_r_row
+
+COMMENT> 
+IDENTITY> propinc_p_row
+EQ> propinc_p_row = int_p_row + div_p_row + ins_p_row + res_p_row
+
+COMMENT> 
+IDENTITY> npropinc_row
+EQ> npropinc_row = int_row + int_row_adj + div_row + insu_row + ins_row_adj + (res_r_row) - (res_p_row)
+
+COMMENT> 
+IDENTITY> s_row
+EQ> s_row = m - x + p_tax_row - p_sub_row + (w_row_r - w_row_p) +  (npropinc_row) + (tax_row) + nben_row + oth_row
+
+COMMENT> 
+IDENTITY> nl_row
+EQ> nl_row = s_row + ctr_row - np_row
+
+COMMENT> 
+IDENTITY> nben_row
+EQ> nben_row = scon_row_r - scon_row_p + sben_row_r - sben_row_p
+
+COMMENT> 
+IDENTITY> nx
+EQ> nx = x - m
+
+COMMENT> 
+IDENTITY> cab
+EQ> cab =-nl_row
+
+COMMENT> 
+IDENTITY> bop
+EQ> bop = cab + fab
+
+COMMENT> 
+IDENTITY> fab
+EQ> fab = (fnl_row)
+
+COMMENT> Financial side
+
+COMMENT> 
+IDENTITY> iba_row
+EQ> iba_row= TSLAG(iba_row,1) + iba_row_tr + iba_row_rvx
+
+COMMENT> 
+IDENTITY> iba_row_tr
+EQ> iba_row_tr = nl_row + nl_row_adj - neq_row_tr - sec_row_tr - l_row_tr - ins_row_tr 
+
+COMMENT> 
+IDENTITY> sec_row
+EQ> sec_row = TSLAG(sec_row,1) + sec_row_tr + sec_row_rvx
+
+COMMENT> 
+IDENTITY> l_row
+EQ> l_row = TSLAG(l_row,1) +l_row_tr +l_row_rvx
+
+COMMENT> CHANGE in equities
+
+COMMENT> 
+IDENTITY> eq_row_a
+EQ> eq_row_a = (1-d_20124)*(TSLAG(eq_row_a,1) + eq_row_a_tr + eq_row_a_rvx)  + d_20124*eq_row_ax
+
+COMMENT> 
+IDENTITY> eq_row_a_nf
+EQ> eq_row_a_nf = d_20124 * (TSLAG(eq_row_a_nf,1) + eq_row_a_nf_tr + eq_row_a_nf_rv)
+
+COMMENT> 
+IDENTITY> eq_row_a_f
+EQ> eq_row_a_f = d_20124 * (TSLAG(eq_row_a_f,1) + eq_row_a_f_tr + eq_row_a_f_rv)
+
+COMMENT> 
+IDENTITY> eq_row_ax
+EQ> eq_row_ax =  eq_row_a_nf + eq_row_a_f
+
+COMMENT> 
+IDENTITY> eq_row_a_test
+EQ> eq_row_a_test = eq_row_a - (eq_row_a_nf + eq_row_a_f)
+
+COMMENT> 
+IDENTITY> eq_row_l
+EQ> eq_row_l = (1-d_20124)*(TSLAG(eq_row_l,1) + eq_row_l_tr + eq_row_l_rvx) + d_20124*(eq_row_lx)
+
+COMMENT> 
+IDENTITY> eq_row_lx
+EQ> eq_row_lx = eq_nf_a_row + eq_h_row + eq_f_a_row + eq_g_row
+
+COMMENT> 
+IDENTITY> eq_row_l_test
+EQ> eq_row_l_test = eq_row_l - (eq_nf_a_row + eq_f_a_row + eq_g_row + eq_h_row)
+
+COMMENT> 
+IDENTITY> neq_row
+EQ> neq_row =-d_20123*(neq_nf + eq_h + neq_f + eq_g) + d_20124*( eq_row_a_nf + eq_row_a_f - (eq_nf_a_row + eq_f_a_row + eq_g_row + eq_h_row))
+
+COMMENT> 
+IDENTITY> neq_row_tr
+EQ> neq_row_tr = TSDELTA(neq_row) - neq_row_rvx
+
+COMMENT> 
+IDENTITY> ins_row
+EQ> ins_row = TSLAG(ins_row,1) + ins_row_tr + ins_row_rvx
+
+COMMENT> WEALTH
+
+COMMENT> 
+IDENTITY> fnw_row
+EQ> fnw_row = iba_row + eq_row_a - eq_row_l + sec_row +l_row + ins_row
+
+COMMENT> 
+IDENTITY> fnw_rowk
+EQ> fnw_rowk = fnw_row/pc
+
+COMMENT> Labour market
+
+COMMENT> 
+IDENTITY> unadj
+EQ> unadj = lf - empadj
+
+COMMENT> 
+IDENTITY> unemp
+EQ> unemp = lf - emp
+
+COMMENT> 
+IDENTITY> ur
+EQ> ur = unemp/lf
+
+
+COMMENT> 
+IDENTITY> ur_ds
+EQ> ur_ds = ur - (alpha_140 + alpha_141*SD1 + alpha_142*SD2 + alpha_143*SD3) + mean_ur
+
+COMMENT> 
+IDENTITY> uradj
+EQ> uradj = unadj/lf
+
+COMMENT> 
+IDENTITY> lf
+EQ> lf = (part*pop)/1000
+
+
+COMMENT> The pricing equation implies a mark-up of (1 + 0.38) in the long-run, i.e., the long-run (co-integrating vector) impact of the indepenent variable on pc_ds = 0.029/0.021
+
+COMMENT> 
+BEHAVIORAL> pc_ds
+TSRANGE 2006 3 2020 1
+EQ> TSDELTALOG(pc_ds) = C_21*TSDELTALOG(TSLAG(pc_ds,1)) + C_22*TSDELTALOG(TSLAG(pc_ds,2))+ C_23*TSDELTALOG(TSLAG(pc_ds,3)) + C_24*TSDELTALOG(TSLAG(pc_ds,4)) + C_25*TSDELTALOG(wage_ds)+ C_26*TSDELTALOG(pm_ds) + C_27*TSDELTALOG(TSLAG(pm_ds,2)) + C_28*LOG(TSLAG(pc_ds,1)) + C_29*LOG(TSLAG(wage_ds,1)) + C_30*LOG(TSLAG(prod_ds,1)) + C_31*LOG(TSLAG(pm_ds,1)) + C_32* d_2007q3 + C_33*d_2017q23
+COEFF> C_21 C_22 C_23 C_24 C_25 C_26 C_27 C_28 C_29 C_30 C_31 C_32 C_33 
+STORE> coe(12)
+
+COMMENT> 
+IDENTITY> pc
+EQ> pc = pc_ds + alpha_60 + alpha_61*SD1 + alpha_62*SD2 + alpha_63*SD3 - mean_pc
+
+COMMENT> 
+IDENTITY> mkp
+EQ> mkp = pc_ds / (wage_ds/prodk_ds + pm_ds)
+
+COMMENT> 
+BEHAVIORAL> emp
+EQ> emp = p_250 * (yk/prodk) 
+COEFF> p_250 
+STORE> coe(14)
+
+COMMENT> 
+IDENTITY> urterm
+EQ> urterm = ur - urs
+
+COMMENT> 
+IDENTITY> rw_ds
+EQ> rw_ds= wage_ds/pc_ds
+
+COMMENT> 
+IDENTITY> wage
+EQ> wage = wage_ds  + (alpha_50 + alpha_51*SD1 + alpha_52*SD2 + alpha_53*SD3) - mean_wage
+
+COMMENT> 
+IDENTITY> wage_ds_t
+EQ> wage_ds_t= SD1* wage_ds*(1+inflation_t) + SD2* TSLAG(wage_ds,1)*(1+TSLAG(inflation_t,1)) + SD3* TSLAG(wage_ds,2)*(1+TSLAG(inflation_t,2)) + SD4* TSLAG(wage_ds,3)*(1+TSLAG(inflation_t,3))
+
+COMMENT> 
+IDENTITY> inflation
+EQ> inflation = (pc/TSLAG(pc,4)) - 1
+
+COMMENT> Capital Stock with switches
+IDENTITY> inflation_t
+EQ> inflation_t = inflation_tt
+IF> inflation_tt <= 0
+IDENTITY> inflation_t
+EQ> inflation_t = inflation
+IF> inflation_tt > 0
+
+COMMENT>  
+IDENTITY> wageindex
+EQ> wageindex = wage/wage_2010q3
+
+COMMENT> 
+IDENTITY> mkp
+EQ> mkp = pc_ds / (wage_ds/prodk_ds + pm_ds)
+
+COMMENT> 
+BEHAVIORAL> wage_ds
+TSRANGE 2006 3 2020 1
+EQ> TSDELTALOG(wage_ds) = p_522* TSDELTA(TSLAG(ur,4)) + p_523* TSDELTALOG(prod_ds) + p_max* TSDELTALOG(TSLAG(max_dp,1))  + p_524* LOG(TSLAG(wage_ds,1)) + p_525* LOG(TSLAG(wage_ds_t,1)) + p_526* LOG(TSLAG(prod_ds,1))  + p_527 * (d_2009q1 + d_2009q2)
+COEFF> p_522 p_523 p_max p_524 p_525 p_526 p_527
+STORE> coe(20)
+
+COMMENT> 
+IDENTITY> prod
+EQ> prod=prodk * (y/yk)
+
+COMMENT> 
+IDENTITY> prod_ds
+EQ> prod_ds=prodk_ds * (y_ds/yk_ds)
+
+COMMENT> 
+IDENTITY> acc_rate
+EQ> acc_rate = ik / (bd_h_k + equip_h_k + bd_nfc_k + equip_nfc_k + bd_fc_k + equip_fc_k + bd_g_k + equip_g_k)
+
+COMMENT> CONSISTENCY CHEKCS
+
+
+COMMENT> 
+IDENTITY> nl_check
+EQ> nl_check= (nl_h + nl_f + nl_nf + nl_g + nl_row)
+
+
+COMMENT> 
+IDENTITY> fnl_check
+EQ> fnl_check= (fnl_h + fnl_f + fnl_nf + fnl_g + fnl_row)
+ 
+
+COMMENT> 
+IDENTITY> check_np
+EQ> check_np = np_row + np_h + np_f + np_nf + np_g
+
+
+COMMENT> 
+IDENTITY> check_ctr
+EQ> check_ctr = ctr_row + ctr_h + ctr_f + ctr_nf + ctr_g
+
+
+
+COMMENT> 
+IDENTITY> check_invest
+EQ> check_invest = i - i_f - i_nf - i_g - i_h
+
+
+COMMENT> 
+IDENTITY> check_iba
+EQ> check_iba = iba_h + iba_f + iba_nf + iba_g + iba_row 
+
+
+COMMENT> 
+IDENTITY> check_tax
+EQ> check_tax = tax_g + tax_nf + tax_f + tax_h + tax_row
+
+
+COMMENT> 
+IDENTITY> check_iba_rv
+EQ> check_iba_rv = iba_h_rv + iba_f_rv + iba_nf_rv + iba_g_rv + iba_row_rv
+
+
+COMMENT> 
+IDENTITY> check_iba_tr
+EQ> check_iba_tr = iba_h_tr + iba_f_tr + iba_nf_tr + iba_g_tr + iba_row_tr
+
+
+COMMENT> 
+IDENTITY> check_eq
+EQ> check_eq = eq_h + (eq_f_a - eq_f_l) + (eq_nf_a - eq_nf_l) + eq_g + (eq_row_a - eq_row_l)
+
+
+COMMENT> 
+IDENTITY> check_eq_tr
+EQ> check_eq_tr = eq_h_tr + neq_nf_tr  + neq_f_tr + eq_g_tr + neq_row_tr + eq_g_tr
+
+
+COMMENT> 
+IDENTITY> check_div
+EQ> check_div = div_h + div_f + div_g + div_nf + div_row
+
+
+COMMENT> 
+IDENTITY> check_l
+EQ> check_l = l_h + l_f + l_nf + l_g + l_row
+
+
+COMMENT> 
+IDENTITY> check_l_tr
+EQ> check_l_tr = l_f_tr + l_h_tr + l_nf_tr + l_g_tr + l_row_tr
+
+
+COMMENT> 
+IDENTITY> check_ins
+EQ> check_ins = ins_h + ins_f + ins_nf + ins_g + ins_row
+
+
+COMMENT> 
+IDENTITY> check_ins_tr
+EQ> check_ins_tr =  ins_f_tr  + ins_h_tr + ins_nf_tr + ins_g_tr + ins_row_tr
+
+
+COMMENT> 
+IDENTITY> check_sec
+EQ> check_sec = sec_h + sec_f_a + sec_f_d + sec_nf + sec_g + sec_row
+
+COMMENT> 
+IDENTITY> check_sec
+EQ> check_sec = sec_h + sec_f_a + sec_f_d + sec_nf + sec_g + sec_row
+
+
+COMMENT> Endogonize partitipation rate
+BEHAVIORAL> part
+TSRANGE 2006 2 2020 1
+EQ> TSDELTALOG(part) = beta_0 + beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(TSLAG(rw_ds,1)) + beta_3*TSDELTALOG(komp_r) + beta_4*TSDELTALOG(TSLAG(komp_r,3))  + beta_6*LOG(TSLAG(part,1))  + beta_7*log(TSLAG(rw_ds,1)) + beta_8*TSLAG(ur_ds,1) + beta_9* d_2013q4
+COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_6 beta_7 beta_8 beta_9
+STORE> coe(16)
+
+
+
+COMMENT> Capital Stock with switches
+IDENTITY> g
+EQ> g = g*1
+IF> shock_g_model <= 0
+IDENTITY> g
+EQ> g = g_shock
+IF> shock_g_model > 0
+
+COMMENT> Capital Stock with switches
+IDENTITY> pf
+EQ> pf = pf*1
+IF> shock_1_model <= 0
+IDENTITY> pf
+EQ> pf = pf_shock
+IF> shock_1_model > 0
+
+
+COMMENT> Capital Stock with switches
+IDENTITY> pm_ds
+EQ> pm_ds = pm_ds*1
+IF> shock_1_model <= 0
+IDENTITY> pm_ds
+EQ> pm_ds = pm_ds_shock
+IF> shock_1_model > 0
+
+COMMENT> Capital Stock with switches
+IDENTITY> iloan
+EQ> iloan = iloan*1
+IF> shock_2_model <= 0
+IDENTITY> iloan
+EQ> iloan = iloan_shock
+IF> shock_2_model > 0
+
+COMMENT> Capital Stock with switches
+IDENTITY> idep
+EQ> idep = idep*1
+IF> shock_2_model <= 0
+IDENTITY> idep
+EQ> idep = idep_shock
+IF> shock_2_model > 0
+
+COMMENT> Capital Stock with switches
+IDENTITY> ibd
+EQ> ibd = ibd*1
+IF> shock_2_model <= 0
+IDENTITY> ibd
+EQ> ibd = ibd_shock
+IF> shock_2_model > 0
+
+COMMENT> Capital Stock with switches
+IDENTITY> iboa
+EQ> iboa = iboa*1
+IF> shock_2_model <= 0
+IDENTITY> iboa
+EQ> iboa = iboa_shock
+IF> shock_2_model > 0
+
+COMMENT> Capital Stock with switches
+IDENTITY> tax_rate1
+EQ> tax_rate1 = tax_rate1*1
+IF> shock_3_model <= 0
+IDENTITY> tax_rate1
+EQ> tax_rate1 = tax_rate1_shock
+IF> shock_3_model > 0
+
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> shock_3_model
+EQ> shock_3_model = shock_3_model*1
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> shock_2_model
+EQ> shock_2_model = shock_2_model*1
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> shock_1_model
+EQ> shock_1_model = shock_1_model*1
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> shock_g_model
+EQ> shock_g_model = shock_g_model*1
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> shock_max_dp_model
+EQ> shock_max_dp_model = shock_max_dp_model*1
+
+
+END"
+```
+
+
+## Exogen model
 
 ```{r}
 
@@ -2880,6 +4427,8 @@ END"
 ```
 
 
+
+
 ```{r}
 S_model=LOAD_MODEL(modelText = S_model.txt)
 ```
@@ -2898,6 +4447,15 @@ ratio_in_eq_h= (div_r_h+eq_h_rvx)/TSLAG(eq_h)
 # I think I should create the timeseries for the coeff. 
 
 S_modelData=list(
+  
+  ## max_dp
+  
+  stat_reg = TIMESERIES(c(stat_reg),   
+                       START=c(2006,1),FREQ=4),
+  stat_tilpas = TIMESERIES(c(stat_tilpas),   
+                       START=c(2006,1),FREQ=4),
+  tilpas_pr = TIMESERIES(c(tilpas_pr),   
+                       START=c(2006,1),FREQ=4),
   
   ## Price adjustments
   pg_adj = TIMESERIES(c(pg_adj),   
@@ -3530,8 +5088,8 @@ S_modelData=list(
   
   rw_ds = TIMESERIES(c(rw_ds),   
                      START=c(2005,2),FREQ=4),
-  wage = TIMESERIES(c(wage),   
-                    START=c(2005,2),FREQ=4),
+  wage = TIMESERIES(c(wage1),   
+                    START=c(2003,1),FREQ=4),
   
   wageindex = TIMESERIES(c(wageindex),   
                          START=c(2005,2),FREQ=4),
@@ -4488,6 +6046,8 @@ S_modelData=list(
   
    shock_g_model  = TIMESERIES(c(shock_g_model ),   
                            START=c(2005,2),FREQ=4),
+  shock_max_dp_model  = TIMESERIES(c(shock_max_dp_model ),   
+                           START=c(2005,2),FREQ=4),
 
   shock_1_model  = TIMESERIES(c(shock_1_model ),   
                            START=c(2005,2),FREQ=4),
@@ -4531,6 +6091,8 @@ S_model=ESTIMATE(S_model
 
 # Simulate
 
+HUSK AT ÆNDRE DATOEN NÅR ÆNDRER MODEL!
+
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
@@ -4546,6 +6108,11 @@ S_model <- SIMULATE(S_model
 wage_trim_00 = S_model$simulation$wage_trim
 dp_person_00 = S_model$simulation$dp_person
 max_dp_00 = S_model$simulation$max_dp
+stat_tilpas_00 = S_model$simulation$stat_tilpas
+
+stat_reg_00= S_model$simulation$stat_tilpas
+
+tilpas_pr_00 = S_model$simulation$tilpas_pr
 
 part_00 = S_model$simulation$part
 lf_00 = S_model$simulation$lf
@@ -4896,6 +6463,7 @@ check_sec_00 = S_model$simulation$check_sec
 npropinc_h_00 = S_model$simulation$npropinc_h
 ```
 
+# Tjek
 
 ```{r}
 plot(wage_trim_00, col= "green"); lines(wage_trim1, col = "blue"); 
@@ -4907,11 +6475,12 @@ legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col 
 grid()
 
 
-plot(komp_r_00, col= "green"); lines(komp_r_obs, col = "blue"); 
+plot(stat_tilpas_00, col= "green", ylim= c(-0.03,0.03)); lines(stat_tilpas, col = "blue"); 
 legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid()
 
-plot(part_00, col= "green"); lines(part, col = "blue"); 
+
+plot(max_dp_00, col= "green"); lines(obs_dp_q, col = "blue"); 
 legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid()
 
@@ -4953,6 +6522,77 @@ grid()
 # Shocks
 
 
+## Scenario 4 max_dp
+
+
+
+```{r}
+shock_max_dp_model_shock=shock_max_dp_model %>% window(start= c(2014,2))
+```
+
+
+
+
+```{r}
+# Define add-factor list (defining shock)
+constantAdjList <- list(
+  
+ shock_max_dp_model = TIMESERIES(shock_max_dp_model_shock+1 ,START=c(2014,2),  FREQ='Q')
+ 
+)
+
+```
+
+
+```{r}
+# Simulate the model (following shock)
+Shock_4 <- SIMULATE(S_model
+                    ,simType='DYNAMIC'
+                    ,TSRANGE=c(2007,1,2020,1)
+                    ,simConvergence=0.00001
+                    ,simIterLimit=100
+                    ,ConstantAdjustment=constantAdjList
+                    )
+```
+
+
+
+```{r}
+###Gengivelse af stød til model
+
+max_dp_04 = Shock_4$simulation$max_dp
+
+wage_04 = Shock_4$simulation$wage
+
+komp_r_04 = Shock_4$simulation$komp_r
+part_04 = Shock_4$simulation$part
+
+
+
+```
+
+```{r}
+plot(max_dp_04, col= "red"); lines(max_dp_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(wage_04, col= "red"); lines(wage_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(komp_r_04, col= "red"); lines(komp_r_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(part_04, col= "red"); lines(part_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+```
+
+
 ## Scenario 3 g
 
 
@@ -4966,7 +6606,7 @@ shock_g_model_shock=shock_g_model %>% window(start= c(2014,2))
 
 ```{r}
 # Define add-factor list (defining shock)
-constantAdjList <- list(
+constantAdjList3 <- list(
   
  shock_g_model = TIMESERIES(shock_g_model_shock+1 ,START=c(2014,2),  FREQ='Q')
  
@@ -4979,10 +6619,10 @@ constantAdjList <- list(
 # Simulate the model (following shock)
 Shock_3 <- SIMULATE(S_model
                     ,simType='DYNAMIC'
-                    ,TSRANGE=c(2006,3,2020,1)
+                    ,TSRANGE=c(2007,1,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
-                    ,ConstantAdjustment=constantAdjList
+                    ,ConstantAdjustment=constantAdjList3
                     )
 ```
 
@@ -5000,8 +6640,11 @@ yd_hk_ds_03 = Shock_3$simulation$yd_hk_ds
 pconk_ds_03 = Shock_3$simulation$pconk_ds
 
 komp_r_03 = Shock_3$simulation$komp_r
+max_dp_03 = Shock_3$simulation$max_dp
 
 ```
+
+
 
 
 
@@ -5012,7 +6655,7 @@ plot(komp_r_03, col= "red"); lines(komp_r_00, col = "blue");
 legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
 grid()
 
-plot(yk_ds_03, col= "red"); lines(yk_ds_00, col = "blue"); 
+plot(yk_ds_03, col= "red", main= "Yk_ds"); lines(yk_ds_00, col = "blue"); 
 legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
 grid()
 
@@ -5042,501 +6685,13 @@ grid()
 
 # The last one doesnt fit the working paper, but fits the model used for this replication
 
-```
 
-
-
-## Scenario 1
-
-
-
-```{r}
-shock_1_model_shock=shock_1_model %>% window(start= c(2014,2))
-```
-
-
-
-
-```{r}
-# Define add-factor list (defining shock)
-constantAdjList <- list(
-  
- shock_1_model = TIMESERIES(shock_1_model_shock+1 ,START=c(2014,2),  FREQ='Q')
- 
-)
-
-```
-
-
-```{r}
-# Simulate the model (following shock)
-Shock_1 <- SIMULATE(S_model
-                    ,simType='DYNAMIC'
-                    ,TSRANGE=c(2006,3,2020,1)
-                    ,simConvergence=0.00001
-                    ,simIterLimit=100
-                    ,ConstantAdjustment=constantAdjList
-                    )
-```
-
-
-
-```{r}
-###Gengivelse af stød til model
-
-yk_ds_01 = Shock_1$simulation$yk_ds
-emp_01 = Shock_1$simulation$emp
-wage_ds_01 = Shock_1$simulation$wage_ds
-ur_ds_01 = Shock_1$simulation$ur_ds
-pc_ds_01 = Shock_1$simulation$pc_ds
-yd_hk_ds_01 = Shock_1$simulation$yd_hk_ds
-pconk_ds_01 = Shock_1$simulation$pconk_ds
-
-
-
-```
-
-
-
-
-```{r}
-
-
-
-plot(yk_ds_01, col= "red"); lines(yk_ds_00, col = "blue"); 
+plot(max_dp_03, col= "red"); lines(max_dp_00, col = "blue");
 legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
 grid()
 
 
-plot(ur_ds_01, col= "red"); lines(ur_ds_00, col = "blue"); 
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-
-plot(wage_ds_01, col= "red"); lines(wage_ds_00, col = "blue");
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-
-plot(pconk_ds_01, col= "red"); lines(pconk_ds_00, col = "blue");
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-plot(pc_ds_01, col= "red"); lines(pc_ds_00, col = "blue");
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-
-plot(yd_hk_ds_01, col= "red"); lines(yd_hk_ds_00, col = "blue");
-legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
-grid()
-
-# The last one doesnt fit the working paper, but fits the model used for this replication
-
 ```
 
 
-
-## Scenario 2
-
-
-
-```{r}
-shock_iloan=iloan %>% window(start= c(2014,4))
-shock_idep=idep %>% window(start= c(2014,4))
-shock_ibd=ibd %>% window(start= c(2014,4))
-shock_iboa=iboa %>% window(start= c(2014,4))
-
-
-# Test
-
-shock_2_model_shock=shock_2_model %>% window(start= c(2014,4))
-```
-
-
-
-
-```{r}
-# Define add-factor list (defining shock)
-constantAdjList_1 <- list(
-  
-  shock_1_model = TIMESERIES(shock_1_model_shock+1 ,START=c(2014,2),  FREQ='Q'),
-  shock_2_model = TIMESERIES(shock_2_model_shock+1 ,START=c(2014,4),  FREQ='Q')
- 
-
-)
-
-```
-
-
-```{r}
-# Simulate the model (following shock)
-Shock_2 <- SIMULATE(S_model
-                    ,simType='DYNAMIC'
-                    ,TSRANGE=c(2006,3,2020,1)
-                    ,simConvergence=0.00001
-                    ,simIterLimit=100
-                    ,ConstantAdjustment=constantAdjList_1
-                    )
-```
-
-
-
-```{r}
-###Gengivelse af stød til model
-
-yk_ds_02 = Shock_2$simulation$yk_ds
-emp_02 = Shock_2$simulation$emp
-wage_ds_02 = Shock_2$simulation$wage_ds
-ur_ds_02 = Shock_2$simulation$ur_ds
-pc_ds_02 = Shock_2$simulation$pc_ds
-yd_hk_ds_02 = Shock_2$simulation$yd_hk_ds
-pconk_ds_02 = Shock_2$simulation$pconk_ds
-
-
-```
-
-
-
-
-
-## Scenario 4
-
-```{r}
-# Test
-
-shock_3_model_shock=shock_3_model %>% window(start= c(2014,4))
-```
-
-
-
-```{r}
-# Define add-factor list (defining shock)
-constantAdjList_3 <- list(
-  
-  
-   shock_1_model = TIMESERIES(shock_1_model_shock+1 ,START=c(2014,2),  FREQ='Q'),
-  shock_3_model = TIMESERIES(shock_3_model_shock+1 ,START=c(2014,4),  FREQ='Q')
- 
-  
-
-)
-
-
-
-```
-
-
-```{r}
-# Simulate the model (following shock)
-Shock_4 <- SIMULATE(S_model
-                    ,simType='DYNAMIC'
-                    ,TSRANGE=c(2006,3,2020,1)
-                    ,simConvergence=0.00001
-                    ,simIterLimit=100
-                    ,ConstantAdjustment=constantAdjList_3
-                    )
-```
-
-
-
-```{r}
-###Gengivelse af stød til model
-
-yk_ds_04 = Shock_4$simulation$yk_ds
-emp_04 = Shock_4$simulation$emp
-wage_ds_04 = Shock_4$simulation$wage_ds
-ur_ds_04 = Shock_4$simulation$ur_ds
-pc_ds_04 = Shock_4$simulation$pc_ds
-yd_hk_ds_04 = Shock_4$simulation$yd_hk_ds
-pconk_ds_04 = Shock_4$simulation$pconk_ds
-yd1_h_04 = Shock_4$simulation$yd1_h
-yh1_04 = Shock_4$simulation$yh1
-
-```
-
-
-```{r}
-plot(yk_ds_01/yk_ds_00, col= "red"); lines(yk_ds_02/yk_ds_00, col = "blue");lines(yk_ds_04/yk_ds_00, col = "green");
-legend("top",legend=c("Import price shock and interest rate shock", "Import price shock, interest rate shock and tax shock", "Import price shock and tax shock"),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue", "green")); 
-grid()
-
-```
-
-
-
-
-
-
-
-
-
-```{r}
-# Test
-
-shock_3_model_shock=shock_3_model %>% window(start= c(2014,4))
-```
-
-
-
-
-
-```{r}
-# Define add-factor list (defining shock)
-constantAdjList_2 <- list(
-  
-  
-   shock_1_model = TIMESERIES(shock_1_model_shock+1 ,START=c(2014,2),  FREQ='Q'),
-  shock_2_model = TIMESERIES(shock_2_model_shock+1 ,START=c(2014,4),  FREQ='Q'),
-  shock_3_model = TIMESERIES(shock_3_model_shock+1 ,START=c(2014,4),  FREQ='Q')
- 
-  
-
-)
-
-
-
-```
-
-
-```{r}
-# Simulate the model (following shock)
-Shock_3 <- SIMULATE(S_model
-                    ,simType='DYNAMIC'
-                    ,TSRANGE=c(2006,3,2020,1)
-                    ,simConvergence=0.00001
-                    ,simIterLimit=100
-                    ,ConstantAdjustment=constantAdjList_2
-                    )
-```
-
-
-
-```{r}
-###Gengivelse af stød til model
-
-yk_ds_03 = Shock_3$simulation$yk_ds
-emp_03 = Shock_3$simulation$emp
-wage_ds_03 = Shock_3$simulation$wage_ds
-ur_ds_03 = Shock_3$simulation$ur_ds
-pc_ds_03 = Shock_3$simulation$pc_ds
-yd_hk_ds_03 = Shock_3$simulation$yd_hk_ds
-pconk_ds_03 = Shock_3$simulation$pconk_ds
-yd1_h_03 = Shock_3$simulation$yd1_h
-yh1_03 = Shock_3$simulation$yh1
-
-
-
-#Shocks
-
-tax_rate1_03 = Shock_3$simulation$tax_rate1
-pf_03 = Shock_3$simulation$pf
-pm_ds_03 = Shock_3$simulation$pm_ds
-idep_03 = Shock_3$simulation$idep
-ibd_03 = Shock_3$simulation$ibd
-iboa_03 = Shock_3$simulation$iboa
-iloan_03 = Shock_3$simulation$iloan
-
-
-
-
-plot(tax_rate1_03)
-plot(pf_03 - pf)
-plot(pm_ds_03 - pm_ds)
-plot(idep_03 - idep)
-plot(iboa_03 - iboa_00)
-plot(iloan_03- iloan_00)
-
-
-```
-
-
-```{r}
-plot(yk_ds_02, col= "red"); lines(yk_ds_03, col = "blue");
-legend("top",legend=c("Import price shock and interest rate shock", "Import price shock, interest rate shock and tax shock"),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue")); 
-grid()
-
-```
-
-
-```{r}
-
-plot(yk_ds_00, col= "red"); lines(yk_ds_01, col = "blue"); lines(yk_ds_02, col = "green"); lines(yk_ds_03, col = "orange");
-legend("top",legend=c("Baseline", "Scenario 1", "Scenario 2", "Scenario 3" ),lty=c(1),lwd=c(2),bty="n", col = c("red", "blue", "green", "orange")); 
-grid()
-
-```
-
-#Empirical testing
-
-```{r}
-library(dynlm)
-library(urca)
-library(forecast)
-library(car)
-```
-
-## ADF testing
-
-### Part
-
-Slettet alt indledende for mere plads
-
-```{r}
-urca_part= ur.df(part, lags = 2, type = "drift")
-summary(urca_part)
-```
-
-Ser ud til vi skal tage diff
-
-```{r}
-urca_part_diff= ur.df(diff(part), lags = 1, type = "drift")
-
-summary(urca_part_diff)
-```
-
-part is I(1)
-
-### Komp_r
-
-```{r}
-model_start_komp <- dynlm(diff(komp_r_obs) ~ 1+ L(komp_r_obs, 1) + L(diff(komp_r_obs), c(1,2,3,4)))
-summary(model_start_komp)
-```
-
-```{r}
-res_start_komp= residuals(model_start_komp)
-shapiro.test(res_start_komp)
-```
-
-```{r}
-urca_komp_r= ur.df(komp_r_obs, lags = 4, type = "drift")
-summary(urca_komp_r)
-```
-
-Ser ud til vi skal tage diff
-
-```{r}
-urca_komp_r_diff= ur.df(diff(komp_r_obs), lags = 3, type = "drift")
-
-summary(urca_komp_r_diff)
-```
-
-Ser ud til komp_r er I(0) på 10% significans niveau, meget tæt på 5%
-
-## Econometrics models:
-
-## Error correction model
-
-### part
-
-```{r}
-reg_part_start=dynlm(TSDELTALOG(part) ~ 1 + L(TSDELTALOG(part),1:4) +  L(TSDELTALOG(komp_r_obs),0:4)+  L(TSDELTALOG(rw_ds),0:4) + L(TSDELTA(ur_ds),0:4)+ L(log(part),1) + L(log(komp_r_obs),1) + L(log(rw_ds),1) + L((ur_ds),1) + d_2013q4)
-
-summary(reg_part_start)
-```
-
-```{r}
-res_reg_part=residuals(reg_part_start)
-shapiro.test(res_reg_part)
-```
-
-Use F-es to remove lags
-
-```{r}
- komp_r_vars_1 <- str_c("L(TSDELTALOG(komp_r_obs), 0:4)", c(1,2,4))
- part_vars_1 <- str_c("L(TSDELTALOG(part), 1:4)", c(1,3,4))
- rw_ds_vars_1 <- str_c("L(TSDELTALOG(rw_ds), 0:4)", c(0,2,3,4))
- ur_ds_vars_1 <- str_c("L(TSDELTA(ur_ds), 0:4)", c(0,1,2,3,4))
-```
-
-```{r}
-
-
-vars_out_1 <- c(komp_r_vars_1,part_vars_1, rw_ds_vars_1,ur_ds_vars_1)
-vars_out_1
- 
-linearHypothesis(reg_part_start, vars_out_1, rep(0, length(vars_out_1)))
-
-```
-
-Final model
-
-```{r}
-reg_part=dynlm(TSDELTALOG(part) ~ 1 + L(TSDELTALOG(part),2) +  L(TSDELTALOG(komp_r_obs),c(0,3))+  L(TSDELTALOG(rw_ds),1) + L(log(part),1) + L(log(rw_ds),1) + L((ur_ds),1) + d_2013q4)
-
-summary(reg_part)
-```
-
-
-```{r}
-"TSDELTALOG(part) = beta_0 + beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(TSLAG(rw_ds,1)) + beta_3*TSDELTALOG(komp_r) + beta_4*TSDELTALOG(TSLAG(komp_r,3))  + beta_6*LOG(TSLAG(part,1))  + beta_7*log(TSLAG(rw_ds,1)) + beta_8*TSLAG(ur_ds,1) + beta_9* d_2013q4"
-```
-
-
-### wage_ds
-
-```{r}
-"COMMENT> 
-BEHAVIORAL> wage_ds
-TSRANGE 2006 3 2020 1
-EQ> TSDELTALOG(wage_ds) = p_520 + p_522* TSDELTA(TSLAG(ur,4)) + p_523* TSDELTALOG(prod_ds) + p_524* LOG(TSLAG(wage_ds,1)) + p_525* LOG(TSLAG(wage_ds_t,1)) + p_526* LOG(TSLAG(prod_ds,1)) + p_527* (d_2009q1 + d_2009q2)
-COEFF> p_520 p_522 p_523 p_524 p_525 p_526 p_527 
-STORE> coe(20)"
-```
-
-
-
-```{r}
-reg_wage_ds_start=dynlm(TSDELTALOG(wage_ds) ~ 1+ L(TSDELTA(wage_ds), 1:4) + L(TSDELTA(ur), 0:4)+ L(TSDELTALOG(prod_ds), 0:4)+ L(TSDELTALOG(obs_dp_q), 0:4)+  L(log(wage_ds_t), 1)  + log(TSLAG(wage_ds,1))+ log(TSLAG(obs_dp_q,1))  + log(TSLAG(prod_ds,1)) +  test_dummy)
-
-summary(reg_wage_ds_start)
-
-test_dummy= d_2009q1 + d_2009q2 
-
-```
-
-```{r}
-res_reg_wage_ds=residuals(reg_wage_ds_start)
-shapiro.test(res_reg_wage_ds)
-```
-
-Use F-test to remove lags
-
-```{r}
-
- wage_ds_vars_1 <- str_c("L(TSDELTA(wage_ds), 1:4)", c(1,2,3,4))
- ur_ds_vars_1 <- str_c("L(TSDELTA(ur), 0:4)", c(0,2,3,4))
- komp_r_vars_1 <- str_c("L(TSDELTALOG(obs_dp_q), 0:4)", c(2,3,4))
- prodk_ds_vars_1 <- str_c("L(TSDELTALOG(prod_ds), 0:4)", c(1,2,3))
- 
-```
-
-```{r}
-library(car)
-
-vars_out_1 <- c(komp_r_vars_1, wage_ds_vars_1,ur_ds_vars_1,prodk_ds_vars_1 )
-vars_out_1
- 
-linearHypothesis(reg_wage_ds_start, vars_out_1, rep(0, length(vars_out_1)))
-
-```
-
-Final model
-
-```{r}
-reg_wage_ds=dynlm(TSDELTALOG(wage_ds) ~ 1 + TSDELTA(TSLAG(ur,4)) + TSDELTALOG(prod_ds)+  log(TSLAG(wage_ds,1))  + log(TSLAG(wage_ds_t,1))  + log(TSLAG(prod_ds,1))+ d_2009q1 + d_2009q2)
-
-### Når jeg bare inkludere den som lr i modellen er den signifikant!
-
-
-summary(reg_wage_ds)
-
-```
-
-```{r}
-"EQ> TSDELTALOG(rw_ds) = p_521*TSDELTALOG(TSLAG(rw_ds,1)) + p_522*TSDELTALOG(TSLAG(rw_ds,2))+ p_523*TSDELTALOG(TSLAG(rw_ds,3)) + p_524*TSDELTALOG(komp_r) + p_525*TSDELTALOG(TSLAG(komp_r,1)) + p_526*TSDELTALOG(TSLAG(komp_r,2)) + p_527*TSDELTALOG(TSLAG(komp_r,3))+  p_528*TSDELTALOG(prodk_ds) + p_529*LOG(TSLAG(rw_ds,1)) + p_530*TSLAG(ur_ds,2) + p_531*LOG(TSLAG(prodk_ds,2)) + p_532*d_2011q1
-COEFF> phi p_521 p_522 p_523 p_524 p_525 p_526 p_527 p_528 p_529 p_530 p_531 p_532
-STORE> coe(13)"
-```
 

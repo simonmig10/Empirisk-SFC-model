@@ -1321,7 +1321,7 @@ tydd_q= tydd/4
 
 ```{r, fig.width=10, fig.height=7}
 
-w_h_r_trim1 = w_h_r - abm
+w_h_r_trim1 = w_h_r
 wage_trim1 = w_h_r_trim1/emp
 ## Deseasonalize
 
@@ -1700,7 +1700,7 @@ EQ>  wage_trim = w_h_r_trim/emp
 
 COMMENT> tilføjet
 IDENTITY> w_h_r_trim
-EQ>  w_h_r_trim = w_h_r-abm
+EQ>  w_h_r_trim = w_h_r
 
 
 COMMENT> tilføjet
@@ -2734,8 +2734,8 @@ EQ> mkp = pc_ds / (wage_ds/prodk_ds + pm_ds)
 COMMENT> 
 BEHAVIORAL> wage_ds
 TSRANGE 2006 3 2020 1
-EQ> TSDELTALOG(wage_ds) = p_520 + p_522* TSDELTA(TSLAG(ur,4)) + p_523* TSDELTALOG(prod_ds) + p_524* LOG(TSLAG(wage_ds,1)) + p_525* LOG(TSLAG(wage_ds_t,1)) + p_526* LOG(TSLAG(prod_ds,1)) + p_528*LOG(TSLAG(max_dp,1)) + p_527 * (d_2009q1 + d_2009q2)
-COEFF> p_520 p_522 p_523 p_524 p_525 p_526 p_528 p_527
+EQ> TSDELTALOG(wage_ds) = p_522* TSDELTA(TSLAG(ur,4)) + p_523* TSDELTALOG(prod_ds) + p_max* TSDELTALOG(TSLAG(max_dp,1))  + p_524* LOG(TSLAG(wage_ds,1)) + p_525* LOG(TSLAG(wage_ds_t,1)) + p_526* LOG(TSLAG(prod_ds,1))  + p_527 * (d_2009q1 + d_2009q2)
+COEFF> p_522 p_523 p_max p_524 p_525 p_526 p_527
 STORE> coe(20)
 
 COMMENT> 
@@ -2846,8 +2846,8 @@ EQ> check_sec = sec_h + sec_f_a + sec_f_d + sec_nf + sec_g + sec_row
 COMMENT> Endogonize partitipation rate
 BEHAVIORAL> part
 TSRANGE 2006 2 2020 1
-EQ> TSDELTALOG(part) = beta_0 + beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(TSLAG(rw_ds,1)) + beta_3*TSDELTALOG(komp_r) + beta_4*TSDELTALOG(TSLAG(komp_r,3)) + beta_5*TSDELTA(ur_ds) + beta_6*LOG(TSLAG(part,1))  + beta_7*log(TSLAG(rw_ds,1)) + beta_8*TSLAG(ur_ds,1) + beta_9* d_2013q4
-COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_5 beta_6 beta_7 beta_8 beta_9
+EQ> TSDELTALOG(part) = beta_0 + beta_1*TSDELTALOG(TSLAG(part,2)) + beta_2*TSDELTALOG(TSLAG(rw_ds,1)) + beta_3*TSDELTALOG(komp_r) + beta_4*TSDELTALOG(TSLAG(komp_r,3))  + beta_6*LOG(TSLAG(part,1))  + beta_7*log(TSLAG(rw_ds,1)) + beta_8*TSLAG(ur_ds,1) + beta_9* d_2013q4
+COEFF> beta_0 beta_1 beta_2 beta_3 beta_4 beta_6 beta_7 beta_8 beta_9
 STORE> coe(16)
 
 
@@ -5076,6 +5076,8 @@ max_dp_04 = Shock_4$simulation$max_dp
 
 wage_04 = Shock_4$simulation$wage
 
+komp_r_04 = Shock_4$simulation$komp_r
+part_04 = Shock_4$simulation$part
 
 
 
@@ -5087,7 +5089,17 @@ legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col
 grid()
 
 
-plot(wage_00, col= "red"); lines(wage, col = "blue"); 
+plot(wage_04, col= "red"); lines(wage_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(komp_r_04, col= "red"); lines(komp_r_00, col = "blue"); 
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
+grid()
+
+
+plot(part_04, col= "red"); lines(part_00, col = "blue"); 
 legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red")); 
 grid()
 ```
