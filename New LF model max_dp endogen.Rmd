@@ -5147,6 +5147,8 @@ max_dp_03 = Shock_3$simulation$max_dp
 
 
 
+
+
 ```{r}
 
 plot(komp_r_03, col= "red"); lines(komp_r_00, col = "blue"); 
