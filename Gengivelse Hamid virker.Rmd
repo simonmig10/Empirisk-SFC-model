@@ -1350,7 +1350,7 @@ propinc_r_nf = int_r_nf + div_r_nf + ins_r_nf + res_r_nf
 
 
 ## Creating the new shock variables 
-g_shock= g
+
 prodk_ds_shock = prodk_ds
 
 ## Shock_1
@@ -1367,8 +1367,15 @@ iboa_shock= iboa + 0.03
 
 tax_rate1_shock= ts(c(0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369,0.369369), start = c(2005, 2), end =  c(2020,1), frequency = 4)
 
+
+## shock g
+g_shock= g*1.02
+
+
 #### Shock variables 
 
+
+shock_g_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_1_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_2_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 shock_3_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
@@ -1380,7 +1387,7 @@ shock_3_model=ts(0,start = c(2005,2), end = c(2020,1), frequency = 4)
 
 
 
-
+## txt file
 
 ```{r}
 
@@ -2741,10 +2748,6 @@ COMMENT>
 IDENTITY> check_sec
 EQ> check_sec = sec_h + sec_f_a + sec_f_d + sec_nf + sec_g + sec_row
 
-COMMENT> Lavet for at kunne støde til g 
-IDENTITY> g
-EQ> g = g_shock
-
 
 COMMENT> Capital Stock with switches
 IDENTITY> pf
@@ -2801,6 +2804,21 @@ IF> shock_3_model <= 0
 IDENTITY> tax_rate1
 EQ> tax_rate1 = tax_rate1_shock
 IF> shock_3_model > 0
+
+
+COMMENT> Capital Stock with switches
+IDENTITY> g
+EQ> g = g*1
+IF> shock_g_model <= 0
+IDENTITY> g
+EQ> g = g_shock
+IF> shock_g_model > 0
+
+
+
+COMMENT> Lavet for at kunne støde til g 
+IDENTITY> shock_g_model
+EQ> shock_g_model = shock_g_model*1
 
 
 COMMENT> Lavet for at kunne støde til g 
@@ -4419,13 +4437,15 @@ S_modelData=list(
   
   ## Test
   tax_rate1_shock  = TIMESERIES(c(tax_rate1_shock ),   
-                           START=c(2005,3),FREQ=4),
+                           START=c(2005,2),FREQ=4),
   shock_1_model  = TIMESERIES(c(shock_1_model ),   
-                           START=c(2005,3),FREQ=4),
+                           START=c(2005,2),FREQ=4),
   shock_2_model  = TIMESERIES(c(shock_2_model ),   
-                           START=c(2005,3),FREQ=4),
+                           START=c(2005,2),FREQ=4),
   shock_3_model  = TIMESERIES(c(shock_3_model ),   
-                           START=c(2005,3),FREQ=4)
+                           START=c(2005,2),FREQ=4),
+  shock_g_model  = TIMESERIES(c(shock_g_model),   
+                           START=c(2005,2),FREQ=4)
   
 )
 ```
@@ -4452,7 +4472,7 @@ S_model=ESTIMATE(S_model
 ```{r}
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
-                    ,simType='RESCHECK'
+                    ,simType='DYNAMIC'
                     ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
@@ -4479,7 +4499,7 @@ iboa_00 = S_model$simulation$iboa
 pf_00 = S_model$simulation$pf
 
 yd1_h_00 = S_model$simulation$yd1_h
-plot(tax_rate1_00)
+g_00 = S_model$simulation$g
 
 
 ```
@@ -4531,13 +4551,6 @@ increase in public expenditure from 2010
 
 
 ```{r}
-shock_g=g %>% window(start= c(2010,1))
-shock_pf=pf %>% window(start= c(2014,2))
-shock_pm_ds=pm_ds %>% window(start= c(2014,2))
-
-
-# TEst
-
 shock_1_model_shock=shock_1_model %>% window(start= c(2014,2))
 ```
 
@@ -4684,16 +4697,68 @@ pconk_ds_02 = Shock_2$simulation$pconk_ds
 ```
 
 
+## Scenario 3
+
 
 
 ```{r}
+shock_g_model_shock=shock_g_model %>% window(start= c(2014,4))
+```
 
 
 
-plot(yk_ds_02, col= "red"); lines(yk_ds_01, col = "blue"); lines(yk_ds_00, col = "green");
-legend("top",legend=c("Baseline", "Scenario 1", "Scenario 2"),lty=c(1,1),lwd=c(2),bty="n", col = c("blue", "red", "green")); 
+
+```{r}
+# Define add-factor list (defining shock)
+constantAdjList_g <- list(
+  
+  shock_g_model = TIMESERIES(shock_g_model_shock+1 ,START=c(2014,4),  FREQ='Q')
+ 
+
+)
+
+```
+
+
+```{r}
+# Simulate the model (following shock)
+Shock_03 <- SIMULATE(S_model
+                    ,simType='DYNAMIC'
+                    ,TSRANGE=c(2006,3,2020,1)
+                    ,simConvergence=0.00001
+                    ,simIterLimit=100
+                    ,ConstantAdjustment=constantAdjList_g
+                    )
+```
+
+
+
+```{r}
+###Gengivelse af stød til model
+
+yk_ds_03 = Shock_03$simulation$yk_ds
+emp_03 = Shock_03$simulation$emp
+wage_ds_03 = Shock_03$simulation$wage_ds
+ur_ds_03 = Shock_03$simulation$ur_ds
+pc_ds_03 = Shock_03$simulation$pc_ds
+yd_hk_ds_03 = Shock_03$simulation$yd_hk_ds
+pconk_ds_03 = Shock_03$simulation$pconk_ds
+shock_g_model_03 = Shock_03$simulation$shock_g_model
+g_03 = Shock_03$simulation$g
+```
+
+
+
+
+```{r}
+plot(yk_ds_03, col= "red"); lines(yk_ds_00, col = "blue");
+legend("top",legend=c("Baseline", "Scenario 1"),lty=c(1,1),lwd=c(2),bty="n", col = c("red", "blue")); 
 grid()
 
+
+plot(g_03, col= "red"); lines(g_00, col = "blue");
+legend("top",legend=c("Scenario 1", "Baseline"),lty=c(1,1),lwd=c(2),bty="n", col = c("red", "blue")); 
+grid()
 ```
 
 
