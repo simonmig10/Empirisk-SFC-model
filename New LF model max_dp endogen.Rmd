@@ -1447,21 +1447,42 @@ IDENTITY> tax_rate1
 EQ> tax_rate1 = tax_rate1_shock
 IF> shock_3_model > 0
 
+
+
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> stat_tilpas
-EQ> stat_tilpas = SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3)
-IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) < 0
+EQ> stat_tilpas = tilpas_pr
+IF> tilpas_pr < 0 & SD1 >= 1
 IDENTITY> stat_tilpas
 EQ> stat_tilpas = 0
-IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) >=0 & SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) <=0.003
+IF> tilpas_pr >= 0 & tilpas_pr <=0.003 & SD1 >= 1
 IDENTITY> stat_tilpas
-EQ> stat_tilpas = SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) - 0.003
-IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) >=0.003
+EQ> stat_tilpas = tilpas_pr - 0.003
+IF> tilpas_pr >=0.003 & SD1 >= 1
+IDENTITY> stat_tilpas
+EQ> stat_tilpas = TSLAG(stat_tilpas,1)
+IF>  SD2 >= 1
+IDENTITY> stat_tilpas
+EQ> stat_tilpas = TSLAG(stat_tilpas,2)
+IF>  SD3 >= 1
+IDENTITY> stat_tilpas
+EQ> stat_tilpas = TSLAG(stat_tilpas,3)
+IF>  SD4 >= 1
 
 
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> tilpas_pr
 EQ> tilpas_pr = TSDELTA(TSLAG(wage,8),4)/TSLAG(wage,12) - 0.02
+IF>  SD1 >= 1
+IDENTITY> tilpas_pr
+EQ> tilpas_pr = TSLAG(tilpas_pr,1)
+IF>  SD2 >= 1
+IDENTITY> tilpas_pr
+EQ> tilpas_pr = TSLAG(tilpas_pr,2)
+IF>  SD3 >= 1
+IDENTITY> tilpas_pr
+EQ> tilpas_pr = TSLAG(tilpas_pr,3)
+IF>  SD4 >= 1
 
 
 COMMENT> Pricing Nexus
@@ -4609,7 +4630,7 @@ S_model=ESTIMATE(S_model
 # In-sample prediction (no add factors)
 S_model <- SIMULATE(S_model
                     ,simType='DYNAMIC'
-                    ,TSRANGE=c(2007,1,2020,1)
+                    ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
                    )
@@ -4978,6 +4999,10 @@ npropinc_h_00 = S_model$simulation$npropinc_h
 # Tjek
 
 ```{r}
+plot(tilpas_pr_00, col= "green"); lines(tilpas_pr, col = "blue"); 
+legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
+grid()
+
 plot(wage_trim_00, col= "green"); lines(wage_trim1, col = "blue"); 
 legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid()
@@ -4987,7 +5012,7 @@ legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col 
 grid()
 
 
-plot(stat_tilpas_00, col= "green", ylim= c(-0.03,0.03)); lines(stat_tilpas, col = "blue"); 
+plot(stat_tilpas_00, col= "green", ylim= c(-0.03,0.05)); lines(stat_tilpas, col = "blue"); 
 legend("top",legend=c("Baseline", "Real data"),lty=c(1,1),lwd=c(2),bty="n", col = c("green", "blue"));
 grid()
 
@@ -5060,7 +5085,7 @@ constantAdjList <- list(
 # Simulate the model (following shock)
 Shock_4 <- SIMULATE(S_model
                     ,simType='DYNAMIC'
-                    ,TSRANGE=c(2007,1,2020,1)
+                    ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
                     ,ConstantAdjustment=constantAdjList
@@ -5131,7 +5156,7 @@ constantAdjList3 <- list(
 # Simulate the model (following shock)
 Shock_3 <- SIMULATE(S_model
                     ,simType='DYNAMIC'
-                    ,TSRANGE=c(2007,1,2020,1)
+                    ,TSRANGE=c(2006,3,2020,1)
                     ,simConvergence=0.00001
                     ,simIterLimit=100
                     ,ConstantAdjustment=constantAdjList3

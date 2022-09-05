@@ -1449,14 +1449,23 @@ IF> shock_3_model > 0
 
 COMMENT> Lavet for at kunne støde til g 
 IDENTITY> stat_tilpas
-EQ> stat_tilpas = SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3)
-IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) < 0
+EQ> stat_tilpas = tilpas_pr
+IF> tilpas_pr < 0 & SD1 >= 1
 IDENTITY> stat_tilpas
 EQ> stat_tilpas = 0
-IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) >=0 & SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) <=0.003
+IF> tilpas_pr >= 0 & tilpas_pr <=0.003 & SD1 >= 1
 IDENTITY> stat_tilpas
-EQ> stat_tilpas = SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) - 0.003
-IF> SD1*tilpas_pr + SD2*TSLAG(tilpas_pr,1) + SD3*TSLAG(tilpas_pr,2) + SD4*TSLAG(tilpas_pr,3) >=0.003
+EQ> stat_tilpas = tilpas_pr - 0.003
+IF> tilpas_pr >=0.003 & SD1 >= 1
+IDENTITY> stat_tilpas
+EQ> stat_tilpas = TSLAG(stat_tilpas,1)
+IF>  SD2 >= 1
+IDENTITY> stat_tilpas
+EQ> stat_tilpas = TSLAG(stat_tilpas,2)
+IF>  SD3 >= 1
+IDENTITY> stat_tilpas
+EQ> stat_tilpas = TSLAG(stat_tilpas,3)
+IF>  SD4 >= 1
 
 
 COMMENT> Lavet for at kunne støde til g 
