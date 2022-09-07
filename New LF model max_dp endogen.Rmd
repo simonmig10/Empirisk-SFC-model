@@ -4642,10 +4642,10 @@ wage_trim_00 = S_model$simulation$wage_trim
 dp_person_00 = S_model$simulation$dp_person
 max_dp_00 = S_model$simulation$max_dp
 stat_tilpas_00 = S_model$simulation$stat_tilpas
-
 stat_reg_00= S_model$simulation$stat_tilpas
-
 tilpas_pr_00 = S_model$simulation$tilpas_pr
+
+
 
 part_00 = S_model$simulation$part
 lf_00 = S_model$simulation$lf
@@ -5098,9 +5098,7 @@ Shock_4 <- SIMULATE(S_model
 ###Gengivelse af stød til model
 
 max_dp_04 = Shock_4$simulation$max_dp
-
 wage_04 = Shock_4$simulation$wage
-
 komp_r_04 = Shock_4$simulation$komp_r
 part_04 = Shock_4$simulation$part
 
