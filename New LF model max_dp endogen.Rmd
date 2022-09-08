@@ -5117,7 +5117,7 @@ grid()
 
 
 ```{r}
-shock_max_dp_model_shock=shock_max_dp_model %>% window(start= c(2010,1))
+shock_max_dp_model_shock=shock_max_dp_model %>% window(start= c(2006,3))
 ```
 
 
@@ -5127,7 +5127,7 @@ shock_max_dp_model_shock=shock_max_dp_model %>% window(start= c(2010,1))
 # Define add-factor list (defining shock)
 constantAdjList <- list(
   
- shock_max_dp_model = TIMESERIES(shock_max_dp_model_shock+1 ,START=c(2010,1),  FREQ='Q')
+ shock_max_dp_model = TIMESERIES(shock_max_dp_model_shock+1 ,START=c(2006,3),  FREQ='Q')
  
 )
 
