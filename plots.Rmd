@@ -1,0 +1,35 @@
+---
+title: "Plots til projekt"
+author: "Simon"
+date: "11/9/2022"
+output: html_document
+---
+
+
+```{r}
+rm(list = ls())
+
+library(tstools)
+library(readxl)
+library(tidyverse)
+```
+
+```{r}
+plot_varialbe <- read_excel("plot varialbe.xlsx")
+```
+
+```{r}
+btyd= ts(plot_varialbe$btyd, start= c(1991,1), frequency = 1)
+
+```
+
+
+# Plots
+
+Udvikling i kompensationsraten (ADAMs databank)
+
+```{r}
+plot(btyd,type="l",lty=1,lwd=1,xlab="Year",
+ylab="Compensation rate",col="black",main="Compensation rate (1991-2020)",sub="Kilde:ADAM's databank"); grid()
+```
+
