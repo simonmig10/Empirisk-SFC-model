@@ -7,19 +7,22 @@ output: html_document
 
 
 ```{r}
-rm(list = ls())
+#rm(list = ls())
 
 library(tstools)
 library(readxl)
 library(tidyverse)
+library(bimets)
 ```
 
 ```{r}
 plot_varialbe <- read_excel("plot varialbe.xlsx")
+komp_r <- read_excel("komp_r.xlsx")
 ```
 
 ```{r}
-btyd= ts(plot_varialbe$btyd, start= c(1991,1), frequency = 1)
+btyd= ts(plot_varialbe$btyd, start= c(1991,1), end = c(2018,1), frequency = 1)
+lnahk= ts(plot_varialbe$lnahk, start= c(1991,1), end = c(2018,1), frequency = 1)
 
 ```
 
@@ -30,6 +33,21 @@ Udvikling i kompensationsraten (ADAMs databank)
 
 ```{r}
 plot(btyd,type="l",lty=1,lwd=1,xlab="Year",
-ylab="Compensation rate",col="black",main="Compensation rate (1991-2020)",sub="Kilde:ADAM's databank"); grid()
+ylab="Compensation rate",col="black",main="Compensation rate (1991-2018)",sub="Source:ADAM's databank"); grid()
+```
+
+
+
+Udvikling i Gennemsnitlig timeløn i industrien ADAM
+
+```{r}
+plot(lnahk,type="l",lty=1,lwd=1,xlab="Year",
+ylab="Yearly wages",col="black",main="Yearly wage (1991-2018)",sub="Kilde:ADAM's databank"); grid()
+```
+
+
+```{r}
+plot(TSDELTALOG(lnahk)*100,type="l",lty=1,lwd=1,xlab="Year",
+ylab="% Change in Yearly wages",col="black",main="Change in Yearly wage (1991-2018)",sub="Source:ADAM's databank"); grid()
 ```
 
